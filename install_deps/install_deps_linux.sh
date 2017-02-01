@@ -24,7 +24,7 @@ git submodule update --init --recursive
 # Update package manager indices to latest available.
 sudo apt-get update
 
-sudo apt-get install build-essential
+sudo apt-get install build-essential cppcheck -y
 
 # CMake is needed to actually build the system
 sudo apt-get install cmake -y
