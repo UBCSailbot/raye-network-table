@@ -1,13 +1,15 @@
-#ifndef EXAMPLETEST_H
-#define EXAMPLETEST_H
+// Copyright 2017 UBC Sailbot
 
-#include <gtest/gtest.h>
+#ifndef EXAMPLE_EXAMPLETEST_H_
+#define EXAMPLE_EXAMPLETEST_H_
+
 #include <example/Example.h>
+#include <gtest/gtest.h>
 
-class ExampleTest : public ::testing::Test  {
+class ExampleTest : public ::testing::Test {
  protected:
   ExampleTest();
   Example example;
 };
 
-#endif  // EXAMPLETEST_H
+#endif  // EXAMPLE_EXAMPLETEST_H_
