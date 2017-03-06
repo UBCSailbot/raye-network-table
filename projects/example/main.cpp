@@ -3,7 +3,7 @@
 #include <iostream>
 #include <example/Example.h>
 
-int main(int argc, char **argv) {
+int main(int, char *[]) {
   Example example;
   std::cout << example.add(2, 2) << std::endl;
 }
