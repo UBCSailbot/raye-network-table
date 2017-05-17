@@ -34,5 +34,3 @@ brew install cmake
 
 INSTALL_DEPS_DIRECTORY=${BASH_SOURCE%/*}
 LIB_DIRECTORY=${INSTALL_DEPS_DIRECTORY}/../lib
-
-${LIB_DIRECTORY}/protofiles/scripts/install_deps_osx.sh
