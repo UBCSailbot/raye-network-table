@@ -1,2 +1,1 @@
-add_subdirectory(example)
-add_subdirectory(utilities)
+add_subdirectory(network-table)
