@@ -33,8 +33,8 @@ ${SRC_DIRECTORY} &>> ${CPPCHECK_FILE}
 # Common projects dir
 PROJECTS_DIRECTORY=${WORKSPACE_DIRECTORY}/projects
 
-# Run CPP check on viewer
-VIEWER_DIRECTORY=${PROJECTS_DIRECTORY}/example
+# Run CPP check on network-table
+VIEWER_DIRECTORY=${PROJECTS_DIRECTORY}/network-table
 
 cppcheck ${CPPCHECK_ARGS} \
 -I ${VIEWER_DIRECTORY} \

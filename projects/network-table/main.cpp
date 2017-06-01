@@ -1,7 +1,8 @@
 // Copyright 2017 UBC Sailbot
 
-#include <SimpleAmqpClient/SimpleAmqpClient.h>
+#include "network-table.h"
 
-int main(){
-    AmqpClient::Channel::ptr_t connection = AmqpClient::Channel::Create("localhost");
+int main() {
+    NetworkTable networkTable;
+    networkTable.Run();
 }

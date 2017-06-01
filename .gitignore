@@ -3,6 +3,7 @@ cmake-build-debug
 data
 extra
 *.pyc
+.local.vimrc
 
 # JetBrains IDEs
 .idea
