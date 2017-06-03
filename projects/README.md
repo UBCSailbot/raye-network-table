@@ -4,11 +4,10 @@
 ## Production targets
 These targets are for production code.
 
-### Example
-> Example description.
-> Read more [here](example/README.md).
+## Network Table
 
-## Utilities
-Utility targets used for debugging and testing.
+A communication hub that runs on central controller on Ada 2.0.  
+Receives updates on sensor data (from GPS, wind sensors, etc), allows other modules to connect
+to the network table using pub/sub or request/reply via the rabbitMQ message broker.
 
-See [here](utilities/README.md) for a complete list.
+See [here](network-table/README.md) for more infot.

@@ -1,14 +1,11 @@
-# Network Table
+# Central Controller
 
-A communication hub that runs on central controller on Ada 2.0.  
-Receives updates on sensor data (from GPS, wind sensors, etc), allows other modules to connect
-to the network table using pub/sub or request/reply via the rabbitMQ message broker.
+This is a collection of processes which will run on the main computer in Ada 2.0.
 
 ## Setup
 
 ### Initial Setup
 Before you can build the project, you first need to install the dependencies.
-
 
 #### Option 1 (Recommended)
 For UNIX, a handy install script is provided at the top level.
