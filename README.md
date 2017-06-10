@@ -17,9 +17,6 @@ This works for both macOS and Debian users.
 
 1.  [Buy a Mac](http://store.apple.com)
 2.  `./install_deps/install_deps_osx.sh`
-3. This repo also requires rabbitmq to work, install it.  
-   On linux the relevant install command is  
-   `sudo apt-get install librabbitmq-dev`
 
 Depending on your env you may run into permission issues. Here's how to fix them:
 ```bash

@@ -1,28 +1,27 @@
 // Copyright 2017 UBC Sailbot
 
-#include <boost/algorithm/string.hpp>
+#include <string>
 #include <iostream>
-#include <SimpleAmqpClient/SimpleAmqpClient.h>
+#include <boost/algorithm/string.hpp>
+#include <zmq.hpp>
 
 #include "network-table.h"
 
-using AmqpClient::BasicMessage;
-using AmqpClient::Channel;
-using AmqpClient::Envelope;
-
 void NetworkTable::Run() {
-    Channel::ptr_t channel = Channel::Create("localhost");
-    channel->DeclareQueue("alex", false, false, false);
+    //  Prepare our context and socket
+	std::string address;
+    zmq::context_t context(1);
+    zmq::socket_t socket(context, ZMQ_REP);
+    socket.bind("tcp://*:5555");    
 
-    std::string consumer_tag = channel->BasicConsume("alex");
-    Envelope::ptr_t envelope;
-
-    std::cout << "Begin receiving messages..." << std::endl;
+	std::cout << "Starting network table..." << std::endl;
     while (true) {
-        // Receive any new messages:
-        envelope = channel->BasicConsumeMessage(consumer_tag);
-        std::string message = envelope->Message()->Body();
-        std::cout << "Received message: " << message << std::endl;
+        zmq::message_t request;
+
+        //  Wait for next request from client
+        socket.recv (&request);
+        std::string message = static_cast<char*>(request.data());
+        std::cout << "Received message " << message << std::endl;
 
         // Split the message into components:
         std::vector<std::string> message_parts;
@@ -33,14 +32,11 @@ void NetworkTable::Run() {
             std::string key = message_parts.at(1);
 
             if (action.compare("GET") == 0) {
-                std::string correlation_id = envelope->Message()->CorrelationId();
-                std::string reply_to = envelope->Message()->ReplyTo();
-
+				//TODO(alexmac): check for missing entry
                 std::string reply_body = table_[key];
-                BasicMessage::ptr_t reply_message = BasicMessage::Create(reply_body);
-                reply_message->CorrelationId(correlation_id);
-
-                channel->BasicPublish("", reply_to, reply_message);
+		        zmq::message_t reply(reply_body.size()+1);
+				memcpy(reply.data(), reply_body.c_str(), reply_body.size()+1);
+				socket.send(reply);
             }
         } else if (message_parts.size() == 3) {
             std::string action = message_parts.at(0);
@@ -49,9 +45,13 @@ void NetworkTable::Run() {
 
             if (action.compare("SET") == 0) {
                 table_[key] = value;
+
+        		//  Send reply back to client
+				std::string reply_body("success");
+        		zmq::message_t reply(reply_body.size()+1);
+        		memcpy(reply.data(), reply_body.c_str(), reply_body.size()+1);
+        		socket.send(reply);
             }
-        } else {
-            std::cout << "Ignoring invalid message: " << message << std::endl;
-        }
+        } 
     }
 }

@@ -17,10 +17,6 @@ set -e
 #   has your private key loaded. For reference, see e.g.
 #   https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent/
 #
-# IMPORTANT NOTE (May 31, 2017)
-# This repo also requires rabbitmq to work, on linux the relevant install command is
-# sudo apt-get install librabbitmq-dev
-#
 # You need to do the OSX equivalent of the above
 #
 
@@ -37,6 +33,7 @@ brew update
 brew upgrade
 brew install cppcheck
 brew install cmake
+brew install zmq
 
 INSTALL_DEPS_DIRECTORY=${BASH_SOURCE%/*}
 LIB_DIRECTORY=${INSTALL_DEPS_DIRECTORY}/../lib

@@ -29,8 +29,8 @@ sudo apt-get install build-essential cppcheck -y
 # CMake is needed to actually build the system
 sudo apt-get install cmake -y
 
-# Get RabbitMQ (runs communication for this module)
-sudo apt-get install librabbitmq-dev
+# ZeroMQ is needed for communications between processes
+sudo apt-get install libzmq-dev
 
 INSTALL_DEPS_DIRECTORY=${BASH_SOURCE%/*}
 LIB_DIRECTORY=${INSTALL_DEPS_DIRECTORY}/../lib
