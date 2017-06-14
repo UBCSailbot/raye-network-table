@@ -3,40 +3,19 @@
 // Sends requests to the network table
 //
 
-#include <zmq.hpp>
-#include <string>
 #include <iostream>
+#include <network-table/network-table.h>
 
 int main() {
-    //  Prepare our context and socket
-    zmq::context_t context(1);
-    zmq::socket_t socket(context, ZMQ_REQ);
-    socket.connect("tcp://localhost:5555");
+    std::string key = "wind/speed";
+    std::string value = "4.12";
 
-    // Update/set a network-table entry
-    {
-        std::string message_body("SET:/wind/speed/:10");
-        zmq::message_t request(message_body.size()+1);
-        memcpy(request.data(), message_body.c_str(), message_body.size()+1);
-        socket.send(request);
-        std::cout << "Sent message: " << message_body << std::endl;
+    std::cout << "SET: " << key << " to " << value << std::endl;
+    NetworkTable::Connect();
+    NetworkTable::Set("wind/speed", "4.12");
 
-        zmq::message_t reply;
-        socket.recv(&reply);
-        std::cout << "Received reply: " << static_cast<char*>(reply.data()) << std::endl;
-    }
+    std::cout << "GET: " << key << std::endl;
+    std::string recieved_message = NetworkTable::Get(key); 
 
-    // Check the value of a network-table entry
-    {
-        std::string message_body("GET:/wind/speed/");
-        zmq::message_t request(message_body.size()+1);
-        memcpy(request.data(), message_body.c_str(), message_body.size()+1);
-        socket.send(request);
-        std::cout << "Sent message: " << message_body << std::endl;
-
-        zmq::message_t reply;
-        socket.recv(&reply);
-        std::cout << "Received reply: " << static_cast<char*>(reply.data()) << std::endl;
-
-    }
+    std::cout << "Recieved reply: " << recieved_message << std::endl;
 }

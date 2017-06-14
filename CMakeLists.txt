@@ -33,6 +33,12 @@ endif()
 # PROGRAMS #
 ############
 
+# Include library files to avoid ugly relative paths
+include_directories(src)
+
+# Add main library
+add_subdirectory(src)
+
 # Add projects (all executables)
 add_subdirectory(projects)
 

@@ -26,10 +26,10 @@ $( find ${SRC_DIRECTORY} -name \*.h -or -name \*.cpp ) \
 PROJECTS_DIRECTORY=${WORKSPACE_DIRECTORY}/projects
 
 # Run cpplint on network-table
-EXAMPLE_DIRECTORY=${PROJECTS_DIRECTORY}/network-table
+EXAMPLE_DIRECTORY=${PROJECTS_DIRECTORY}/network-table-server
 ${CPP_LINT} \
 --linelength=120 --counting=detailed \
---root="projects/network-table" \
+--root="projects/network-table-server" \
 $( find ${EXAMPLE_DIRECTORY} -name \*.h -or -name \*.cpp ) \
 &>> ${CPPLINT_FILE}
 

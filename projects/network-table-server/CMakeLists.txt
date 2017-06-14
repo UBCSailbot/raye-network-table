@@ -1,5 +1,5 @@
 # Set a variable for commands below
-set(PROJECT_NAME network-table)
+set(PROJECT_NAME network-table-server)
 
 # Define your project and language
 project(${PROJECT_NAME} CXX)
@@ -7,7 +7,7 @@ project(${PROJECT_NAME} CXX)
 # Define the source code
 set(${PROJECT_NAME}_SRCS 
     main.cpp
-    network-table.cpp)
+        )
 
 # Define the executable
 add_executable(${PROJECT_NAME} ${${PROJECT_NAME}_SRCS})
