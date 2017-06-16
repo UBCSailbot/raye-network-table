@@ -4,18 +4,19 @@
 //
 
 #include <iostream>
-#include <network-table/network-table.h>
+#include <network-table/NetworkTableConnection.h>
 
 int main() {
+    NetworkTableConnection networkTableConnection;
+
     std::string key = "wind/speed";
     std::string value = "4.12";
 
     std::cout << "SET: " << key << " to " << value << std::endl;
-    NetworkTable::Connect();
-    NetworkTable::Set("wind/speed", "4.12");
+    networkTableConnection.Set("wind/speed", "4.12");
 
     std::cout << "GET: " << key << std::endl;
-    std::string recieved_message = NetworkTable::Get(key); 
+    std::string recieved_message = networkTableConnection.Get(key); 
 
     std::cout << "Recieved reply: " << recieved_message << std::endl;
 }
