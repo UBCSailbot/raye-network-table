@@ -1,18 +1,19 @@
 // Copyright 2017 UBC Sailbot
 
-#ifndef NETWORK_TABLE_CONNECTION_H_
-#define NETWORK_TABLE_CONNECTION_H_
+#ifndef NETWORK_TABLE_NETWORKTABLECONNECTION_H_
+#define NETWORK_TABLE_NETWORKTABLECONNECTION_H_
 
 #include <string>
 #include <zmq.hpp>
 
-class NetworkTableConnection {
+namespace NetworkTable {
+class Connection {
  public:
     /*
      * Constructor where connection
      * to the network table is initialized.
      */
-    NetworkTableConnection(std::string address = "tcp://localhost:5555");
+    explicit Connection(std::string address = "tcp://localhost:5555");
 
     /*
      * Gets a value from the network-table.
@@ -27,12 +28,12 @@ class NetworkTableConnection {
      * @param value What value to set the key entry to.
      * @return True if the update was successful, false otherwise.
      */
-
     void Set(std::string key, std::string value);
 
  private:
     zmq::context_t context_;
     zmq::socket_t socket_;
 };
+}  // namespace NetworkTable
 
-#endif  // NETWORK_TABLE_CONNECTION_H_
+#endif  // NETWORK_TABLE_NETWORKTABLECONNECTION_H_

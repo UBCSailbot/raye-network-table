@@ -3,6 +3,6 @@
 #include <network-table/NetworkTableServer.h>
 
 int main() {
-    NetworkTableServer networkTableServer;
-    networkTableServer.Run();
+    NetworkTable::Server server;
+    server.Run();
 }
