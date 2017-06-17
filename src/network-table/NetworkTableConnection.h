@@ -9,10 +9,6 @@
 namespace NetworkTable {
 class Connection {
  public:
-    /*
-     * Constructor where connection
-     * to the network table is initialized.
-     */
     explicit Connection(std::string address = "tcp://localhost:5555");
 
     /*

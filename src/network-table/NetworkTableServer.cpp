@@ -2,25 +2,20 @@
 
 #include "NetworkTableServer.h"
 
-#include <string>
-#include <iostream>
 #include <boost/algorithm/string.hpp>
-#include <zmq.hpp>
+
+NetworkTable::Server::Server(std::string address)
+    : context_(1), socket_(context_, ZMQ_REP) {
+    socket_.bind(address);
+}
 
 void NetworkTable::Server::Run() {
-    //  Prepare our context and socket
-    zmq::context_t context(1);
-    zmq::socket_t socket(context, ZMQ_REP);
-    socket.bind("tcp://*:5555");
-
-    std::cout << "Starting network table..." << std::endl;
     while (true) {
         zmq::message_t request;
 
         //  Wait for next request from client
-        socket.recv(&request);
+        socket_.recv(&request);
         std::string message = static_cast<char*>(request.data());
-        std::cout << "Received message " << message << std::endl;
 
         // Split the message into components:
         std::vector<std::string> message_parts;
@@ -35,7 +30,7 @@ void NetworkTable::Server::Run() {
                 std::string reply_body = table_[key];
                 zmq::message_t reply(reply_body.size()+1);
                 memcpy(reply.data(), reply_body.c_str(), reply_body.size()+1);
-                socket.send(reply);
+                socket_.send(reply);
             }
         } else if (message_parts.size() == 3) {
             std::string action = message_parts.at(0);
@@ -49,7 +44,7 @@ void NetworkTable::Server::Run() {
                 std::string reply_body("success");
                 zmq::message_t reply(reply_body.size()+1);
                 memcpy(reply.data(), reply_body.c_str(), reply_body.size()+1);
-                socket.send(reply);
+                socket_.send(reply);
             }
         }
     }
