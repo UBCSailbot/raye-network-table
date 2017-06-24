@@ -30,7 +30,7 @@ sudo apt-get install build-essential cppcheck -y
 sudo apt-get install cmake -y
 
 # ZeroMQ is needed for communications between processes
-sudo apt-get install libzmq-dev
+sudo apt-get install libzmq3-dev
 
 INSTALL_DEPS_DIRECTORY=${BASH_SOURCE%/*}
 LIB_DIRECTORY=${INSTALL_DEPS_DIRECTORY}/../lib
