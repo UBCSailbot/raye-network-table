@@ -9,22 +9,9 @@
 namespace NetworkTable {
 class Connection {
  public:
-    explicit Connection(std::string address = "tcp://localhost:5555");
+    explicit Connection(std::string address = "ipc:///tmp/sailbot/NetworkTable");
 
-    /*
-     * Gets a value from the network-table.
-     * @param key What key entry to get.
-     * @return The value of the key entry.
-     */
-    std::string Get(std::string key);
-
-    /*
-     * Updates a value in the network-table.
-     * @param key What key entry to update.
-     * @param value What value to set the key entry to.
-     * @return True if the update was successful, false otherwise.
-     */
-    void Set(std::string key, std::string value);
+    std::string Send(std::string message_body);
 
  private:
     zmq::context_t context_;
