@@ -6,12 +6,14 @@
 #include <string>
 #include <zmq.hpp>
 
+#include "Message.pb.h"
+
 namespace NetworkTable {
 class Connection {
  public:
     explicit Connection(std::string address = "ipc:///tmp/sailbot/NetworkTable");
 
-    std::string Send(std::string message_body);
+    std::string Send(NetworkTable::Message *message);
 
  private:
     zmq::context_t context_;

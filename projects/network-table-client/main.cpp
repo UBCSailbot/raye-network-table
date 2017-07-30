@@ -4,10 +4,23 @@
 //
 
 #include <iostream>
-#include <network-table/NetworkTableConnection.h>
+#include <string>
+
+#include "network-table/NetworkTableConnection.h"
+#include "Message.pb.h"
+#include "SetKeyAction.pb.h"
 
 int main() {
+    NetworkTable::Message* message = new NetworkTable::Message;
+    message->set_action(NetworkTable::Message::SETKEY);
+    NetworkTable::SetKeyAction* setkey_action = new NetworkTable::SetKeyAction;
+    setkey_action->set_uri("alex");
+    message->set_allocated_setkey_action(setkey_action);
+
     NetworkTable::Connection connection;
-    std::string reply = connection.Send("Hey it's alex");
-    std::cout << reply << std::endl;
+    std::string response = connection.Send(message);
+
+    std::cout << response << std::endl;
+    
+    delete message;
 }

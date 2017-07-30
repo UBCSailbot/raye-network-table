@@ -1,0 +1,18 @@
+syntax = "proto2";
+
+package NetworkTable;
+
+import "SetKeyAction.proto";
+import "GetKeyAction.proto";
+
+message Message {
+    required Action action = 1;
+
+    optional SetKeyAction setkey_action = 2;
+    optional GetKeyAction getkey_action = 3;
+
+    enum Action {
+        SETKEY = 0;
+        GETKEY = 1;
+    }
+}

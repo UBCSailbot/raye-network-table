@@ -35,6 +35,7 @@ void NetworkTable::Server::Run() {
 
         // Set the timeout to -1, which means poll
         // indefinitely until something happens.
+        // This line will block until a socket is ready.
         zmq::poll(pollitems.data(), num_sockets, -1);
 
         if (pollitems[0].revents & ZMQ_POLLIN) {
@@ -85,11 +86,32 @@ void NetworkTable::Server::HandleNewConnection() {
 void NetworkTable::Server::HandleRequest(zmq::socket_t *socket) {
     zmq::message_t request;
     socket->recv(&request);
-    std::string message = static_cast<char*>(request.data());
+    NetworkTable::Message *message = static_cast<NetworkTable::Message*>(request.data());
 
-    std::string reply_body = "I just got the message: " + message;
+    switch (message->action()) {
+        case NetworkTable::Message::SETKEY:
+          SetKey(socket);
+          break;
+        case NetworkTable::Message::GETKEY:
+          GetKey(socket);
+          break;
+    }
+}
 
+void NetworkTable::Server::SetKey(zmq::socket_t *socket) {
+    std::string reply_body = "I got a SetKey message";
     zmq::message_t reply(reply_body.size()+1);
+
     memcpy(reply.data(), reply_body.c_str(), reply_body.size()+1);
+
     socket->send(reply);
+}
+
+void NetworkTable::Server::GetKey(zmq::socket_t *socket) {
+     std::string reply_body = "I got a GetKey message";
+     zmq::message_t reply(reply_body.size()+1);
+
+     memcpy(reply.data(), reply_body.c_str(), reply_body.size()+1);
+
+     socket->send(reply);
 }

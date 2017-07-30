@@ -33,8 +33,10 @@ endif()
 # PROGRAMS #
 ############
 
+set(ProtobufIncludePath ${CMAKE_CURRENT_BINARY_DIR}/src)
+
 # Include library files to avoid ugly relative paths
-include_directories(src)
+include_directories(src ${ProtobufIncludePath})
 
 # Add main library
 add_subdirectory(src)

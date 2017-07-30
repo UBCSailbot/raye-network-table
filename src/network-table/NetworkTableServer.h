@@ -6,6 +6,8 @@
 #include <string>
 #include <zmq.hpp>
 
+#include "Message.pb.h"
+
 namespace NetworkTable {
 class Server {
  public:
@@ -35,6 +37,10 @@ class Server {
      * Handles a request on a ZMQ_PAIR socket.
      */
     void HandleRequest(zmq::socket_t *socket);
+
+    void SetKey(zmq::socket_t *socket);
+
+    void GetKey(zmq::socket_t *socket);
 
     zmq::context_t context_;
     zmq::socket_t init_socket_;
