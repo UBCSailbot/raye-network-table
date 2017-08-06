@@ -1,6 +1,6 @@
 // Copyright 2017 UBC Sailbot
 
-#include "network-table/NetworkTableServer.h"
+#include "network-table/Server.h"
 
 int main() {
     NetworkTable::Server server;

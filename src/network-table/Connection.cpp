@@ -1,6 +1,6 @@
 // Copyright 2017 UBC Sailbot
 
-#include "NetworkTableConnection.h"
+#include "Connection.h"
 
 NetworkTable::Connection::Connection(std::string address)
     : context_(1), socket_(context_, ZMQ_PAIR) {

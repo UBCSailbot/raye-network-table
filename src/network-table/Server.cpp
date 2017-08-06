@@ -1,6 +1,6 @@
 // Copyright 2017 UBC Sailbot
 
-#include "NetworkTableServer.h"
+#include "Server.h"
 
 NetworkTable::Server::Server(std::string address)
     : context_(1), init_socket_(context_, ZMQ_REP) {

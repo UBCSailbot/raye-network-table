@@ -3,13 +3,13 @@
 ###########
 
 set(LIB_SRCS
-        network-table/NetworkTableServer.cpp
-        network-table/NetworkTableConnection.cpp
+        network-table/Server.cpp
+        network-table/Connection.cpp
         )
 
 set(LIB_HDRS
-        network-table/NetworkTableServer.h
-        network-table/NetworkTableConnection.h
+        network-table/Server.h
+        network-table/Connection.h
         )
 
 protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS

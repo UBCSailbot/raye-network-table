@@ -6,7 +6,7 @@
 #include <iostream>
 #include <string>
 
-#include "network-table/NetworkTableConnection.h"
+#include "network-table/Connection.h"
 #include "Message.pb.h"
 #include "SetKeyAction.pb.h"
 
