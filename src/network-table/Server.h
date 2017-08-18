@@ -3,10 +3,10 @@
 #ifndef NETWORK_TABLE_SERVER_H_
 #define NETWORK_TABLE_SERVER_H_
 
+#include "Message.pb.h"
+
 #include <string>
 #include <zmq.hpp>
-
-#include "Message.pb.h"
 
 namespace NetworkTable {
 class Server {
@@ -37,10 +37,6 @@ class Server {
      * Handles a request on a ZMQ_PAIR socket.
      */
     void HandleRequest(zmq::socket_t *socket);
-
-    void SetKey(zmq::socket_t *socket);
-
-    void GetKey(zmq::socket_t *socket);
 
     zmq::context_t context_;
     zmq::socket_t init_socket_;

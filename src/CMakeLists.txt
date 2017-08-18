@@ -14,8 +14,9 @@ set(LIB_HDRS
 
 protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS
     network-table/protofiles/Message.proto
-    network-table/protofiles/SetKeyAction.proto
-    network-table/protofiles/GetKeyAction.proto
+    network-table/protofiles/SetValueAction.proto
+    network-table/protofiles/GetValueAction.proto
+    network-table/protofiles/Value.proto
     )
 
 # Define the src_core library target

@@ -1,7 +1,0 @@
-syntax = "proto2";
-
-package NetworkTable;
-
-message GetKeyAction {
-    required string uri = 1;
-}

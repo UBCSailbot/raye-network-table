@@ -2,6 +2,8 @@
 
 #include "Server.h"
 
+#include <iostream>
+
 NetworkTable::Server::Server(std::string address)
     : context_(1), init_socket_(context_, ZMQ_REP) {
     init_socket_.bind(address);
@@ -86,32 +88,13 @@ void NetworkTable::Server::HandleNewConnection() {
 void NetworkTable::Server::HandleRequest(zmq::socket_t *socket) {
     zmq::message_t request;
     socket->recv(&request);
-    NetworkTable::Message *message = static_cast<NetworkTable::Message*>(request.data());
-
-    switch (message->action()) {
-        case NetworkTable::Message::SETKEY:
-          SetKey(socket);
-          break;
-        case NetworkTable::Message::GETKEY:
-          GetKey(socket);
-          break;
+    std::string serialized_message(static_cast<char*>(request.data()), \
+            request.size());
+    NetworkTable::Message message;
+    if (!message.ParseFromString(serialized_message)) {
+        std::cout << "Error parsing message\n";
+        return;
     }
-}
 
-void NetworkTable::Server::SetKey(zmq::socket_t *socket) {
-    std::string reply_body = "I got a SetKey message";
-    zmq::message_t reply(reply_body.size()+1);
-
-    memcpy(reply.data(), reply_body.c_str(), reply_body.size()+1);
-
-    socket->send(reply);
-}
-
-void NetworkTable::Server::GetKey(zmq::socket_t *socket) {
-     std::string reply_body = "I got a GetKey message";
-     zmq::message_t reply(reply_body.size()+1);
-
-     memcpy(reply.data(), reply_body.c_str(), reply_body.size()+1);
-
-     socket->send(reply);
+    // TODO(Alex): Handle successfully received message.
 }

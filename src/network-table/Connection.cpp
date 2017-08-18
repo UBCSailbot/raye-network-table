@@ -27,15 +27,13 @@ NetworkTable::Connection::Connection(std::string address)
     socket_.connect(filepath);
 }
 
-std::string NetworkTable::Connection::Send(NetworkTable::Message *message_body) {
-    // Send the message to the server.
-    zmq::message_t message(sizeof(NetworkTable::Message));
-    memcpy(message.data(), message_body, sizeof(NetworkTable::Message));
-    socket_.send(message);
+void NetworkTable::Connection::Send(const NetworkTable::Message &message) {
+    // Serialize the message to a string
+    std::string serialized_message;
+    message.SerializeToString(&serialized_message);
 
-    // Receive and return the reply.
-    zmq::message_t reply;
-    socket_.recv(&reply);
-
-    return static_cast<char*>(reply.data());
+    // Send the string to the server.
+    zmq::message_t zmq_message(serialized_message.length());
+    memcpy(zmq_message.data(), serialized_message.data(), serialized_message.length());
+    socket_.send(zmq_message);
 }

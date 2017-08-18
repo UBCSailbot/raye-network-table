@@ -3,17 +3,17 @@
 #ifndef NETWORK_TABLE_CONNECTION_H_
 #define NETWORK_TABLE_CONNECTION_H_
 
+#include "Message.pb.h"
+
 #include <string>
 #include <zmq.hpp>
-
-#include "Message.pb.h"
 
 namespace NetworkTable {
 class Connection {
  public:
     explicit Connection(std::string address = "ipc:///tmp/sailbot/NetworkTable");
 
-    std::string Send(NetworkTable::Message *message);
+    void Send(const NetworkTable::Message &message);
 
  private:
     zmq::context_t context_;
