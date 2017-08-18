@@ -1,7 +1,7 @@
 // Copyright 2017 UBC Sailbot
 
-#ifndef NETWORK_TABLE_NETWORKTABLECONNECTION_H_
-#define NETWORK_TABLE_NETWORKTABLECONNECTION_H_
+#ifndef NETWORK_TABLE_CONNECTION_H_
+#define NETWORK_TABLE_CONNECTION_H_
 
 #include <string>
 #include <zmq.hpp>
@@ -21,4 +21,4 @@ class Connection {
 };
 }  // namespace NetworkTable
 
-#endif  // NETWORK_TABLE_NETWORKTABLECONNECTION_H_
+#endif  // NETWORK_TABLE_CONNECTION_H_

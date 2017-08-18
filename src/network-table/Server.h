@@ -1,7 +1,7 @@
 // Copyright 2017 UBC Sailbot
 
-#ifndef NETWORK_TABLE_NETWORKTABLESERVER_H_
-#define NETWORK_TABLE_NETWORKTABLESERVER_H_
+#ifndef NETWORK_TABLE_SERVER_H_
+#define NETWORK_TABLE_SERVER_H_
 
 #include <string>
 #include <zmq.hpp>
@@ -50,4 +50,4 @@ class Server {
 };
 }  // namespace NetworkTable
 
-#endif  // NETWORK_TABLE_NETWORKTABLESERVER_H_
+#endif  // NETWORK_TABLE_SERVER_H_
