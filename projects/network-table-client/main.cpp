@@ -1,7 +1,7 @@
 // Copyright 2017 UBC Sailbot
 //
 // Sends requests to the network table
-//
+// Returns the number of errors which occured.
 
 #include <iostream>
 #include <string>
@@ -20,7 +20,7 @@ int main() {
     NetworkTable::Connection connection;
     std::string response = connection.Send(message);
 
-    std::cout << response << std::endl;
-    
     delete message;
+
+    return 0;
 }
