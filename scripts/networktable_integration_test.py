@@ -1,3 +1,15 @@
+# This script will: 
+# 1 Build the network table server
+#   and an example client program. 
+# 2 Run the network table server.
+# 3 Run multiple clients which will
+#   communicate with the network table.
+# 4 Determine how many errors occured
+#   based on the return values of the clients.
+#   The clients should return 0 if no
+#   errors occured, otherwise return the
+#   number of errors.
+
 import os
 import signal
 import subprocess
@@ -13,7 +25,7 @@ else:
 # Go to the build directory, and build
 # the latest version of the server and client
 script_location = os.path.dirname(os.path.realpath(__file__))
-build_location = os.path.abspath(script_location + '../../../build')
+build_location = os.path.abspath(script_location + '/../build')
 os.chdir(build_location)
 
 try:
