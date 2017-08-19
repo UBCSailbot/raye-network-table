@@ -17,8 +17,6 @@ class Server {
      */
     explicit Server(std::string address = "ipc:///tmp/sailbot/NetworkTable");
 
-    ~Server();
-
     /*
      * Starts the network table, which will then be able
      * to accept requests from clients.
@@ -40,7 +38,7 @@ class Server {
 
     zmq::context_t context_;
     zmq::socket_t init_socket_;
-    std::vector<zmq::socket_t*> sockets_;
+    std::vector<zmq::socket_t> sockets_;
 
     int current_socket_number_ = 1;
 };

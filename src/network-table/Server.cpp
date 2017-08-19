@@ -9,12 +9,6 @@ NetworkTable::Server::Server(std::string address)
     init_socket_.bind(address);
 }
 
-NetworkTable::Server::~Server() {
-    for (zmq::socket_t *socket : sockets_) {
-        delete socket;
-    }
-}
-
 void NetworkTable::Server::Run() {
     while (true) {
         // Poll all the zmq sockets.
@@ -30,7 +24,7 @@ void NetworkTable::Server::Run() {
         pollitems.push_back(pollitem);
 
         for (unsigned int i = 0; i < sockets_.size(); i++) {
-            pollitem.socket = static_cast<void*>(*sockets_[i]);
+            pollitem.socket = static_cast<void*>(sockets_[i]);
             pollitem.events = ZMQ_POLLIN;
             pollitems.push_back(pollitem);
         }
@@ -45,7 +39,7 @@ void NetworkTable::Server::Run() {
         }
         for (unsigned int i = 0; i < sockets_.size(); i++) {
             if (pollitems[i+1].revents & ZMQ_POLLIN) {
-                HandleRequest(sockets_[i]);
+                HandleRequest(&sockets_[i]);
             }
         }
     }
@@ -68,9 +62,8 @@ void NetworkTable::Server::HandleNewConnection() {
         current_socket_number_++;
 
         // Add new socket to sockets_ and bind it.
-        zmq::socket_t *socket = new zmq::socket_t(context_, ZMQ_PAIR);
-        sockets_.push_back(socket);
-        sockets_.back()->bind(filepath);
+        sockets_.push_back(zmq::socket_t(context_, ZMQ_PAIR));
+        sockets_.back().bind(filepath);
 
         // Reply to client with location of socket.
         std::string reply_body = filepath;
