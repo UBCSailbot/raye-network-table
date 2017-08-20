@@ -66,6 +66,22 @@ int main() {
         } catch (...) {
             num_errors++;
         }
+        // GET garbage
+        try {
+            NetworkTable::GetValueRequest *getvalue_request = new NetworkTable::GetValueRequest();
+            getvalue_request->set_key("garbage");
+
+            NetworkTable::Request request;
+            request.set_type(NetworkTable::Request::GETVALUE);
+            request.set_allocated_getvalue_request(getvalue_request);
+
+            connection.Send(request);
+
+            NetworkTable::Reply reply;
+            connection.Receive(&reply);
+        } catch (...) {
+            num_errors++;
+        }
     }
 
     return num_errors;

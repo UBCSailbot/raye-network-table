@@ -126,6 +126,12 @@ void NetworkTable::Server::GetValue(const NetworkTable::GetValueRequest &request
         // you will get a segfault when this function returns.
         NetworkTable::Value *value = new NetworkTable::Value(values_[key]);
         getvalue_reply->set_allocated_value(value);
+    } else {
+        // If the value wasn't found, create a new value
+        // of type NONE and return that to the client.
+        NetworkTable::Value *value = new NetworkTable::Value();
+        value->set_type(NetworkTable::Value::NONE);
+        getvalue_reply->set_allocated_value(value);
     }
 
     NetworkTable::Reply reply;

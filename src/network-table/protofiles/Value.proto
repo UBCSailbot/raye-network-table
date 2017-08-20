@@ -3,7 +3,7 @@ syntax = "proto2";
 package NetworkTable;
 
 message Value {
-    required Type type =1 ;
+    required Type type = 1;
     optional double double_data = 2;
     optional bool bool_data = 3;
     optional int32 int_data = 4;
@@ -16,5 +16,7 @@ message Value {
          INT = 2;
          STRING = 3;
          BYTES = 4;
+         NONE = 5; // Use if none of the optional fields are set.
+                   // The NULL keywork is already reserved.
     }
 }
