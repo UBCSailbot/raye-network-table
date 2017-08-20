@@ -37,7 +37,7 @@ void NetworkTable::Server::Run() {
         if (pollitems[0].revents & ZMQ_POLLIN) {
             HandleNewConnection();
         }
-        for (unsigned int i = 0; i < sockets_.size(); i++) {
+        for (int i = 0; i < num_sockets-1; i++) {
             if (pollitems[i+1].revents & ZMQ_POLLIN) {
                 HandleRequest(&sockets_[i]);
             }
