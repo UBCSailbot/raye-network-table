@@ -1,0 +1,18 @@
+syntax = "proto2";
+
+package NetworkTable;
+
+import "SetValueRequest.proto";
+import "GetValueRequest.proto";
+
+message Request {
+    required Type type = 1;
+
+    optional SetValueRequest setvalue_request = 2;
+    optional GetValueRequest getvalue_request = 3;
+
+    enum Type {
+        SETVALUE = 0;
+        GETVALUE = 1;
+    }
+}

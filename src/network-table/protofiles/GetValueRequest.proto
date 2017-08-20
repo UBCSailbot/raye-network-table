@@ -2,6 +2,6 @@ syntax = "proto2";
 
 package NetworkTable;
 
-message GetValueAction {
+message GetValueRequest {
     required string key = 1;
 }

@@ -1,0 +1,11 @@
+syntax = "proto2";
+
+package NetworkTable;
+
+import "Value.proto";
+
+message GetValueReply {
+    // value is optional
+    // in case the value was not found.
+    optional Value value = 1;
+}

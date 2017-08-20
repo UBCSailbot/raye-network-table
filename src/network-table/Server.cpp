@@ -1,6 +1,9 @@
 // Copyright 2017 UBC Sailbot
 
 #include "Server.h"
+#include "GetValueReply.pb.h"
+#include "Reply.pb.h"
+#include "Request.pb.h"
 
 #include <iostream>
 
@@ -79,15 +82,60 @@ void NetworkTable::Server::HandleNewConnection() {
 }
 
 void NetworkTable::Server::HandleRequest(zmq::socket_t *socket) {
-    zmq::message_t request;
-    socket->recv(&request);
-    std::string serialized_message(static_cast<char*>(request.data()), \
-            request.size());
-    NetworkTable::Message message;
-    if (!message.ParseFromString(serialized_message)) {
+    zmq::message_t message;
+    socket->recv(&message);
+    std::string serialized_request(static_cast<char*>(message.data()), \
+            message.size());
+    NetworkTable::Request request;
+    if (!request.ParseFromString(serialized_request)) {
         std::cout << "Error parsing message\n";
         return;
     }
 
-    // TODO(Alex): Handle successfully received message.
+    switch (request.type()) {
+        case NetworkTable::Request::SETVALUE: {
+            if (request.has_setvalue_request()) {
+                SetValue(request.setvalue_request());
+            }
+            break;
+        }
+        case NetworkTable::Request::GETVALUE: {
+            if (request.has_getvalue_request()) {
+                GetValue(request.getvalue_request(), socket);
+            }
+            break;
+        }
+    }
+}
+
+void NetworkTable::Server::SetValue(const NetworkTable::SetValueRequest &request) {
+    std::string key = request.key();
+    NetworkTable::Value value = request.value();
+    values_[key] = value;
+}
+
+void NetworkTable::Server::GetValue(const NetworkTable::GetValueRequest &request, \
+        zmq::socket_t *socket) {
+    std::string key = request.key();
+
+    NetworkTable::GetValueReply *getvalue_reply = new NetworkTable::GetValueReply();
+    if (values_.find(key) != values_.end()) {
+        // A new network table has to be created on the heap.
+        // If you instead write:
+        // getvalue_reply->set_allocated_value(&values_[key]);
+        // you will get a segfault when this function returns.
+        NetworkTable::Value *value = new NetworkTable::Value(values_[key]);
+        getvalue_reply->set_allocated_value(value);
+    }
+
+    NetworkTable::Reply reply;
+    reply.set_type(NetworkTable::Reply::GETVALUE);
+    reply.set_allocated_getvalue_reply(getvalue_reply);
+
+    std::string serialized_reply;
+    reply.SerializeToString(&serialized_reply);
+
+    zmq::message_t message(serialized_reply.length());
+    memcpy(message.data(), serialized_reply.data(), serialized_reply.length());
+    socket->send(message);
 }

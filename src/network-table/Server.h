@@ -3,8 +3,11 @@
 #ifndef NETWORK_TABLE_SERVER_H_
 #define NETWORK_TABLE_SERVER_H_
 
-#include "Message.pb.h"
+#include "GetValueRequest.pb.h"
+#include "SetValueRequest.pb.h"
+#include "Value.pb.h"
 
+#include <map>
 #include <string>
 #include <zmq.hpp>
 
@@ -36,9 +39,21 @@ class Server {
      */
     void HandleRequest(zmq::socket_t *socket);
 
-    zmq::context_t context_;
-    zmq::socket_t init_socket_;
-    std::vector<zmq::socket_t> sockets_;
+    /*
+     * Helper functions to handle specific types
+     * of requests. Some of these requests
+     * must send back a reply, so the helper function
+     * also needs a socket to send the reply to.
+     */
+    void SetValue(const NetworkTable::SetValueRequest &request);
+
+    void GetValue(const NetworkTable::GetValueRequest &request, \
+            zmq::socket_t *socket);
+
+    zmq::context_t context_;  // The context which sockets are created from.
+    zmq::socket_t init_socket_;  // Used to connect to the server for the first time.
+    std::vector<zmq::socket_t> sockets_;  // Each socket is a connection to another process.
+    std::map<std::string, NetworkTable::Value> values_;  // This is where the actual data is stored.
 
     int current_socket_number_ = 1;
 };

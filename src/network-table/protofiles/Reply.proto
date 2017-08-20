@@ -1,0 +1,15 @@
+syntax = "proto2";
+
+package NetworkTable;
+
+import "GetValueReply.proto";
+
+message Reply {
+    required Type type = 1;
+
+    optional GetValueReply getvalue_reply = 2;
+
+    enum Type {
+        GETVALUE = 0;
+    }
+}
