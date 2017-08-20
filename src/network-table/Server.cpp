@@ -105,6 +105,11 @@ void NetworkTable::Server::HandleRequest(zmq::socket_t *socket) {
             }
             break;
         }
+        default: {
+            std::cout << "Don't know how to handle request: "\
+                      << request.type()\
+                      << std::endl;
+        }
     }
 }
 
