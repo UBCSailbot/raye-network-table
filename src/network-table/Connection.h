@@ -5,6 +5,7 @@
 
 #include "Reply.pb.h"
 #include "Request.pb.h"
+#include "Value.pb.h"
 
 #include <string>
 #include <zmq.hpp>
@@ -14,11 +15,15 @@ class Connection {
  public:
     explicit Connection(std::string address = "ipc:///tmp/sailbot/NetworkTable");
 
+    void SetValue(std::string key, const NetworkTable::Value &value);
+
+    NetworkTable::Value GetValue(std::string key);
+
+ private:
     void Send(const NetworkTable::Request &request);
 
     void Receive(NetworkTable::Reply *reply);
 
- private:
     zmq::context_t context_;
     zmq::socket_t socket_;
 };

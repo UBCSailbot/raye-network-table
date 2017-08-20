@@ -27,6 +27,36 @@ NetworkTable::Connection::Connection(std::string address)
     socket_.connect(filepath);
 }
 
+void NetworkTable::Connection::SetValue(std::string key, const NetworkTable::Value &value) {
+    NetworkTable::Value *allocated_value = new NetworkTable::Value(value);
+
+    NetworkTable::SetValueRequest *setvalue_request = new NetworkTable::SetValueRequest();
+    setvalue_request->set_key(key);
+    setvalue_request->set_allocated_value(allocated_value);
+
+    NetworkTable::Request request;
+    request.set_type(NetworkTable::Request::SETVALUE);
+    request.set_allocated_setvalue_request(setvalue_request);
+
+    Send(request);
+}
+
+NetworkTable::Value NetworkTable::Connection::GetValue(std::string key) {
+    NetworkTable::GetValueRequest *getvalue_request = new NetworkTable::GetValueRequest();
+    getvalue_request->set_key(key);
+
+    NetworkTable::Request request;
+    request.set_type(NetworkTable::Request::GETVALUE);
+    request.set_allocated_getvalue_request(getvalue_request);
+
+    Send(request);
+
+    NetworkTable::Reply reply;
+    Receive(&reply);
+
+    return reply.getvalue_reply().value();
+}
+
 void NetworkTable::Connection::Send(const NetworkTable::Request &request) {
     // Serialize the message to a string
     std::string serialized_request;
