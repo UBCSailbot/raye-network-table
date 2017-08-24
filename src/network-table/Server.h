@@ -4,7 +4,10 @@
 #define NETWORK_TABLE_SERVER_H_
 
 #include "GetValueRequest.pb.h"
+#include "GetValuesRequest.pb.h"
+#include "Reply.pb.h"
 #include "SetValueRequest.pb.h"
+#include "SetValuesRequest.pb.h"
 #include "Value.pb.h"
 
 #include <map>
@@ -47,8 +50,25 @@ class Server {
      */
     void SetValue(const NetworkTable::SetValueRequest &request);
 
+    void SetValues(const NetworkTable::SetValuesRequest &request);
+
     void GetValue(const NetworkTable::GetValueRequest &request, \
             zmq::socket_t *socket);
+
+    void GetValues(const NetworkTable::GetValuesRequest &request, \
+            zmq::socket_t *socket);
+
+    /*
+     * Returns value stored in values_ if it exists.
+     * Otherwise returns a value with type NONE.
+     */
+    NetworkTable::Value GetValue(std::string key);
+
+    /*
+     * Serializes a network table reply,
+     * then sends it on the socket.
+     */
+    void SendReply(const NetworkTable::Reply &reply, zmq::socket_t *socket);
 
     zmq::context_t context_;  // The context which sockets are created from.
     zmq::socket_t init_socket_;  // Used to connect to the server for the first time.

@@ -41,6 +41,24 @@ void NetworkTable::Connection::SetValue(std::string key, const NetworkTable::Val
     Send(request);
 }
 
+void NetworkTable::Connection::SetValues(const std::map<std::string, NetworkTable::Value> &values) {
+    NetworkTable::SetValuesRequest *setvalues_request = new NetworkTable::SetValuesRequest();
+
+    for (auto const &entry : values) {
+        NetworkTable::SetValueRequest *setvalue_request = setvalues_request->add_setvalue_requests();
+        setvalue_request->set_key(entry.first);
+
+        NetworkTable::Value *allocated_value = new NetworkTable::Value(entry.second);
+        setvalue_request->set_allocated_value(allocated_value);
+    }
+
+    NetworkTable::Request request;
+    request.set_type(NetworkTable::Request::SETVALUES);
+    request.set_allocated_setvalues_request(setvalues_request);
+
+    Send(request);
+}
+
 NetworkTable::Value NetworkTable::Connection::GetValue(std::string key) {
     NetworkTable::GetValueRequest *getvalue_request = new NetworkTable::GetValueRequest();
     getvalue_request->set_key(key);
@@ -55,6 +73,31 @@ NetworkTable::Value NetworkTable::Connection::GetValue(std::string key) {
     Receive(&reply);
 
     return reply.getvalue_reply().value();
+}
+
+std::vector<NetworkTable::Value> NetworkTable::Connection::GetValues(std::vector<std::string> keys) {
+    NetworkTable::GetValuesRequest *getvalues_request = new NetworkTable::GetValuesRequest();
+
+    for (auto const &key : keys) {
+        NetworkTable::GetValueRequest *getvalue_request = getvalues_request->add_getvalue_requests();
+        getvalue_request->set_key(key);
+    }
+
+    NetworkTable::Request request;
+    request.set_type(NetworkTable::Request::GETVALUES);
+    request.set_allocated_getvalues_request(getvalues_request);
+
+    Send(request);
+
+    NetworkTable::Reply reply;
+    Receive(&reply);
+
+    std::vector<NetworkTable::Value> return_values;
+    for (int i = 0; i < reply.getvalues_reply().getvalue_replies_size(); i++) {
+        return_values.push_back(reply.getvalues_reply().getvalue_replies(i).value());
+    }
+
+    return return_values;
 }
 
 void NetworkTable::Connection::Send(const NetworkTable::Request &request) {

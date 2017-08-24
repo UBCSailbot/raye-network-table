@@ -1,0 +1,9 @@
+syntax = "proto2";
+
+package NetworkTable;
+
+import "SetValueRequest.proto";
+
+message SetValuesRequest {
+    repeated SetValueRequest setvalue_requests = 1;
+}

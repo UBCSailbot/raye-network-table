@@ -1,0 +1,9 @@
+syntax = "proto2";
+
+package NetworkTable;
+
+import "GetValueReply.proto";
+
+message GetValuesReply {
+    repeated GetValueReply getvalue_replies = 1;
+}

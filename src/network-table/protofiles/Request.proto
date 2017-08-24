@@ -3,16 +3,22 @@ syntax = "proto2";
 package NetworkTable;
 
 import "SetValueRequest.proto";
+import "SetValuesRequest.proto";
 import "GetValueRequest.proto";
+import "GetValuesRequest.proto";
 
 message Request {
     required Type type = 1;
 
     optional SetValueRequest setvalue_request = 2;
-    optional GetValueRequest getvalue_request = 3;
+    optional SetValuesRequest setvalues_request = 3;
+    optional GetValueRequest getvalue_request = 4;
+    optional GetValuesRequest getvalues_request = 5;
 
     enum Type {
         SETVALUE = 0;
-        GETVALUE = 1;
+        SETVALUES = 1;
+        GETVALUE = 2;
+        GETVALUES = 3;
     }
 }
