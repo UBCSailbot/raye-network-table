@@ -11,7 +11,7 @@ include_directories(${Boost_INCLUDE_DIR})
 
 include(FindPkgConfig)
 pkg_search_module(ZMQ REQUIRED libzmq)
-include_directories(${AISLIB_INCLUDE_DIRS} ${ZMQ_INCLUDE_DIRS})
+include_directories(${ZMQ_INCLUDE_DIRS})
 
 find_package(Protobuf REQUIRED)
 include_directories(${PROTOBUF_INCLUDE_DIRS})
