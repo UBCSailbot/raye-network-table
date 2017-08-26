@@ -11,4 +11,6 @@ set(${PROJECT_NAME}_SRCS
 
 # Define the executable
 add_executable(${PROJECT_NAME} ${${PROJECT_NAME}_SRCS})
-target_link_libraries(${PROJECT_NAME} ${ZMQ_LIBRARIES} ${PROTOBUF_LIBRARIES} src_core)
+target_link_libraries(${PROJECT_NAME} ${ZMQ_LIBRARIES} 
+    ${PROTOBUF_LIBRARIES} ${Boost_SYSTEM_LIBRARY} 
+    ${Boost_FILESYSTEM_LIBRARY} src_core)

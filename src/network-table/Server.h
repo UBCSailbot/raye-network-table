@@ -17,11 +17,7 @@
 namespace NetworkTable {
 class Server {
  public:
-    /*
-     * @param address Location of socket where other processes 
-     *                can connect to Network Table Server.
-     */
-    explicit Server(std::string address = "ipc:///tmp/sailbot/NetworkTable");
+    Server();
 
     /*
      * Starts the network table, which will then be able

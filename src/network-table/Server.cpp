@@ -5,11 +5,15 @@
 #include "GetValuesReply.pb.h"
 #include "Request.pb.h"
 
+#include <boost/filesystem.hpp>
 #include <iostream>
 
-NetworkTable::Server::Server(std::string address)
+NetworkTable::Server::Server()
     : context_(1), init_socket_(context_, ZMQ_REP) {
-    init_socket_.bind(address);
+    // Create the folder where sockets go.
+    boost::filesystem::create_directory("/tmp/sailbot");
+
+    init_socket_.bind("ipc:///tmp/sailbot/NetworkTable");
 }
 
 void NetworkTable::Server::Run() {
