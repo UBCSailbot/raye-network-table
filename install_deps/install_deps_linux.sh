@@ -32,5 +32,11 @@ sudo apt-get install cmake -y
 # ZeroMQ is needed for communications between processes
 sudo apt-get install libzmq3-dev
 
+# Protobuf is used to serialize data
+sudo apt-get install libprotobuf-dev protobuf-compiler
+
+# Boost is a general purpose c++ library
+sudo apt-get install libboost-all-dev
+
 INSTALL_DEPS_DIRECTORY=${BASH_SOURCE%/*}
 LIB_DIRECTORY=${INSTALL_DEPS_DIRECTORY}/../lib
