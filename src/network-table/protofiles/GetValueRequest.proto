@@ -1,7 +1,0 @@
-syntax = "proto2";
-
-package NetworkTable;
-
-message GetValueRequest {
-    required string key = 1;
-}

@@ -4,11 +4,6 @@
 // Returns the number of errors which occured.
 
 #include "network-table/Connection.h"
-#include "Reply.pb.h"
-#include "Request.pb.h"
-#include "GetValueReply.pb.h"
-#include "GetValueRequest.pb.h"
-#include "SetValueRequest.pb.h"
 #include "Value.pb.h"
 
 #include <cmath>

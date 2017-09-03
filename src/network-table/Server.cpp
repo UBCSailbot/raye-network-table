@@ -1,7 +1,6 @@
 // Copyright 2017 UBC Sailbot
 
 #include "Server.h"
-#include "GetValueReply.pb.h"
 #include "GetValuesReply.pb.h"
 #include "Request.pb.h"
 
@@ -97,21 +96,9 @@ void NetworkTable::Server::HandleRequest(zmq::socket_t *socket) {
     }
 
     switch (request.type()) {
-        case NetworkTable::Request::SETVALUE: {
-            if (request.has_setvalue_request()) {
-                SetValue(request.setvalue_request());
-            }
-            break;
-        }
         case NetworkTable::Request::SETVALUES: {
             if (request.has_setvalues_request()) {
                 SetValues(request.setvalues_request());
-            }
-            break;
-        }
-        case NetworkTable::Request::GETVALUE: {
-            if (request.has_getvalue_request()) {
-                GetValue(request.getvalue_request(), socket);
             }
             break;
         }
@@ -129,43 +116,25 @@ void NetworkTable::Server::HandleRequest(zmq::socket_t *socket) {
     }
 }
 
-void NetworkTable::Server::SetValue(const NetworkTable::SetValueRequest &request) {
-    std::string key = request.key();
-    NetworkTable::Value value = request.value();
-    values_[key] = value;
-}
-
 void NetworkTable::Server::SetValues(const NetworkTable::SetValuesRequest &request) {
-    for (int i = 0; i < request.setvalue_requests_size(); i++) {
-        SetValue(request.setvalue_requests(i));
+    for (int i = 0; i < request.keyvaluepairs_size(); i++) {
+        std::string key = request.keyvaluepairs(i).key();
+        NetworkTable::Value value = request.keyvaluepairs(i).value();
+
+        values_[key] = value;
     }
-}
-
-void NetworkTable::Server::GetValue(const NetworkTable::GetValueRequest &request, \
-        zmq::socket_t *socket) {
-    std::string key = request.key();
-
-    NetworkTable::GetValueReply *getvalue_reply = new NetworkTable::GetValueReply();
-
-    NetworkTable::Value *value = new NetworkTable::Value(GetValue(key));
-    getvalue_reply->set_allocated_value(value);
-
-    NetworkTable::Reply reply;
-    reply.set_type(NetworkTable::Reply::GETVALUE);
-    reply.set_allocated_getvalue_reply(getvalue_reply);
-
-    SendReply(reply, socket);
 }
 
 void NetworkTable::Server::GetValues(const NetworkTable::GetValuesRequest &request, \
             zmq::socket_t *socket) {
     NetworkTable::GetValuesReply *getvalues_reply = new NetworkTable::GetValuesReply();
 
-    for (int i = 0; i < request.getvalue_requests_size(); i++) {
-        std::string key = request.getvalue_requests(i).key();
-        NetworkTable::GetValueReply *getvalue_reply = getvalues_reply->add_getvalue_replies();
+    for (int i = 0; i < request.keys_size(); i++) {
+        std::string key = request.keys(i);
+        NetworkTable::KeyValuePair *keyvaluepair = getvalues_reply->add_keyvaluepairs();
+        keyvaluepair->set_key(key);
         NetworkTable::Value *value = new NetworkTable::Value(GetValue(key));
-        getvalue_reply->set_allocated_value(value);
+        keyvaluepair->set_allocated_value(value);
     }
 
     NetworkTable::Reply reply;

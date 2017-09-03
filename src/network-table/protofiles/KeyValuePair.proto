@@ -4,7 +4,7 @@ package NetworkTable;
 
 import "Value.proto";
 
-message SetValueRequest {
+message KeyValuePair {
     required string key = 1;
     required Value value = 2;
 }

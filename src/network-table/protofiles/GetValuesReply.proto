@@ -2,8 +2,8 @@ syntax = "proto2";
 
 package NetworkTable;
 
-import "GetValueReply.proto";
+import "KeyValuePair.proto";
 
 message GetValuesReply {
-    repeated GetValueReply getvalue_replies = 1;
+    repeated KeyValuePair keyvaluepairs = 1;
 }

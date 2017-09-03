@@ -3,10 +3,8 @@
 #ifndef NETWORK_TABLE_SERVER_H_
 #define NETWORK_TABLE_SERVER_H_
 
-#include "GetValueRequest.pb.h"
 #include "GetValuesRequest.pb.h"
 #include "Reply.pb.h"
-#include "SetValueRequest.pb.h"
 #include "SetValuesRequest.pb.h"
 #include "Value.pb.h"
 
@@ -44,12 +42,7 @@ class Server {
      * must send back a reply, so the helper function
      * also needs a socket to send the reply to.
      */
-    void SetValue(const NetworkTable::SetValueRequest &request);
-
     void SetValues(const NetworkTable::SetValuesRequest &request);
-
-    void GetValue(const NetworkTable::GetValueRequest &request, \
-            zmq::socket_t *socket);
 
     void GetValues(const NetworkTable::GetValuesRequest &request, \
             zmq::socket_t *socket);
@@ -57,6 +50,8 @@ class Server {
     /*
      * Returns value stored in values_ if it exists.
      * Otherwise returns a value with type NONE.
+     * Use this instead of directly getting values
+     * from the table.
      */
     NetworkTable::Value GetValue(std::string key);
 

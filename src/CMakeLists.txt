@@ -13,13 +13,11 @@ set(LIB_HDRS
         )
 
 protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS
+    network-table/protofiles/KeyValuePair.proto
     network-table/protofiles/Reply.proto
     network-table/protofiles/Request.proto
-    network-table/protofiles/SetValueRequest.proto
     network-table/protofiles/SetValuesRequest.proto
-    network-table/protofiles/GetValueReply.proto
     network-table/protofiles/GetValuesReply.proto
-    network-table/protofiles/GetValueRequest.proto
     network-table/protofiles/GetValuesRequest.proto
     network-table/protofiles/Value.proto
     )
