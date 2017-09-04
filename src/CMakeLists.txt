@@ -19,6 +19,8 @@ protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS
     network-table/protofiles/SetValuesRequest.proto
     network-table/protofiles/GetValuesReply.proto
     network-table/protofiles/GetValuesRequest.proto
+    network-table/protofiles/SubscribeRequest.proto
+    network-table/protofiles/SubscribeReply.proto
     network-table/protofiles/Value.proto
     )
 

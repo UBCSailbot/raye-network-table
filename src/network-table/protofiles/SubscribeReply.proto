@@ -1,0 +1,10 @@
+syntax = "proto2";
+
+package NetworkTable;
+
+import "Value.proto";
+
+message SubscribeReply {
+    required string key = 1;
+    required Value value = 2;
+}

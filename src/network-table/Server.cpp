@@ -2,6 +2,7 @@
 
 #include "Server.h"
 #include "GetValuesReply.pb.h"
+#include "SubscribeReply.pb.h"
 #include "Request.pb.h"
 
 #include <boost/filesystem.hpp>
@@ -30,7 +31,7 @@ void NetworkTable::Server::Run() {
         pollitems.push_back(pollitem);
 
         for (unsigned int i = 0; i < sockets_.size(); i++) {
-            pollitem.socket = static_cast<void*>(sockets_[i]);
+            pollitem.socket = static_cast<void*>(*sockets_[i]);
             pollitem.events = ZMQ_POLLIN;
             pollitems.push_back(pollitem);
         }
@@ -41,17 +42,17 @@ void NetworkTable::Server::Run() {
         zmq::poll(pollitems.data(), num_sockets, -1);
 
         if (pollitems[0].revents & ZMQ_POLLIN) {
-            HandleNewConnection();
+            CreateNewConnection();
         }
         for (int i = 0; i < num_sockets-1; i++) {
             if (pollitems[i+1].revents & ZMQ_POLLIN) {
-                HandleRequest(&sockets_[i]);
+                HandleRequest(sockets_[i]);
             }
         }
     }
 }
 
-void NetworkTable::Server::HandleNewConnection() {
+void NetworkTable::Server::CreateNewConnection() {
     zmq::message_t request;
     init_socket_.recv(&request);
 
@@ -68,8 +69,9 @@ void NetworkTable::Server::HandleNewConnection() {
         current_socket_number_++;
 
         // Add new socket to sockets_ and bind it.
-        sockets_.push_back(zmq::socket_t(context_, ZMQ_PAIR));
-        sockets_.back().bind(filepath);
+        zmq::socket_t *socket = new zmq::socket_t(context_, ZMQ_PAIR);
+        socket->bind(filepath);
+        sockets_.push_back(socket);
 
         // Reply to client with location of socket.
         std::string reply_body = filepath;
@@ -108,6 +110,12 @@ void NetworkTable::Server::HandleRequest(zmq::socket_t *socket) {
             }
             break;
         }
+        case NetworkTable::Request::SUBSCRIBE: {
+            if (request.has_subscribe_request()) {
+                Subscribe(request.subscribe_request(), socket);
+            }
+            break;
+        }
         default: {
             std::cout << "Don't know how to handle request: "\
                       << request.type()\
@@ -120,20 +128,19 @@ void NetworkTable::Server::SetValues(const NetworkTable::SetValuesRequest &reque
     for (int i = 0; i < request.keyvaluepairs_size(); i++) {
         std::string key = request.keyvaluepairs(i).key();
         NetworkTable::Value value = request.keyvaluepairs(i).value();
-
-        values_[key] = value;
+        SetValueInTable(key, value);
     }
 }
 
 void NetworkTable::Server::GetValues(const NetworkTable::GetValuesRequest &request, \
             zmq::socket_t *socket) {
-    NetworkTable::GetValuesReply *getvalues_reply = new NetworkTable::GetValuesReply();
+    auto *getvalues_reply = new NetworkTable::GetValuesReply();
 
     for (int i = 0; i < request.keys_size(); i++) {
         std::string key = request.keys(i);
         NetworkTable::KeyValuePair *keyvaluepair = getvalues_reply->add_keyvaluepairs();
         keyvaluepair->set_key(key);
-        NetworkTable::Value *value = new NetworkTable::Value(GetValue(key));
+        NetworkTable::Value *value = new NetworkTable::Value(GetValueFromTable(key));
         keyvaluepair->set_allocated_value(value);
     }
 
@@ -144,7 +151,12 @@ void NetworkTable::Server::GetValues(const NetworkTable::GetValuesRequest &reque
     SendReply(reply, socket);
 }
 
-NetworkTable::Value NetworkTable::Server::GetValue(std::string key) {
+void NetworkTable::Server::Subscribe(const NetworkTable::SubscribeRequest &request, \
+            zmq::socket_t *socket) {
+    subscriptions_table_[request.key()].insert(socket);
+}
+
+NetworkTable::Value NetworkTable::Server::GetValueFromTable(std::string key) {
     if (values_.find(key) != values_.end()) {
         // A new network table has to be created on the heap.
         // If you instead write:
@@ -160,11 +172,38 @@ NetworkTable::Value NetworkTable::Server::GetValue(std::string key) {
     }
 }
 
-void  NetworkTable::Server::SendReply(const NetworkTable::Reply &reply, zmq::socket_t *socket) {
+void NetworkTable::Server::SetValueInTable(std::string key, \
+        const NetworkTable::Value &value) {
+    values_[key] = value;
+
+    // When the table has changed, make sure to
+    // notify anyone who subscribed to that key.
+    NotifySubscribers(key, value);
+}
+
+void NetworkTable::Server::NotifySubscribers(std::string key, \
+        const NetworkTable::Value &value) {
+    // Get list of subscriptions (sockets) for each key
+    std::set<zmq::socket_t*> subscription_sockets = subscriptions_table_[key];
+
+    // Construct the subscribe reply (update) message for the key
+    auto *subscribe_reply = new NetworkTable::SubscribeReply();
+    subscribe_reply->set_allocated_value(new NetworkTable::Value(value));
+    subscribe_reply->set_key(key);
+    NetworkTable::Reply reply;
+    reply.set_type(NetworkTable::Reply::SUBSCRIBE);
+    reply.set_allocated_subscribe_reply(subscribe_reply);
+    // Send the update message to each socket
+    for (const auto &socket : subscription_sockets) {
+        SendReply(reply, socket);
+    }
+}
+
+void NetworkTable::Server::SendReply(const NetworkTable::Reply &reply, zmq::socket_t *socket) {
     std::string serialized_reply;
     reply.SerializeToString(&serialized_reply);
 
     zmq::message_t message(serialized_reply.length());
     memcpy(message.data(), serialized_reply.data(), serialized_reply.length());
-    socket->send(message);
+    socket->send(message, ZMQ_DONTWAIT);
 }

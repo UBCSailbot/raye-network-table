@@ -4,15 +4,18 @@ package NetworkTable;
 
 import "SetValuesRequest.proto";
 import "GetValuesRequest.proto";
+import "SubscribeRequest.proto";
 
 message Request {
     required Type type = 1;
 
     optional SetValuesRequest setvalues_request = 2;
     optional GetValuesRequest getvalues_request = 3;
+    optional SubscribeRequest subscribe_request = 4;
 
     enum Type {
         SETVALUES = 0;
         GETVALUES = 1;
+        SUBSCRIBE = 2;
     }
 }

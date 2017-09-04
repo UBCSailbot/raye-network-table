@@ -6,10 +6,19 @@
 #include "network-table/Connection.h"
 #include "Value.pb.h"
 
+#include <atomic>
 #include <cmath>
 #include <iostream>
 #include <map>
 #include <string>
+
+std::atomic_int num_errors(0); // Total number of errors which have occured.
+
+void WindDirectionCallback(NetworkTable::Value value) {
+    if (value.int_data() != 20 && value.int_data() != 40) {
+        num_errors++;
+    }
+}
 
 /*
  * This is a basic "stress test"
@@ -20,12 +29,28 @@
  */
 int main() {
     int num_queries = 10; // How many times the set of tests is run.
-    int num_errors = 0; // Total number of errors which have occured.
     const double precision = .1; // Precision to use when comparing doubles.
 
     NetworkTable::Connection connection;
 
+    // Subscribe to wind direction.
+    connection.Subscribe("winddirection", &WindDirectionCallback);
+
     for (int i = 0; i < num_queries; i++) {
+        // SET wind direction
+        try {
+            NetworkTable::Value value;
+            value.set_type(NetworkTable::Value::INT);
+            if (i%2 == 0) {
+                value.set_int_data(20);
+            } else {
+                value.set_int_data(40);
+            }
+            connection.SetValue("winddirection", value);
+        } catch (...) {
+            num_errors++;
+        }
+
         // SET windspeed
         try {
             NetworkTable::Value value;
