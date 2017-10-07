@@ -63,6 +63,12 @@ class Connection {
      */
     void Subscribe(std::string key, void (*callback)(NetworkTable::Value value));
 
+    /*
+     * Stop receiving updates on a key in the network table.
+     * Has no effect if the key is not subscribed to.
+     */
+    void Unsubscribe(std::string key);
+
  private:
     void Send(const NetworkTable::Request &request);
 

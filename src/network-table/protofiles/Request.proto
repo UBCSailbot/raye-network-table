@@ -5,6 +5,7 @@ package NetworkTable;
 import "SetValuesRequest.proto";
 import "GetValuesRequest.proto";
 import "SubscribeRequest.proto";
+import "UnsubscribeRequest.proto";
 
 message Request {
     required Type type = 1;
@@ -12,10 +13,12 @@ message Request {
     optional SetValuesRequest setvalues_request = 2;
     optional GetValuesRequest getvalues_request = 3;
     optional SubscribeRequest subscribe_request = 4;
+    optional UnsubscribeRequest unsubscribe_request = 5;
 
     enum Type {
         SETVALUES = 0;
         GETVALUES = 1;
         SUBSCRIBE = 2;
+        UNSUBSCRIBE = 3;
     }
 }

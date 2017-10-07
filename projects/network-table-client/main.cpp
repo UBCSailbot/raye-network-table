@@ -20,6 +20,11 @@ void WindDirectionCallback(NetworkTable::Value value) {
     }
 }
 
+// This callback should never be called
+void BadCallback(NetworkTable::Value value) {
+    num_errors++;
+}
+
 /*
  * This is a basic "stress test"
  * for the network table server.
@@ -34,7 +39,15 @@ int main() {
     NetworkTable::Connection connection;
 
     // Subscribe to wind direction.
+    // Note that even though we subscribe to badcallback first,
+    // we override it with a call to winddirectioncallback.
+    // This should cause no problems.
+    connection.Subscribe("winddirection", &BadCallback);
     connection.Subscribe("winddirection", &WindDirectionCallback);
+
+    // Subscribe to windspeed then immediately unsubscribe.
+    connection.Subscribe("windspeed", &BadCallback);
+    connection.Unsubscribe("windspeed");
 
     for (int i = 0; i < num_queries; i++) {
         // SET wind direction

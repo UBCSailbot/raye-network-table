@@ -13,6 +13,7 @@
 #include "Reply.pb.h"
 #include "SetValuesRequest.pb.h"
 #include "SubscribeRequest.pb.h"
+#include "UnsubscribeRequest.pb.h"
 #include "Value.pb.h"
 
 namespace NetworkTable {
@@ -51,6 +52,9 @@ class Server {
             zmq::socket_t *socket);
 
     void Subscribe(const NetworkTable::SubscribeRequest &request, \
+            zmq::socket_t *socket);
+
+    void Unsubscribe(const NetworkTable::UnsubscribeRequest &request, \
             zmq::socket_t *socket);
 
     /*

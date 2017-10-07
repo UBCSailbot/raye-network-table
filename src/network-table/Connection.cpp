@@ -134,6 +134,21 @@ void NetworkTable::Connection::Subscribe(std::string key, void (*callback)(Netwo
     request_queue_mutex_.unlock();
 }
 
+void NetworkTable::Connection::Unsubscribe(std::string key) {
+    auto *unsubscribe_request = new NetworkTable::UnsubscribeRequest();
+    unsubscribe_request->set_key(key);
+
+    NetworkTable::Request request;
+    request.set_type(NetworkTable::Request::UNSUBSCRIBE);
+    request.set_allocated_unsubscribe_request(unsubscribe_request);
+
+    request_queue_mutex_.lock();
+    request_queue_.push(request);
+    request_queue_mutex_.unlock();
+
+    callbacks_.erase(key);
+}
+
 ////////////////////// PRIVATE //////////////////////
 
 void NetworkTable::Connection::Send(const NetworkTable::Request &request) {

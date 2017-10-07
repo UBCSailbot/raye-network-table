@@ -116,6 +116,12 @@ void NetworkTable::Server::HandleRequest(zmq::socket_t *socket) {
             }
             break;
         }
+        case NetworkTable::Request::UNSUBSCRIBE: {
+            if (request.has_unsubscribe_request()) {
+                Unsubscribe(request.unsubscribe_request(), socket);
+            }
+            break;
+        }
         default: {
             std::cout << "Don't know how to handle request: "\
                       << request.type()\
@@ -154,6 +160,12 @@ void NetworkTable::Server::GetValues(const NetworkTable::GetValuesRequest &reque
 void NetworkTable::Server::Subscribe(const NetworkTable::SubscribeRequest &request, \
             zmq::socket_t *socket) {
     subscriptions_table_[request.key()].insert(socket);
+}
+
+void NetworkTable::Server::Unsubscribe(const NetworkTable::UnsubscribeRequest &request, \
+            zmq::socket_t *socket) {
+    subscriptions_table_[request.key()].erase(\
+            subscriptions_table_[request.key()].find(socket));
 }
 
 NetworkTable::Value NetworkTable::Server::GetValueFromTable(std::string key) {
