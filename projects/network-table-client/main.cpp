@@ -99,15 +99,15 @@ int main() {
         }
         // GET latitude and longitude
         try {
-            std::vector<std::string> keys;
-            keys.push_back("latitude");
-            keys.push_back("longitude");
+            std::set<std::string> keys;
+            keys.insert("latitude");
+            keys.insert("longitude");
             
             auto values = connection.GetValues(keys);
-            if (!(std::abs(values[0].double_data() - latitude.double_data()) < precision)) {
+            if (!(std::abs(values["latitude"].double_data() - latitude.double_data()) < precision)) {
                 num_errors++;
             }
-            if (!(std::abs(values[1].double_data() - longitude.double_data()) < precision)) {
+            if (!(std::abs(values["longitude"].double_data() - longitude.double_data()) < precision)) {
                 num_errors++;
             }
         } catch (...) {

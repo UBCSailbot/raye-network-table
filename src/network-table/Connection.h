@@ -13,6 +13,7 @@
 #include <string>
 #include <thread>
 #include <queue>
+#include <set>
 #include <unordered_map>
 #include <zmq.hpp>
 
@@ -51,7 +52,7 @@ class Connection {
     /*
      * Get multiple values from the network table.
      */
-    std::vector<NetworkTable::Value> GetValues(std::vector<std::string> keys);
+    std::map<std::string, NetworkTable::Value> GetValues(std::set<std::string> keys);
 
     /*
      * Begin receiving updates on a key in

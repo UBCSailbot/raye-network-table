@@ -83,7 +83,7 @@ NetworkTable::Value NetworkTable::Connection::GetValue(std::string key) {
     }
 }
 
-std::vector<NetworkTable::Value> NetworkTable::Connection::GetValues(std::vector<std::string> keys) {
+std::map<std::string, NetworkTable::Value> NetworkTable::Connection::GetValues(std::set<std::string> keys) {
     auto *getvalues_request = new NetworkTable::GetValuesRequest();
 
     for (auto const &key : keys) {
@@ -106,9 +106,11 @@ std::vector<NetworkTable::Value> NetworkTable::Connection::GetValues(std::vector
             reply_queue_.pop();
             reply_queue_mutex_.unlock();
 
-            std::vector<NetworkTable::Value> values;
+            std::map<std::string, NetworkTable::Value> values;
             for (int i = 0; i < reply.getvalues_reply().keyvaluepairs_size(); i++) {
-                values.push_back(reply.getvalues_reply().keyvaluepairs(i).value());
+                std::string key = reply.getvalues_reply().keyvaluepairs(i).key();
+                NetworkTable::Value value = reply.getvalues_reply().keyvaluepairs(i).value();
+                values[key] = value;
             }
 
             return values;
