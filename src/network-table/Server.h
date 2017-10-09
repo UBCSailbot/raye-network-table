@@ -57,6 +57,8 @@ class Server {
     void Unsubscribe(const NetworkTable::UnsubscribeRequest &request, \
             zmq::socket_t *socket);
 
+    void DisconnectSocket(zmq::socket_t *socket);
+
     /*
      * Returns value stored in values_ if it exists.
      * Otherwise returns a value with type NONE.
@@ -88,8 +90,8 @@ class Server {
     std::vector<zmq::socket_t*> sockets_;  // Each socket is a connection to another process.
     std::unordered_map<std::string, NetworkTable::Value> values_;  // This is where the actual data is stored.
     std::unordered_map<std::string, \
-        std::set<zmq::socket_t*>> subscriptions_table_;  // maps from a key in the network table
-                                                         // to a set of sockets subscribe to that key.
+        std::set<zmq::socket_t*>*> subscriptions_table_;  // maps from a key in the network table
+                                                          // to a set of sockets subscribe to that key.
 
     int current_socket_number_ = 1;
 };

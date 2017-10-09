@@ -9,13 +9,20 @@
 NetworkTable::Connection::Connection()
     : is_running_(true), context_(1), socket_(context_, ZMQ_PAIR),
       socket_thread_(&NetworkTable::Connection::ManageSocket, this) {
-    // Most work is done in ManageSocket
 }
 
 NetworkTable::Connection::~Connection() {
+    // Stop the ManageSocket thread.
+    // This must be stopped first in order to
+    // send the disconnect message on the socket.
     is_running_ = false;
-
     socket_thread_.join();
+
+    // Disconnect from server.
+    std::string request_body = "disconnect";
+    zmq::message_t request(request_body.size()+1);
+    memcpy(request.data(), request_body.c_str(), request_body.size()+1);
+    socket_.send(request);
 }
 
 void NetworkTable::Connection::SetValue(std::string key, const NetworkTable::Value &value) {

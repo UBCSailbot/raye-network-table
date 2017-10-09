@@ -5,6 +5,7 @@
 #include "SubscribeReply.pb.h"
 #include "Request.pb.h"
 
+#include <algorithm>
 #include <boost/filesystem.hpp>
 #include <iostream>
 
@@ -89,8 +90,16 @@ void NetworkTable::Server::CreateNewConnection() {
 void NetworkTable::Server::HandleRequest(zmq::socket_t *socket) {
     zmq::message_t message;
     socket->recv(&message);
+
+    // First check to see if the client wanted to disconnect from the server.
+    if (strcmp(static_cast<char*>(message.data()), "disconnect") == 0) {
+        DisconnectSocket(socket);
+        return;
+    }
+
     std::string serialized_request(static_cast<char*>(message.data()), \
             message.size());
+
     NetworkTable::Request request;
     if (!request.ParseFromString(serialized_request)) {
         std::cout << "Error parsing message\n";
@@ -159,13 +168,37 @@ void NetworkTable::Server::GetValues(const NetworkTable::GetValuesRequest &reque
 
 void NetworkTable::Server::Subscribe(const NetworkTable::SubscribeRequest &request, \
             zmq::socket_t *socket) {
-    subscriptions_table_[request.key()].insert(socket);
+    if (subscriptions_table_[request.key()] == NULL) {
+        subscriptions_table_[request.key()] = new std::set<zmq::socket_t*>();
+    }
+    subscriptions_table_[request.key()]->insert(socket);
 }
 
 void NetworkTable::Server::Unsubscribe(const NetworkTable::UnsubscribeRequest &request, \
             zmq::socket_t *socket) {
-    subscriptions_table_[request.key()].erase(\
-            subscriptions_table_[request.key()].find(socket));
+    auto subscribed_sockets = subscriptions_table_[request.key()];
+    subscribed_sockets->erase(socket);
+}
+
+void NetworkTable::Server::DisconnectSocket(zmq::socket_t *socket) {
+    // Make sure to remove any subscriptions this socket had.
+    // Without this, the server will still try to send
+    // updates to the socket.
+    for (auto const& entry : subscriptions_table_) {
+        auto subscribed_sockets = entry.second;
+        if (subscribed_sockets != NULL) {
+            subscribed_sockets->erase(socket);
+        }
+    }
+
+    // Remove the socket from our list of sockets to poll
+    // and delete it.
+    auto it = std::find(sockets_.begin(), sockets_.end(), socket);
+    if (it != sockets_.end()) {
+        sockets_.erase(it);
+
+        delete socket;
+    }
 }
 
 NetworkTable::Value NetworkTable::Server::GetValueFromTable(std::string key) {
@@ -195,9 +228,6 @@ void NetworkTable::Server::SetValueInTable(std::string key, \
 
 void NetworkTable::Server::NotifySubscribers(std::string key, \
         const NetworkTable::Value &value) {
-    // Get list of subscriptions (sockets) for each key
-    std::set<zmq::socket_t*> subscription_sockets = subscriptions_table_[key];
-
     // Construct the subscribe reply (update) message for the key
     auto *subscribe_reply = new NetworkTable::SubscribeReply();
     subscribe_reply->set_allocated_value(new NetworkTable::Value(value));
@@ -205,9 +235,14 @@ void NetworkTable::Server::NotifySubscribers(std::string key, \
     NetworkTable::Reply reply;
     reply.set_type(NetworkTable::Reply::SUBSCRIBE);
     reply.set_allocated_subscribe_reply(subscribe_reply);
-    // Send the update message to each socket
-    for (const auto &socket : subscription_sockets) {
-        SendReply(reply, socket);
+
+    // Get list of subscriptions (sockets) for the key
+    auto subscription_sockets = subscriptions_table_[key];
+    if (subscription_sockets != NULL) {
+        // Send the update message to each socket
+        for (const auto& socket : *subscription_sockets) {
+            SendReply(reply, socket);
+        }
     }
 }
 
