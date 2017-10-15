@@ -3,26 +3,26 @@
 ###########
 
 set(LIB_SRCS
-        network-table/Server.cpp
-        network-table/Connection.cpp
+        Server.cpp
+        Connection.cpp
         )
 
 set(LIB_HDRS
-        network-table/Server.h
-        network-table/Connection.h
+        Server.h
+        Connection.h
         )
 
 protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS
-    network-table/protofiles/KeyValuePair.proto
-    network-table/protofiles/Reply.proto
-    network-table/protofiles/Request.proto
-    network-table/protofiles/SetValuesRequest.proto
-    network-table/protofiles/GetValuesReply.proto
-    network-table/protofiles/GetValuesRequest.proto
-    network-table/protofiles/SubscribeRequest.proto
-    network-table/protofiles/SubscribeReply.proto
-    network-table/protofiles/UnsubscribeRequest.proto
-    network-table/protofiles/Value.proto
+    protofiles/KeyValuePair.proto
+    protofiles/Reply.proto
+    protofiles/Request.proto
+    protofiles/SetValuesRequest.proto
+    protofiles/GetValuesReply.proto
+    protofiles/GetValuesRequest.proto
+    protofiles/SubscribeRequest.proto
+    protofiles/SubscribeReply.proto
+    protofiles/UnsubscribeRequest.proto
+    protofiles/Value.proto
     )
 
 # Define the src_core library target

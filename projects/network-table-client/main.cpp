@@ -3,7 +3,7 @@
 // Sends requests to the network table
 // Returns the number of errors which occured.
 
-#include "network-table/Connection.h"
+#include "Connection.h"
 #include "Value.pb.h"
 
 #include <atomic>

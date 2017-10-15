@@ -1,7 +1,7 @@
 // Copyright 2017 UBC Sailbot
 
-#ifndef NETWORK_TABLE_SERVER_H_
-#define NETWORK_TABLE_SERVER_H_
+#ifndef SERVER_H_
+#define SERVER_H_
 
 #include <set>
 #include <string>
@@ -97,4 +97,4 @@ class Server {
 };
 }  // namespace NetworkTable
 
-#endif  // NETWORK_TABLE_SERVER_H_
+#endif  // SERVER_H_

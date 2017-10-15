@@ -1,7 +1,7 @@
 // Copyright 2017 UBC Sailbot
 
-#ifndef NETWORK_TABLE_CONNECTION_H_
-#define NETWORK_TABLE_CONNECTION_H_
+#ifndef CONNECTION_H_
+#define CONNECTION_H_
 
 #include "Reply.pb.h"
 #include "Request.pb.h"
@@ -98,4 +98,4 @@ class Connection {
 };
 }  // namespace NetworkTable
 
-#endif  // NETWORK_TABLE_CONNECTION_H_
+#endif  // CONNECTION_H_
