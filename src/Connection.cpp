@@ -229,7 +229,17 @@ void NetworkTable::Connection::ManageSocket() {
                 std::string key = reply.subscribe_reply().key();
                 NetworkTable::Value value = reply.subscribe_reply().value();
 
-                callbacks_[key](value);
+                // Even after sending an Unsubscribe request,
+                // it can take a while for that request to be processed
+                // if other processes are also sending requests to the server.
+                // If one of these other requests happens to update
+                // a value which was subscribed to by this process,
+                // a SubscribeReply can still be sent by the server,
+                // even though this process just sent an UnsubscribeRequest
+                // to the server.
+                if (callbacks_[key] != NULL) {
+                    callbacks_[key](value);
+                }
             } else {
                 // Otherwise put it in the reply queue
                 // where the main thread will get it.
