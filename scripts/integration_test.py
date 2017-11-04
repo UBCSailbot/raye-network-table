@@ -18,7 +18,7 @@ import sys
 # Get the number of clients which will
 # be querying the network table.
 if len(sys.argv) != 2:
-    numClients = 10
+    numClients = 100
 else:
     numClients = int(sys.argv[1])
 
