@@ -45,9 +45,17 @@ void NetworkTable::Server::Run() {
         if (pollitems[0].revents & ZMQ_POLLIN) {
             CreateNewConnection();
         }
+        // Do not directly pass the sockets_ vector
+        // into the HandleRequest function.
+        // Instead pass in a copy of the sockets_ vector.
+        // This is because HandleRequest may call DisconnectSocket
+        // which will modify sockets_ (specifically,
+        // remove a socket from sockets_.
+        std::vector<zmq::socket_t*> sockets_copy = sockets_;
+
         for (int i = 0; i < num_sockets-1; i++) {
             if (pollitems[i+1].revents & ZMQ_POLLIN) {
-                HandleRequest(sockets_[i]);
+                HandleRequest(sockets_copy[i]);
             }
         }
     }
