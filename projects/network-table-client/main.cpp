@@ -7,6 +7,7 @@
 #include "Value.pb.h"
 
 #include <atomic>
+#include <chrono>
 #include <cmath>
 #include <iostream>
 #include <map>
@@ -50,21 +51,22 @@ int main() {
         return 0;
     }
 
-    // These tests can fail because it's possible to subscribe,
-    // then before you unsubscribe, another process might send
-    // a SetValue request to "windspeed", causing BadCallback
-    // to be ran. That's why the tests have been commented out:
-
     // Subscribe to wind direction.
     // Note that even though we subscribe to badcallback first,
     // we override it with a call to winddirectioncallback.
     // This should cause no problems.
-    // connection.Subscribe("winddirection", &BadCallback);
-    // connection.Subscribe("winddirection", &WindDirectionCallback);
+    connection.Subscribe("winddirection", &BadCallback);
+    connection.Subscribe("winddirection", &WindDirectionCallback);
 
     // Subscribe to windspeed then immediately unsubscribe.
-    // connection.Subscribe("windspeed", &BadCallback);
-    // connection.Unsubscribe("windspeed");
+    connection.Subscribe("windspeed", &BadCallback);
+    connection.Unsubscribe("windspeed");
+ 
+    // Without this timeout, it is possible for BadCallback to be called.
+    // What happens in between the call to subscribe with BadCallback, and
+    // the time to unsubscribe, another process can change the value
+    // of windspeed or winddirection, causing BadCallback to get called.
+    std::this_thread::sleep_for(std::chrono::seconds(3));
 
     for (int i = 0; i < num_queries; i++) {
         // SET wind direction
