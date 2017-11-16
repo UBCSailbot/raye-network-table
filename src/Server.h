@@ -3,6 +3,7 @@
 #ifndef SERVER_H_
 #define SERVER_H_
 
+#include <memory>
 #include <set>
 #include <string>
 #include <unordered_map>
@@ -18,6 +19,8 @@
 
 namespace NetworkTable {
 class Server {
+typedef std::shared_ptr<zmq::socket_t> socket_ptr;
+
  public:
     Server();
 
@@ -38,7 +41,7 @@ class Server {
     /*
      * Handles a request on a ZMQ_PAIR socket.
      */
-    void HandleRequest(zmq::socket_t *socket);
+    void HandleRequest(socket_ptr socket);
 
     /*
      * Helper functions to handle specific types
@@ -49,15 +52,15 @@ class Server {
     void SetValues(const NetworkTable::SetValuesRequest &request);
 
     void GetValues(const NetworkTable::GetValuesRequest &request, \
-            zmq::socket_t *socket);
+            socket_ptr socket);
 
     void Subscribe(const NetworkTable::SubscribeRequest &request, \
-            zmq::socket_t *socket);
+            socket_ptr socket);
 
     void Unsubscribe(const NetworkTable::UnsubscribeRequest &request, \
-            zmq::socket_t *socket);
+            socket_ptr socket);
 
-    void DisconnectSocket(zmq::socket_t *socket);
+    void DisconnectSocket(socket_ptr socket);
 
     /*
      * Returns value stored in values_ if it exists.
@@ -83,15 +86,15 @@ class Server {
      * Serializes a network table reply,
      * then sends it on the socket.
      */
-    void SendReply(const NetworkTable::Reply &reply, zmq::socket_t *socket);
+    void SendReply(const NetworkTable::Reply &reply, socket_ptr socket);
 
     zmq::context_t context_;  // The context which sockets are created from.
     zmq::socket_t init_socket_;  // Used to connect to the server for the first time.
-    std::vector<zmq::socket_t*> sockets_;  // Each socket is a connection to another process.
+    std::vector<socket_ptr> sockets_;  // Each socket is a connection to another process.
     std::unordered_map<std::string, NetworkTable::Value> values_;  // This is where the actual data is stored.
     std::unordered_map<std::string, \
-        std::set<zmq::socket_t*>*> subscriptions_table_;  // maps from a key in the network table
-                                                          // to a set of sockets subscribe to that key.
+        std::set<socket_ptr>> subscriptions_table_;  // maps from a key in the network table
+                                                      // to a set of sockets subscribe to that key.
 
     int current_socket_number_ = 1;
 };

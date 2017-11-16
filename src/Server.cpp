@@ -51,7 +51,7 @@ void NetworkTable::Server::Run() {
         // This is because HandleRequest may call DisconnectSocket
         // which will modify sockets_ (specifically,
         // remove a socket from sockets_.
-        std::vector<zmq::socket_t*> sockets_copy = sockets_;
+        std::vector<socket_ptr> sockets_copy = sockets_;
 
         for (int i = 0; i < num_sockets-1; i++) {
             if (pollitems[i+1].revents & ZMQ_POLLIN) {
@@ -78,7 +78,7 @@ void NetworkTable::Server::CreateNewConnection() {
         current_socket_number_++;
 
         // Add new socket to sockets_ and bind it.
-        zmq::socket_t *socket = new zmq::socket_t(context_, ZMQ_PAIR);
+        socket_ptr socket = std::make_shared<zmq::socket_t>(context_, ZMQ_PAIR);
         socket->bind(filepath);
         sockets_.push_back(socket);
 
@@ -95,7 +95,7 @@ void NetworkTable::Server::CreateNewConnection() {
     }
 }
 
-void NetworkTable::Server::HandleRequest(zmq::socket_t *socket) {
+void NetworkTable::Server::HandleRequest(socket_ptr socket) {
     zmq::message_t message;
     socket->recv(&message);
 
@@ -156,7 +156,7 @@ void NetworkTable::Server::SetValues(const NetworkTable::SetValuesRequest &reque
 }
 
 void NetworkTable::Server::GetValues(const NetworkTable::GetValuesRequest &request, \
-            zmq::socket_t *socket) {
+            socket_ptr socket) {
     auto *getvalues_reply = new NetworkTable::GetValuesReply();
 
     for (int i = 0; i < request.keys_size(); i++) {
@@ -175,37 +175,30 @@ void NetworkTable::Server::GetValues(const NetworkTable::GetValuesRequest &reque
 }
 
 void NetworkTable::Server::Subscribe(const NetworkTable::SubscribeRequest &request, \
-            zmq::socket_t *socket) {
-    if (subscriptions_table_[request.key()] == NULL) {
-        subscriptions_table_[request.key()] = new std::set<zmq::socket_t*>();
-    }
-    subscriptions_table_[request.key()]->insert(socket);
+            socket_ptr socket) {
+    subscriptions_table_[request.key()].insert(socket);
 }
 
 void NetworkTable::Server::Unsubscribe(const NetworkTable::UnsubscribeRequest &request, \
-            zmq::socket_t *socket) {
-    auto subscribed_sockets = subscriptions_table_[request.key()];
-    subscribed_sockets->erase(socket);
+            socket_ptr socket) {
+    subscriptions_table_[request.key()].erase(socket);
 }
 
-void NetworkTable::Server::DisconnectSocket(zmq::socket_t *socket) {
+void NetworkTable::Server::DisconnectSocket(socket_ptr socket) {
     // Make sure to remove any subscriptions this socket had.
     // Without this, the server will still try to send
     // updates to the socket.
-    for (auto const& entry : subscriptions_table_) {
-        auto subscribed_sockets = entry.second;
-        if (subscribed_sockets != NULL) {
-            subscribed_sockets->erase(socket);
-        }
+    for (auto &entry : subscriptions_table_) {
+        entry.second.erase(socket);
     }
 
-    // Remove the socket from our list of sockets to poll
-    // and delete it.
-    auto it = std::find(sockets_.begin(), sockets_.end(), socket);
-    if (it != sockets_.end()) {
-        sockets_.erase(it);
-
-        delete socket;
+    {
+        // Remove the socket from our list of sockets to poll
+        // and delete it.
+        auto it = std::find(sockets_.begin(), sockets_.end(), socket);
+        if (it != sockets_.end()) {
+            sockets_.erase(it);
+        }
     }
 }
 
@@ -245,16 +238,14 @@ void NetworkTable::Server::NotifySubscribers(std::string key, \
     reply.set_allocated_subscribe_reply(subscribe_reply);
 
     // Get list of subscriptions (sockets) for the key
-    auto subscription_sockets = subscriptions_table_[key];
-    if (subscription_sockets != NULL) {
-        // Send the update message to each socket
-        for (const auto& socket : *subscription_sockets) {
-            SendReply(reply, socket);
-        }
+    std::set<socket_ptr> subscription_sockets = subscriptions_table_[key];
+    // Send the update message to each socket
+    for (const auto& socket : subscription_sockets) {
+        SendReply(reply, socket);
     }
 }
 
-void NetworkTable::Server::SendReply(const NetworkTable::Reply &reply, zmq::socket_t *socket) {
+void NetworkTable::Server::SendReply(const NetworkTable::Reply &reply, socket_ptr socket) {
     std::string serialized_reply;
     reply.SerializeToString(&serialized_reply);
 
