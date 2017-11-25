@@ -1,5 +1,5 @@
 # Set a variable for commands below
-set(PROJECT_NAME network-table-client)
+set(PROJECT_NAME client)
 
 # Define your project and language
 project(${PROJECT_NAME} CXX)

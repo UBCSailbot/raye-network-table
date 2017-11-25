@@ -1,5 +1,5 @@
 # Set a variable for commands below
-set(PROJECT_NAME network-table-server)
+set(PROJECT_NAME server)
 
 # Define your project and language
 project(${PROJECT_NAME} CXX)

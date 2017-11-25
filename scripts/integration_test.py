@@ -35,13 +35,13 @@ except subprocess.CalledProcessError:
     exit()
 
 # Start the server
-server = subprocess.Popen(['./bin/network-table-server'],
+server = subprocess.Popen(['./bin/server'],
                           preexec_fn=os.setsid)
 
 # This is an array of client processes which will communicate with the server.
 # They will all run at the same time, then the return value of each
 # one will be checked.
-clients = [subprocess.Popen(['./bin/network-table-client'],
+clients = [subprocess.Popen(['./bin/client'],
                             preexec_fn=os.setsid)
                    for i in range(numClients)]
 
