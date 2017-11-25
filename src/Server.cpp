@@ -148,9 +148,9 @@ void NetworkTable::Server::HandleRequest(socket_ptr socket) {
 }
 
 void NetworkTable::Server::SetValues(const NetworkTable::SetValuesRequest &request) {
-    for (int i = 0; i < request.keyvaluepairs_size(); i++) {
-        std::string key = request.keyvaluepairs(i).key();
-        NetworkTable::Value value = request.keyvaluepairs(i).value();
+    for (auto const &entry : request.values()) {
+        std::string key = entry.first;
+        NetworkTable::Value value = entry.second;
         SetValueInTable(key, value);
     }
 }
@@ -158,13 +158,12 @@ void NetworkTable::Server::SetValues(const NetworkTable::SetValuesRequest &reque
 void NetworkTable::Server::GetValues(const NetworkTable::GetValuesRequest &request, \
             socket_ptr socket) {
     auto *getvalues_reply = new NetworkTable::GetValuesReply();
+    auto *mutable_nodes = getvalues_reply->mutable_nodes();
 
     for (int i = 0; i < request.keys_size(); i++) {
         std::string key = request.keys(i);
-        NetworkTable::KeyValuePair *keyvaluepair = getvalues_reply->add_keyvaluepairs();
-        keyvaluepair->set_key(key);
-        NetworkTable::Value *value = new NetworkTable::Value(GetValueFromTable(key));
-        keyvaluepair->set_allocated_value(value);
+        NetworkTable::Node node = GetNodeFromTable(key);
+        (*mutable_nodes)[key] = node;
     }
 
     NetworkTable::Reply reply;
@@ -203,13 +202,10 @@ void NetworkTable::Server::DisconnectSocket(socket_ptr socket) {
 }
 
 NetworkTable::Value NetworkTable::Server::GetValueFromTable(std::string key) {
-    if (values_.find(key) != values_.end()) {
-        // A new network table has to be created on the heap.
-        // If you instead write:
-        // getvalue_reply->set_allocated_value(&values_[key]);
-        // you will get a segfault when this function returns.
-        return values_[key];
-    } else {
+    try {
+        NetworkTable::Node node = values_.GetNode(key);
+        return node.value();
+    } catch (NetworkTable::NodeNotFoundException &e) {
         // If the value wasn't found, create a new value
         // of type NONE and return that to the client.
         NetworkTable::Value value;
@@ -218,9 +214,24 @@ NetworkTable::Value NetworkTable::Server::GetValueFromTable(std::string key) {
     }
 }
 
+NetworkTable::Node NetworkTable::Server::GetNodeFromTable(std::string key) {
+    try {
+        NetworkTable::Node node = values_.GetNode(key);
+        return node;
+    } catch (NetworkTable::NodeNotFoundException &e) {
+        // If the node wasn't found, create a new node
+        // with value of type NONE and return that to the client.
+        NetworkTable::Node node;
+        NetworkTable::Value *value = new NetworkTable::Value();
+        value->set_type(NetworkTable::Value::NONE);
+        node.set_allocated_value(value);
+        return node;
+    }
+}
+
 void NetworkTable::Server::SetValueInTable(std::string key, \
         const NetworkTable::Value &value) {
-    values_[key] = value;
+    values_.SetNode(key, value);
 
     // When the table has changed, make sure to
     // notify anyone who subscribed to that key.

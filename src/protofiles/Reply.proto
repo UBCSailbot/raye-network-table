@@ -1,4 +1,4 @@
-syntax = "proto2";
+syntax = "proto3";
 
 package NetworkTable;
 
@@ -6,10 +6,10 @@ import "GetValuesReply.proto";
 import "SubscribeReply.proto";
 
 message Reply {
-    required Type type = 1;
+    Type type = 1;
 
-    optional GetValuesReply getvalues_reply = 2;
-    optional SubscribeReply subscribe_reply = 3;
+    GetValuesReply getvalues_reply = 2;
+    SubscribeReply subscribe_reply = 3;
 
     enum Type {
         GETVALUES = 0;

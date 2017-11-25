@@ -49,12 +49,21 @@ class Connection {
 
     /*
      * Get a value from the network table.
-     * Returns a NetworkTable::Value with type NONE
+     * Returns a value with NetworkTable::Value type NONE
      * if no value at the specified key exists.
      * 
      * @param key - returns the value located at this key.
      */
     NetworkTable::Value GetValue(std::string key);
+
+    /*
+     * Get a node from the network table.
+     * Returns a node with NetworkTable::Value type NONE
+     * if no node at the specified key exists.
+     * 
+     * @param key - returns the value located at this key.
+     */
+    NetworkTable::Node GetNode(std::string key);
 
     /*
      * Get multiple values from the network table.
@@ -64,6 +73,15 @@ class Connection {
      * @param keys - which keys to get which values for.
      */
     std::map<std::string, NetworkTable::Value> GetValues(std::set<std::string> keys);
+
+    /*
+     * Get multiple nodes from the network table.
+     * The nodes are returned in the same order that
+     * the keys were sent in.
+     *
+     * @param keys - which keys to get which values for.
+     */
+    std::map<std::string, NetworkTable::Node> GetNodes(std::set<std::string> keys);
 
     /*
      * Begin receiving updates on a key in

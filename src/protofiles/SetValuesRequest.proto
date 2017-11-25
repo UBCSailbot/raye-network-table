@@ -1,9 +1,9 @@
-syntax = "proto2";
+syntax = "proto3";
 
 package NetworkTable;
 
-import "KeyValuePair.proto";
+import "Value.proto";
 
 message SetValuesRequest {
-    repeated KeyValuePair keyvaluepairs = 1;
+    map<string, Value> values = 1;
 }

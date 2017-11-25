@@ -15,6 +15,7 @@
 #include "SetValuesRequest.pb.h"
 #include "SubscribeRequest.pb.h"
 #include "UnsubscribeRequest.pb.h"
+#include "Tree.h"
 #include "Value.pb.h"
 
 namespace NetworkTable {
@@ -71,6 +72,14 @@ typedef std::shared_ptr<zmq::socket_t> socket_ptr;
     NetworkTable::Value GetValueFromTable(std::string key);
 
     /*
+     * Returns a node stored in values_ if it exists.
+     * Otherwise returns a node with value of type NONE.
+     * Use this instead of directly getting values
+     * from the table.
+     */
+    NetworkTable::Node GetNodeFromTable(std::string key);
+
+    /*
      * Sets a value stored in values_ if it exists, creates
      * a new entry if the entry does not already exist.
      * Also sends an update any subscribers of the key.
@@ -91,7 +100,7 @@ typedef std::shared_ptr<zmq::socket_t> socket_ptr;
     zmq::context_t context_;  // The context which sockets are created from.
     zmq::socket_t init_socket_;  // Used to connect to the server for the first time.
     std::vector<socket_ptr> sockets_;  // Each socket is a connection to another process.
-    std::unordered_map<std::string, NetworkTable::Value> values_;  // This is where the actual data is stored.
+    NetworkTable::Tree values_;  // This is where the actual data is stored.
     std::unordered_map<std::string, \
         std::set<socket_ptr>> subscriptions_table_;  // maps from a key in the network table
                                                       // to a set of sockets subscribe to that key.

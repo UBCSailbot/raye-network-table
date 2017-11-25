@@ -1,4 +1,4 @@
-syntax = "proto2";
+syntax = "proto3";
 
 package NetworkTable;
 
@@ -8,12 +8,12 @@ import "SubscribeRequest.proto";
 import "UnsubscribeRequest.proto";
 
 message Request {
-    required Type type = 1;
+    Type type = 1;
 
-    optional SetValuesRequest setvalues_request = 2;
-    optional GetValuesRequest getvalues_request = 3;
-    optional SubscribeRequest subscribe_request = 4;
-    optional UnsubscribeRequest unsubscribe_request = 5;
+    SetValuesRequest setvalues_request = 2;
+    GetValuesRequest getvalues_request = 3;
+    SubscribeRequest subscribe_request = 4;
+    UnsubscribeRequest unsubscribe_request = 5;
 
     enum Type {
         SETVALUES = 0;

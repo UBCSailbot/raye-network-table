@@ -1,7 +1,7 @@
-syntax = "proto2";
+syntax = "proto3";
 
 package NetworkTable;
 
 message UnsubscribeRequest {
-    required string key = 1;
+    string key = 1;
 }

@@ -1,10 +1,10 @@
-syntax = "proto2";
+syntax = "proto3";
 
 package NetworkTable;
 
 import "Value.proto";
 
 message SubscribeReply {
-    required string key = 1;
-    required Value value = 2;
+    string key = 1;
+    Value value = 2;
 }

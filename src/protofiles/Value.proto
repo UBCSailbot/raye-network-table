@@ -1,15 +1,14 @@
-syntax = "proto2";
+syntax = "proto3";
 
 package NetworkTable;
 
 message Value {
-    required Type type = 1;
-    optional double double_data = 2;
-    optional bool bool_data = 3;
-    optional int32 int_data = 4;
-    optional string string_data = 5;
-    optional bytes bytes_data = 6;
-//    TODO(Puya): Add timestamp
+    Type type = 1;
+    double double_data = 2;
+    bool bool_data = 3;
+    int32 int_data = 4;
+    string string_data = 5;
+    bytes bytes_data = 6;
 
     enum Type {
          DOUBLE = 0;

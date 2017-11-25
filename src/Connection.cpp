@@ -44,10 +44,8 @@ void NetworkTable::Connection::SetValue(std::string key, const NetworkTable::Val
     // Create a SetValuesRequest with a single
     // key/value pair.
     auto *setvalues_request = new NetworkTable::SetValuesRequest();
-    NetworkTable::KeyValuePair *keyvaluepair = setvalues_request->add_keyvaluepairs();
-
-    keyvaluepair->set_key(key);
-    keyvaluepair->set_allocated_value(new NetworkTable::Value(value));
+    auto mutable_values = setvalues_request->mutable_values();
+    (*mutable_values)[key] = NetworkTable::Value(value);
 
     NetworkTable::Request request;
     request.set_type(NetworkTable::Request::SETVALUES);
@@ -65,10 +63,11 @@ void NetworkTable::Connection::SetValues(const std::map<std::string, NetworkTabl
 
     // Create a SetValuesRequest with each of the key/value pairs.
     auto *setvalues_request = new NetworkTable::SetValuesRequest();
+    auto mutable_values = setvalues_request->mutable_values();
     for (auto const &entry : values) {
-        NetworkTable::KeyValuePair *keyvaluepair = setvalues_request->add_keyvaluepairs();
-        keyvaluepair->set_key(entry.first);
-        keyvaluepair->set_allocated_value(new NetworkTable::Value(entry.second));
+        std::string key = entry.first;
+        NetworkTable::Value value = entry.second;
+        (*mutable_values)[key] = value;
     }
 
     NetworkTable::Request request;
@@ -83,6 +82,10 @@ void NetworkTable::Connection::SetValues(const std::map<std::string, NetworkTabl
 }
 
 NetworkTable::Value NetworkTable::Connection::GetValue(std::string key) {
+    return GetNode(key).value();
+}
+
+NetworkTable::Node NetworkTable::Connection::GetNode(std::string key) {
     assert(connected_);
 
     // Create a GetValuesRequest with a single key/value pair.
@@ -116,7 +119,7 @@ NetworkTable::Value NetworkTable::Connection::GetValue(std::string key) {
             // request we sent.
             // If not, just throw out the reply.
             if (reply_uuid == request_uuid) {
-                return reply.getvalues_reply().keyvaluepairs(0).value();
+                return reply.getvalues_reply().nodes().at(key);
             }
         }
         reply_queue_mutex_.unlock();
@@ -128,6 +131,16 @@ NetworkTable::Value NetworkTable::Connection::GetValue(std::string key) {
 }
 
 std::map<std::string, NetworkTable::Value> NetworkTable::Connection::GetValues(std::set<std::string> keys) {
+    std::map<std::string, NetworkTable::Value> values;
+
+    for (auto const &keyNodePair : GetNodes(keys)) {
+        values[keyNodePair.first] = keyNodePair.second.value();
+    }
+
+    return values;
+}
+
+std::map<std::string, NetworkTable::Node> NetworkTable::Connection::GetNodes(std::set<std::string> keys) {
     assert(connected_);
 
     auto *getvalues_request = new NetworkTable::GetValuesRequest();
@@ -163,14 +176,14 @@ std::map<std::string, NetworkTable::Value> NetworkTable::Connection::GetValues(s
             // request we sent.
             // If not, just throw out the reply.
             if (reply_uuid == request_uuid) {
-                std::map<std::string, NetworkTable::Value> values;
-                for (int i = 0; i < reply.getvalues_reply().keyvaluepairs_size(); i++) {
-                    std::string key = reply.getvalues_reply().keyvaluepairs(i).key();
-                    NetworkTable::Value value = reply.getvalues_reply().keyvaluepairs(i).value();
-                    values[key] = value;
+                std::map<std::string, NetworkTable::Node> nodes;
+                for (auto const &entry : reply.getvalues_reply().nodes()) {
+                    std::string key = entry.first;
+                    NetworkTable::Node node = entry.second;
+                    nodes[key] = node;
                 }
 
-                return values;
+                return nodes;
             }
         }
         reply_queue_mutex_.unlock();

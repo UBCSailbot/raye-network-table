@@ -5,6 +5,7 @@
 
 #include "Connection.h"
 #include "Value.pb.h"
+#include "Node.pb.h"
 
 #include <atomic>
 #include <chrono>
@@ -36,11 +37,12 @@ void BadCallback(NetworkTable::Value value) {
  * table is returned.
  */
 int main() {
+    NetworkTable::Node node;
     int num_queries = 10; // How many times the set of tests is run.
     const double precision = .1; // Precision to use when comparing doubles.
 
     NetworkTable::Connection connection;
-    connection.SetTimeout(800); // This will occasionally timeout
+    connection.SetTimeout(1500); // This will occasionally timeout
                                  // if the integration test uses 100
                                  // clients, which is good! We should
                                  // be testing the timeout functionality.
