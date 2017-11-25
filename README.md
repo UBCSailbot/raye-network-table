@@ -1,6 +1,8 @@
-# Central Controller
+# Network Table
 
-This is a collection of processes which will run on the main computer in Ada 2.0.
+This server which is used as a communication hub by various processes.
+
+[Network Table Communication Protocol](https://confluence.ubcsailbot.org/display/ADA2/Network+Table+Communication+Protocol)
 
 ## Setup
 
