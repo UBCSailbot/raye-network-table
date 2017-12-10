@@ -4,6 +4,7 @@ data
 extra
 *.pyc
 .local.vimrc
+compile_commands.json
 
 # JetBrains IDEs
 .idea
