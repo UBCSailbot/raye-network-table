@@ -42,7 +42,7 @@ int main() {
     const double precision = .1; // Precision to use when comparing doubles.
 
     NetworkTable::Connection connection;
-    connection.SetTimeout(1500); // This will occasionally timeout
+    connection.SetTimeout(1000); // This will occasionally timeout
                                  // if the integration test uses 100
                                  // clients, which is good! We should
                                  // be testing the timeout functionality.
@@ -134,8 +134,8 @@ int main() {
         longitude.set_double_data(155.9594);
         try {
             std::map<std::string, NetworkTable::Value> values;
-            values.insert(std::pair<std::string, NetworkTable::Value>("latitude", latitude));
-            values.insert(std::pair<std::string, NetworkTable::Value>("longitude", longitude));
+            values.insert(std::pair<std::string, NetworkTable::Value>("gps/latitude", latitude));
+            values.insert(std::pair<std::string, NetworkTable::Value>("gps/longitude", longitude));
 
             connection.SetValues(values);
         } catch (...) {
@@ -145,15 +145,15 @@ int main() {
         // GET latitude and longitude
         try {
             std::set<std::string> keys;
-            keys.insert("latitude");
-            keys.insert("longitude");
+            keys.insert("gps/latitude");
+            keys.insert("gps/longitude");
             
             auto values = connection.GetValues(keys);
-            if (!(std::abs(values["latitude"].double_data() - latitude.double_data()) < precision)) {
+            if (!(std::abs(values["gps/latitude"].double_data() - latitude.double_data()) < precision)) {
                 std::cout << "10\n";
                 num_errors++;
             }
-            if (!(std::abs(values["longitude"].double_data() - longitude.double_data()) < precision)) {
+            if (!(std::abs(values["gps/longitude"].double_data() - longitude.double_data()) < precision)) {
                 std::cout << "11\n";
                 num_errors++;
             }
@@ -161,6 +161,19 @@ int main() {
             std::cout << "GetValue timed out" << std::endl;
         } catch (...) {
             std::cout << "12\n";
+            num_errors++;
+        }
+        // GET the whole tree
+        try {
+            auto root = connection.GetNode("/");
+            if (!(std::abs(root.children().at("gps").children().at("latitude").value().double_data() - latitude.double_data()) < precision)) {
+                std::cout << "13\n";
+                num_errors++;
+            }
+        } catch (NetworkTable::TimeoutException) {
+            std::cout << "GetValue timed out" << std::endl;
+        } catch (...) {
+            std::cout << "14\n";
             num_errors++;
         }
     }
