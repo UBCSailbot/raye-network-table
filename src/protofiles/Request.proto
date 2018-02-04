@@ -3,7 +3,7 @@ syntax = "proto3";
 package NetworkTable;
 
 import "SetValuesRequest.proto";
-import "GetValuesRequest.proto";
+import "GetNodesRequest.proto";
 import "SubscribeRequest.proto";
 import "UnsubscribeRequest.proto";
 
@@ -11,13 +11,13 @@ message Request {
     Type type = 1;
 
     SetValuesRequest setvalues_request = 2;
-    GetValuesRequest getvalues_request = 3;
+    GetNodesRequest getnodes_request = 3;
     SubscribeRequest subscribe_request = 4;
     UnsubscribeRequest unsubscribe_request = 5;
 
     enum Type {
         SETVALUES = 0;
-        GETVALUES = 1;
+        GETNODES = 1;
         SUBSCRIBE = 2;
         UNSUBSCRIBE = 3;
     }

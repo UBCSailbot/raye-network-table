@@ -10,7 +10,7 @@
 #include <vector>
 #include <zmq.hpp>
 
-#include "GetValuesRequest.pb.h"
+#include "GetNodesRequest.pb.h"
 #include "Reply.pb.h"
 #include "SetValuesRequest.pb.h"
 #include "SubscribeRequest.pb.h"
@@ -52,7 +52,7 @@ typedef std::shared_ptr<zmq::socket_t> socket_ptr;
      */
     void SetValues(const NetworkTable::SetValuesRequest &request);
 
-    void GetValues(const NetworkTable::GetValuesRequest &request, \
+    void GetNodes(const NetworkTable::GetNodesRequest &request, \
             socket_ptr socket);
 
     void Subscribe(const NetworkTable::SubscribeRequest &request, \

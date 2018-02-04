@@ -33,74 +33,74 @@ class Connection {
      * Set a value in the network table, or create it
      * if it doesn't exist already.
      *
-     * @param key - which key in the table to set.
-     * @param value - what value to set the value at that key to.
+     * @param uri - which uri in the table to set.
+     * @param value - what value to set the value at that uri to.
      */
-    void SetValue(std::string key, const NetworkTable::Value &value);
+    void SetValue(std::string uri, const NetworkTable::Value &value);
 
     /*
      * Set multiple values in the network table, or create
      * them if they don't exist.
      * @param values - map from string to Value, where the string
-     *                 is the key, and Value is what to set the
-     *                 value at that key to.
+     *                 is the uri, and Value is what to set the
+     *                 value at that uri to.
      */
     void SetValues(const std::map<std::string, NetworkTable::Value> &values);
 
     /*
      * Get a value from the network table.
      * Returns a value with NetworkTable::Value type NONE
-     * if no value at the specified key exists.
+     * if no value at the specified uri exists.
      * 
-     * @param key - returns the value located at this key.
+     * @param uri - returns the value located at this uri.
      */
-    NetworkTable::Value GetValue(std::string key);
+    NetworkTable::Value GetValue(std::string uri);
 
     /*
      * Get a node from the network table.
      * Returns a node with NetworkTable::Value type NONE
-     * if no node at the specified key exists.
+     * if no node at the specified uri exists.
      * 
-     * @param key - returns the value located at this key.
+     * @param uri - returns the value located at this uri.
      */
-    NetworkTable::Node GetNode(std::string key);
+    NetworkTable::Node GetNode(std::string uri);
 
     /*
      * Get multiple values from the network table.
      * The values are returned in the same order that
-     * the keys were sent in.
+     * the uris were sent in.
      *
-     * @param keys - which keys to get which values for.
+     * @param uris - which uris to get which values for.
      */
-    std::map<std::string, NetworkTable::Value> GetValues(std::set<std::string> keys);
+    std::map<std::string, NetworkTable::Value> GetValues(std::set<std::string> uris);
 
     /*
      * Get multiple nodes from the network table.
      * The nodes are returned in the same order that
-     * the keys were sent in.
+     * the uris were sent in.
      *
-     * @param keys - which keys to get which values for.
+     * @param uris - which uris to get which values for.
      */
-    std::map<std::string, NetworkTable::Node> GetNodes(std::set<std::string> keys);
+    std::map<std::string, NetworkTable::Node> GetNodes(std::set<std::string> uris);
 
     /*
-     * Begin receiving updates on a key in
+     * Begin receiving updates on a uri in
      * the network table. The callback function is
      * ran anytime a change occurs. The callback function
      * returns void, and takes a single argument of type
      * NetworkTable::Value.
      *
-     * @param key - what key to subscribe to
-     * @param callback - what function to call when the key changes.
+     * @param uri - what uri to subscribe to
+     * @param callback - what function to call when the uri changes.
      *                   the function takes a single argument: the new value.
      */
-    void Subscribe(std::string key, void (*callback)(NetworkTable::Value value));
+    void Subscribe(std::string uri, void (*callback)(NetworkTable::Value value));
 
     /*
-     * Stop receiving updates on a key in the network table.
-     * Has no effect if the key is not subscribed to.
+     * Stop receiving updates on a uri in the network table.
+     * Has no effect if the uri is not subscribed to.
      */
-    void Unsubscribe(std::string key);
+    void Unsubscribe(std::string uri);
 
     /*
      * Set timeout for all methods which communicate with server.
@@ -146,7 +146,7 @@ class Connection {
     std::mutex reply_queue_mutex_;
 
     std::map<std::string, \
-        void (*)(NetworkTable::Value)> callbacks_;  // Map from table key
+        void (*)(NetworkTable::Value)> callbacks_;  // Map from table uri
                                                     // to callback function.
     int timeout_;  // How long to wait before throwing an exception when
                    // communicating with server. This is in milliseconds.

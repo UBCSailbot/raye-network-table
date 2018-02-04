@@ -4,7 +4,7 @@
 
 #include <assert.h>
 #include <chrono>
-#include "GetValuesRequest.pb.h"
+#include "GetNodesRequest.pb.h"
 #include "SetValuesRequest.pb.h"
 
 
@@ -38,14 +38,14 @@ void NetworkTable::Connection::Disconnect() {
 
 ////////////////////// PUBLIC //////////////////////
 
-void NetworkTable::Connection::SetValue(std::string key, const NetworkTable::Value &value) {
+void NetworkTable::Connection::SetValue(std::string uri, const NetworkTable::Value &value) {
     assert(connected_);
 
     // Create a SetValuesRequest with a single
-    // key/value pair.
+    // uri/value pair.
     auto *setvalues_request = new NetworkTable::SetValuesRequest();
     auto mutable_values = setvalues_request->mutable_values();
-    (*mutable_values)[key] = NetworkTable::Value(value);
+    (*mutable_values)[uri] = NetworkTable::Value(value);
 
     NetworkTable::Request request;
     request.set_type(NetworkTable::Request::SETVALUES);
@@ -61,13 +61,13 @@ void NetworkTable::Connection::SetValue(std::string key, const NetworkTable::Val
 void NetworkTable::Connection::SetValues(const std::map<std::string, NetworkTable::Value> &values) {
     assert(connected_);
 
-    // Create a SetValuesRequest with each of the key/value pairs.
+    // Create a SetValuesRequest with each of the uri/value pairs.
     auto *setvalues_request = new NetworkTable::SetValuesRequest();
     auto mutable_values = setvalues_request->mutable_values();
     for (auto const &entry : values) {
-        std::string key = entry.first;
+        std::string uri = entry.first;
         NetworkTable::Value value = entry.second;
-        (*mutable_values)[key] = value;
+        (*mutable_values)[uri] = value;
     }
 
     NetworkTable::Request request;
@@ -81,20 +81,20 @@ void NetworkTable::Connection::SetValues(const std::map<std::string, NetworkTabl
     request_queue_mutex_.unlock();
 }
 
-NetworkTable::Value NetworkTable::Connection::GetValue(std::string key) {
-    return GetNode(key).value();
+NetworkTable::Value NetworkTable::Connection::GetValue(std::string uri) {
+    return GetNode(uri).value();
 }
 
-NetworkTable::Node NetworkTable::Connection::GetNode(std::string key) {
+NetworkTable::Node NetworkTable::Connection::GetNode(std::string uri) {
     assert(connected_);
 
-    // Create a GetValuesRequest with a single key/value pair.
-    auto *getvalues_request = new NetworkTable::GetValuesRequest();
-    getvalues_request->add_keys(key);
+    // Create a GetNodesRequest with a single uri/value pair.
+    auto *getnodes_request = new NetworkTable::GetNodesRequest();
+    getnodes_request->add_uris(uri);
 
     NetworkTable::Request request;
-    request.set_type(NetworkTable::Request::GETVALUES);
-    request.set_allocated_getvalues_request(getvalues_request);
+    request.set_type(NetworkTable::Request::GETNODES);
+    request.set_allocated_getnodes_request(getnodes_request);
 
     // We need to attach a uuid to the request
     // to ensure we get the correct reply.
@@ -119,7 +119,7 @@ NetworkTable::Node NetworkTable::Connection::GetNode(std::string key) {
             // request we sent.
             // If not, just throw out the reply.
             if (reply_uuid == request_uuid) {
-                return reply.getvalues_reply().nodes().at(key);
+                return reply.getnodes_reply().nodes().at(uri);
             }
         }
         reply_queue_mutex_.unlock();
@@ -130,28 +130,28 @@ NetworkTable::Node NetworkTable::Connection::GetNode(std::string key) {
     }
 }
 
-std::map<std::string, NetworkTable::Value> NetworkTable::Connection::GetValues(std::set<std::string> keys) {
+std::map<std::string, NetworkTable::Value> NetworkTable::Connection::GetValues(std::set<std::string> uris) {
     std::map<std::string, NetworkTable::Value> values;
 
-    for (auto const &keyNodePair : GetNodes(keys)) {
-        values[keyNodePair.first] = keyNodePair.second.value();
+    for (auto const &uriNodePair : GetNodes(uris)) {
+        values[uriNodePair.first] = uriNodePair.second.value();
     }
 
     return values;
 }
 
-std::map<std::string, NetworkTable::Node> NetworkTable::Connection::GetNodes(std::set<std::string> keys) {
+std::map<std::string, NetworkTable::Node> NetworkTable::Connection::GetNodes(std::set<std::string> uris) {
     assert(connected_);
 
-    auto *getvalues_request = new NetworkTable::GetValuesRequest();
+    auto *getnodes_request = new NetworkTable::GetNodesRequest();
 
-    for (auto const &key : keys) {
-        getvalues_request->add_keys(key);
+    for (auto const &uri : uris) {
+        getnodes_request->add_uris(uri);
     }
 
     NetworkTable::Request request;
-    request.set_type(NetworkTable::Request::GETVALUES);
-    request.set_allocated_getvalues_request(getvalues_request);
+    request.set_type(NetworkTable::Request::GETNODES);
+    request.set_allocated_getnodes_request(getnodes_request);
 
     // We need to attach a uuid to the request
     // to ensure we get the correct reply.
@@ -177,10 +177,10 @@ std::map<std::string, NetworkTable::Node> NetworkTable::Connection::GetNodes(std
             // If not, just throw out the reply.
             if (reply_uuid == request_uuid) {
                 std::map<std::string, NetworkTable::Node> nodes;
-                for (auto const &entry : reply.getvalues_reply().nodes()) {
-                    std::string key = entry.first;
+                for (auto const &entry : reply.getnodes_reply().nodes()) {
+                    std::string uri = entry.first;
                     NetworkTable::Node node = entry.second;
-                    nodes[key] = node;
+                    nodes[uri] = node;
                 }
 
                 return nodes;
@@ -194,13 +194,13 @@ std::map<std::string, NetworkTable::Node> NetworkTable::Connection::GetNodes(std
     }
 }
 
-void NetworkTable::Connection::Subscribe(std::string key, void (*callback)(NetworkTable::Value value)) {
+void NetworkTable::Connection::Subscribe(std::string uri, void (*callback)(NetworkTable::Value value)) {
     assert(connected_);
 
-    callbacks_[key] = callback;
+    callbacks_[uri] = callback;
 
     auto *subscribe_request = new NetworkTable::SubscribeRequest();
-    subscribe_request->set_key(key);
+    subscribe_request->set_uri(uri);
 
     NetworkTable::Request request;
     request.set_type(NetworkTable::Request::SUBSCRIBE);
@@ -212,11 +212,11 @@ void NetworkTable::Connection::Subscribe(std::string key, void (*callback)(Netwo
     request_queue_mutex_.unlock();
 }
 
-void NetworkTable::Connection::Unsubscribe(std::string key) {
+void NetworkTable::Connection::Unsubscribe(std::string uri) {
     assert(connected_);
 
     auto *unsubscribe_request = new NetworkTable::UnsubscribeRequest();
-    unsubscribe_request->set_key(key);
+    unsubscribe_request->set_uri(uri);
 
     NetworkTable::Request request;
     request.set_type(NetworkTable::Request::UNSUBSCRIBE);
@@ -227,7 +227,7 @@ void NetworkTable::Connection::Unsubscribe(std::string key) {
             std::make_pair(boost::uuids::nil_uuid(), request));
     request_queue_mutex_.unlock();
 
-    callbacks_.erase(key);
+    callbacks_.erase(uri);
 }
 
 void NetworkTable::Connection::SetTimeout(int timeout) {
@@ -357,7 +357,7 @@ void NetworkTable::Connection::ManageSocket() {
                 // If it's a subscribe reply,
                 // just run the associated callback function.
                     && reply.has_subscribe_reply()) {
-                std::string key = reply.subscribe_reply().key();
+                std::string uri = reply.subscribe_reply().uri();
                 NetworkTable::Value value = reply.subscribe_reply().value();
 
                 // Even after sending an Unsubscribe request,
@@ -368,8 +368,8 @@ void NetworkTable::Connection::ManageSocket() {
                 // a SubscribeReply can still be sent by the server,
                 // even though this process just sent an UnsubscribeRequest
                 // to the server.
-                if (callbacks_[key] != NULL) {
-                    callbacks_[key](value);
+                if (callbacks_[uri] != NULL) {
+                    callbacks_[uri](value);
                 }
             } else {
                 // Otherwise put it in the reply queue

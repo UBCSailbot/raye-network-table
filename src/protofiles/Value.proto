@@ -17,6 +17,6 @@ message Value {
          STRING = 3;
          BYTES = 4;
          NONE = 5; // Use if none of the optional fields are set.
-                   // The NULL keywork is already reserved.
+                   // The NULL keyword is already reserved.
     }
 }

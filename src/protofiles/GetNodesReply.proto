@@ -4,6 +4,6 @@ package NetworkTable;
 
 import "Node.proto";
 
-message GetValuesReply {
+message GetNodesReply {
     map<string, Node> nodes = 1;
 }

@@ -2,17 +2,17 @@ syntax = "proto3";
 
 package NetworkTable;
 
-import "GetValuesReply.proto";
+import "GetNodesReply.proto";
 import "SubscribeReply.proto";
 
 message Reply {
     Type type = 1;
 
-    GetValuesReply getvalues_reply = 2;
+    GetNodesReply getnodes_reply = 2;
     SubscribeReply subscribe_reply = 3;
 
     enum Type {
-        GETVALUES = 0;
+        GETNODES = 0;
         SUBSCRIBE = 1;
     }
 }

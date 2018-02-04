@@ -18,8 +18,8 @@ protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS
     protofiles/Reply.proto
     protofiles/Request.proto
     protofiles/SetValuesRequest.proto
-    protofiles/GetValuesReply.proto
-    protofiles/GetValuesRequest.proto
+    protofiles/GetNodesReply.proto
+    protofiles/GetNodesRequest.proto
     protofiles/SubscribeRequest.proto
     protofiles/SubscribeReply.proto
     protofiles/UnsubscribeRequest.proto

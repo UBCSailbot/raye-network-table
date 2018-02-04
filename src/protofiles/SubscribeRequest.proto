@@ -3,5 +3,5 @@ syntax = "proto3";
 package NetworkTable;
 
 message SubscribeRequest {
-    string key = 1;
+    string uri = 1;
 }

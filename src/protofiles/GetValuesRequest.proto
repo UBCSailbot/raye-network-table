@@ -1,7 +1,0 @@
-syntax = "proto3";
-
-package NetworkTable;
-
-message GetValuesRequest {
-    repeated string keys = 1;
-}

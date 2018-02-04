@@ -5,6 +5,6 @@ package NetworkTable;
 import "Value.proto";
 
 message SubscribeReply {
-    string key = 1;
+    string uri = 1;
     Value value = 2;
 }

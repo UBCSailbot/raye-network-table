@@ -1,7 +1,7 @@
 // Copyright 2017 UBC Sailbot
 
 #include "Server.h"
-#include "GetValuesReply.pb.h"
+#include "GetNodesReply.pb.h"
 #include "SubscribeReply.pb.h"
 #include "Request.pb.h"
 
@@ -121,9 +121,9 @@ void NetworkTable::Server::HandleRequest(socket_ptr socket) {
             }
             break;
         }
-        case NetworkTable::Request::GETVALUES: {
-            if (request.has_getvalues_request()) {
-                GetValues(request.getvalues_request(), socket);
+        case NetworkTable::Request::GETNODES: {
+            if (request.has_getnodes_request()) {
+                GetNodes(request.getnodes_request(), socket);
             }
             break;
         }
@@ -149,38 +149,38 @@ void NetworkTable::Server::HandleRequest(socket_ptr socket) {
 
 void NetworkTable::Server::SetValues(const NetworkTable::SetValuesRequest &request) {
     for (auto const &entry : request.values()) {
-        std::string key = entry.first;
+        std::string uri = entry.first;
         NetworkTable::Value value = entry.second;
-        SetValueInTable(key, value);
+        SetValueInTable(uri, value);
     }
 }
 
-void NetworkTable::Server::GetValues(const NetworkTable::GetValuesRequest &request, \
+void NetworkTable::Server::GetNodes(const NetworkTable::GetNodesRequest &request, \
             socket_ptr socket) {
-    auto *getvalues_reply = new NetworkTable::GetValuesReply();
-    auto *mutable_nodes = getvalues_reply->mutable_nodes();
+    auto *getnodes_reply = new NetworkTable::GetNodesReply();
+    auto *mutable_nodes = getnodes_reply->mutable_nodes();
 
-    for (int i = 0; i < request.keys_size(); i++) {
-        std::string key = request.keys(i);
-        NetworkTable::Node node = GetNodeFromTable(key);
-        (*mutable_nodes)[key] = node;
+    for (int i = 0; i < request.uris_size(); i++) {
+        std::string uri = request.uris(i);
+        NetworkTable::Node node = GetNodeFromTable(uri);
+        (*mutable_nodes)[uri] = node;
     }
 
     NetworkTable::Reply reply;
-    reply.set_type(NetworkTable::Reply::GETVALUES);
-    reply.set_allocated_getvalues_reply(getvalues_reply);
+    reply.set_type(NetworkTable::Reply::GETNODES);
+    reply.set_allocated_getnodes_reply(getnodes_reply);
 
     SendReply(reply, socket);
 }
 
 void NetworkTable::Server::Subscribe(const NetworkTable::SubscribeRequest &request, \
             socket_ptr socket) {
-    subscriptions_table_[request.key()].insert(socket);
+    subscriptions_table_[request.uri()].insert(socket);
 }
 
 void NetworkTable::Server::Unsubscribe(const NetworkTable::UnsubscribeRequest &request, \
             socket_ptr socket) {
-    subscriptions_table_[request.key()].erase(socket);
+    subscriptions_table_[request.uri()].erase(socket);
 }
 
 void NetworkTable::Server::DisconnectSocket(socket_ptr socket) {
@@ -201,9 +201,9 @@ void NetworkTable::Server::DisconnectSocket(socket_ptr socket) {
     }
 }
 
-NetworkTable::Value NetworkTable::Server::GetValueFromTable(std::string key) {
+NetworkTable::Value NetworkTable::Server::GetValueFromTable(std::string uri) {
     try {
-        NetworkTable::Node node = values_.GetNode(key);
+        NetworkTable::Node node = values_.GetNode(uri);
         return node.value();
     } catch (NetworkTable::NodeNotFoundException &e) {
         // If the value wasn't found, create a new value
@@ -214,9 +214,9 @@ NetworkTable::Value NetworkTable::Server::GetValueFromTable(std::string key) {
     }
 }
 
-NetworkTable::Node NetworkTable::Server::GetNodeFromTable(std::string key) {
+NetworkTable::Node NetworkTable::Server::GetNodeFromTable(std::string uri) {
     try {
-        NetworkTable::Node node = values_.GetNode(key);
+        NetworkTable::Node node = values_.GetNode(uri);
         return node;
     } catch (NetworkTable::NodeNotFoundException &e) {
         // If the node wasn't found, create a new node
@@ -229,27 +229,27 @@ NetworkTable::Node NetworkTable::Server::GetNodeFromTable(std::string key) {
     }
 }
 
-void NetworkTable::Server::SetValueInTable(std::string key, \
+void NetworkTable::Server::SetValueInTable(std::string uri, \
         const NetworkTable::Value &value) {
-    values_.SetNode(key, value);
+    values_.SetNode(uri, value);
 
     // When the table has changed, make sure to
-    // notify anyone who subscribed to that key.
-    NotifySubscribers(key, value);
+    // notify anyone who subscribed to that uri.
+    NotifySubscribers(uri, value);
 }
 
-void NetworkTable::Server::NotifySubscribers(std::string key, \
+void NetworkTable::Server::NotifySubscribers(std::string uri, \
         const NetworkTable::Value &value) {
-    // Construct the subscribe reply (update) message for the key
+    // Construct the subscribe reply (update) message for the uri
     auto *subscribe_reply = new NetworkTable::SubscribeReply();
     subscribe_reply->set_allocated_value(new NetworkTable::Value(value));
-    subscribe_reply->set_key(key);
+    subscribe_reply->set_uri(uri);
     NetworkTable::Reply reply;
     reply.set_type(NetworkTable::Reply::SUBSCRIBE);
     reply.set_allocated_subscribe_reply(subscribe_reply);
 
-    // Get list of subscriptions (sockets) for the key
-    std::set<socket_ptr> subscription_sockets = subscriptions_table_[key];
+    // Get list of subscriptions (sockets) for the uri
+    std::set<socket_ptr> subscription_sockets = subscriptions_table_[uri];
     // Send the update message to each socket
     for (const auto& socket : subscription_sockets) {
         SendReply(reply, socket);
