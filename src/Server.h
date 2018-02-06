@@ -21,6 +21,8 @@
 namespace NetworkTable {
 class Server {
 typedef std::shared_ptr<zmq::socket_t> socket_ptr;
+const std::string kWelcome_Directory_ = "/tmp/sailbot/";  // location of welcoming socket
+const std::string kClients_Directory_ = kWelcome_Directory_ + "clients/";  // location of client sockets
 
  public:
     Server();
@@ -38,6 +40,13 @@ typedef std::shared_ptr<zmq::socket_t> socket_ptr;
      * who asked for it.
      */
     void CreateNewConnection();
+
+    /*
+     * If there are any abandoned client sockets,
+     * this function will get the server to connect to them.
+     * This can happen if the server crashes.
+     */
+    void ReconnectAbandonedSockets();
 
     /*
      * Handles a request on a ZMQ_PAIR socket.
@@ -98,14 +107,12 @@ typedef std::shared_ptr<zmq::socket_t> socket_ptr;
     void SendReply(const NetworkTable::Reply &reply, socket_ptr socket);
 
     zmq::context_t context_;  // The context which sockets are created from.
-    zmq::socket_t init_socket_;  // Used to connect to the server for the first time.
+    zmq::socket_t welcome_socket_;  // Used to connect to the server for the first time.
     std::vector<socket_ptr> sockets_;  // Each socket is a connection to another process.
     NetworkTable::Tree values_;  // This is where the actual data is stored.
     std::unordered_map<std::string, \
         std::set<socket_ptr>> subscriptions_table_;  // maps from a key in the network table
                                                       // to a set of sockets subscribe to that key.
-
-    int current_socket_number_ = 1;
 };
 }  // namespace NetworkTable
 

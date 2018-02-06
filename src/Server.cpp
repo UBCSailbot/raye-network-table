@@ -7,27 +7,33 @@
 
 #include <algorithm>
 #include <boost/filesystem.hpp>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
 #include <iostream>
 
 NetworkTable::Server::Server()
-    : context_(1), init_socket_(context_, ZMQ_REP) {
-    // Create the folder where sockets go.
-    boost::filesystem::create_directory("/tmp/sailbot");
+    : context_(1), welcome_socket_(context_, ZMQ_REP) {
+    // Create the folders where sockets go.
+    boost::filesystem::create_directory(kWelcome_Directory_);
+    boost::filesystem::create_directory(kClients_Directory_);
 
-    init_socket_.bind("ipc:///tmp/sailbot/NetworkTable");
+    welcome_socket_.bind("ipc://" + kWelcome_Directory_ + "NetworkTable");
+
+    ReconnectAbandonedSockets();
 }
 
 void NetworkTable::Server::Run() {
     while (true) {
         // Poll all the zmq sockets.
-        // This includes init_socket_,
+        // This includes welcome_socket_,
         // and all the ZMQ_PAIR sockets which
         // have been created.
         int num_sockets = 1 + sockets_.size();
         std::vector<zmq::pollitem_t> pollitems;
 
         zmq::pollitem_t pollitem;
-        pollitem.socket = static_cast<void*>(init_socket_);
+        pollitem.socket = static_cast<void*>(welcome_socket_);
         pollitem.events = ZMQ_POLLIN;
         pollitems.push_back(pollitem);
 
@@ -63,7 +69,7 @@ void NetworkTable::Server::Run() {
 
 void NetworkTable::Server::CreateNewConnection() {
     zmq::message_t request;
-    init_socket_.recv(&request);
+    welcome_socket_.recv(&request);
 
     std::string message = static_cast<char*>(request.data());
 
@@ -73,9 +79,10 @@ void NetworkTable::Server::CreateNewConnection() {
          * the location of it.
          */
         // Get a location for new socket.
-        std::string filepath = "ipc:///tmp/sailbot/" \
-            + std::to_string(current_socket_number_);
-        current_socket_number_++;
+        // The filename for the socket is a randomly generated id.
+        std::string socket_name = boost::uuids::to_string(boost::uuids::random_generator()());
+        std::string filepath = "ipc://" + kClients_Directory_ \
+            +  socket_name;
 
         // Add new socket to sockets_ and bind it.
         socket_ptr socket = std::make_shared<zmq::socket_t>(context_, ZMQ_PAIR);
@@ -86,12 +93,28 @@ void NetworkTable::Server::CreateNewConnection() {
         std::string reply_body = filepath;
         zmq::message_t reply(reply_body.size()+1);
         memcpy(reply.data(), reply_body.c_str(), reply_body.size()+1);
-        init_socket_.send(reply);
+        welcome_socket_.send(reply);
     } else {
         std::string reply_body = "error unknown request: " + message;
         zmq::message_t reply(reply_body.size()+1);
         memcpy(reply.data(), reply_body.c_str(), reply_body.size()+1);
-        init_socket_.send(reply);
+        welcome_socket_.send(reply);
+    }
+}
+
+void NetworkTable::Server::ReconnectAbandonedSockets() {
+    boost::filesystem::directory_iterator end_itr;
+    for (boost::filesystem::directory_iterator itr(kClients_Directory_);
+         itr != end_itr;
+         ++itr) {
+        // If the file is a socket, add it to our list of sockets.
+        if (itr->status().type() == boost::filesystem::file_type::socket_file) {
+            socket_ptr socket = std::make_shared<zmq::socket_t>(context_, ZMQ_PAIR);
+            std::string full_path_to_socket = itr->path().root_path().string() + itr->path().relative_path().string();
+            std::cout << "Reconnecting to " << full_path_to_socket << std::endl;
+            socket->bind("ipc://" + full_path_to_socket);
+            sockets_.push_back(socket);
+        }
     }
 }
 
