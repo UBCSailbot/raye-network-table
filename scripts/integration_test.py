@@ -14,6 +14,26 @@ import os
 import signal
 import subprocess
 import sys
+from time import sleep
+from threading import Thread
+
+continue_server = True
+
+def run_server():
+    """Runs the network table server, but closes the server and restarts it every few seconds.
+    This is to simulate the server crashing and restarting."""
+    while continue_server:
+        server = subprocess.Popen(['./bin/server'],
+                              preexec_fn=os.setsid)
+        for i in range(1, 25):
+            if not continue_server:
+                os.killpg(os.getpgid(server.pid), signal.SIGTERM)
+                return
+
+            sleep(1)
+        os.killpg(os.getpgid(server.pid), signal.SIGTERM)
+        sleep(.01)
+
 
 # Get the number of clients which will
 # be querying the network table.
@@ -35,8 +55,8 @@ except subprocess.CalledProcessError:
     exit()
 
 # Start the server
-server = subprocess.Popen(['./bin/server'],
-                          preexec_fn=os.setsid)
+server_thread = Thread(target=run_server)
+server_thread.start()
 
 # This is an array of client processes which will communicate with the server.
 # They will all run at the same time, then the return value of each
@@ -56,7 +76,8 @@ else:
     print "A total of " + str(numErrors) + " errors occured."
 
 # Terminal any remaining processes
-os.killpg(os.getpgid(server.pid), signal.SIGTERM)
+continue_server = False
+server_thread.join()
 for client in clients:
     try:
         os.killpg(os.getpgid(client.pid), signal.SIGTERM)

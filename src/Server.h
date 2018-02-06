@@ -23,6 +23,7 @@ class Server {
 typedef std::shared_ptr<zmq::socket_t> socket_ptr;
 const std::string kWelcome_Directory_ = "/tmp/sailbot/";  // location of welcoming socket
 const std::string kClients_Directory_ = kWelcome_Directory_ + "clients/";  // location of client sockets
+const std::string kValuesFilePath_ = kWelcome_Directory_ + "values_.txt";  // where values_ is saved
 
  public:
     Server();

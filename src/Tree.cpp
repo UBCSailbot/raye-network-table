@@ -4,7 +4,9 @@
 
 #include <boost/algorithm/string.hpp>
 #include <vector>
+#include <fstream>
 #include <iostream>
+#include <sstream>
 
 
 void NetworkTable::PrintTree(NetworkTable::Node root) {
@@ -63,4 +65,22 @@ void NetworkTable::Tree::SetNode(std::string uri, NetworkTable::Value value) {
 
 void NetworkTable::Tree::PrintTree() {
     ::NetworkTable::PrintTree(root_);
+}
+
+void NetworkTable::Tree::Write(std::string filepath) {
+    std::ofstream output_filestream(filepath);
+    output_filestream << root_.SerializeAsString();
+    output_filestream.close();
+}
+
+void NetworkTable::Tree::Load(std::string filepath) {
+    // http://insanecoding.blogspot.ca/2011/11/how-to-read-in-file-in-c.html
+    std::ifstream input_filestream(filepath);
+    std::ostringstream contents;
+    if (input_filestream) {
+        contents << input_filestream.rdbuf();
+        root_.ParseFromString(contents.str());
+    } else {
+        throw(errno);
+    }
 }

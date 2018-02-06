@@ -38,11 +38,11 @@ void BadCallback(NetworkTable::Value value) {
  */
 int main() {
     NetworkTable::Node node;
-    int num_queries = 10; // How many times the set of tests is run.
+    int num_queries = 5; // How many times the set of tests is run.
     const double precision = .1; // Precision to use when comparing doubles.
 
     NetworkTable::Connection connection;
-    connection.SetTimeout(1000); // This will occasionally timeout
+    connection.SetTimeout(2000); // This will occasionally timeout
                                  // if the integration test uses 100
                                  // clients, which is good! We should
                                  // be testing the timeout functionality.
@@ -70,32 +70,29 @@ int main() {
     // of windspeed or winddirection, causing BadCallback to get called.
     std::this_thread::sleep_for(std::chrono::seconds(3));
 
-    for (int i = 0; i < num_queries; i++) {
-        // SET wind direction
-        try {
-            NetworkTable::Value value;
-            value.set_type(NetworkTable::Value::INT);
-            if (i%2 == 0) {
-                value.set_int_data(20);
-            } else {
-                value.set_int_data(40);
-            }
-            connection.SetValue("winddirection", value);
-        } catch (...) {
-            std::cout << "2\n";
-            num_errors++;
-        }
+    // SET wind direction
+    try {
+        NetworkTable::Value value;
+        value.set_type(NetworkTable::Value::INT);
+        value.set_int_data(20);
+        connection.SetValue("winddirection", value);
+    } catch (...) {
+        std::cout << "2\n";
+        num_errors++;
+    }
 
-        // SET windspeed
-        try {
-            NetworkTable::Value value;
-            value.set_type(NetworkTable::Value::INT);
-            value.set_int_data(100);
-            connection.SetValue("windspeed", value);
-        } catch (...) {
-            std::cout << "4\n";
-            num_errors++;
-        }
+    // SET windspeed
+    try {
+        NetworkTable::Value value;
+        value.set_type(NetworkTable::Value::INT);
+        value.set_int_data(100);
+        connection.SetValue("windspeed", value);
+    } catch (...) {
+        std::cout << "4\n";
+        num_errors++;
+    }
+
+    for (int i = 0; i < num_queries; i++) {
         // GET windspeed
         try {
             NetworkTable::Value value = connection.GetValue("windspeed");
@@ -106,6 +103,7 @@ int main() {
                 std::cout << "5\n";
                 num_errors++;
             }
+            std::cout << "GetValue succeeded" << std::endl;
         } catch (NetworkTable::TimeoutException) {
             std::cout << "GetValue timed out" << std::endl;
         } catch (...) {
@@ -119,6 +117,7 @@ int main() {
                 std::cout << "7\n";
                 num_errors++;
             }
+            std::cout << "GetValue succeeded" << std::endl;
         } catch (NetworkTable::TimeoutException) {
             std::cout << "GetValue timed out" << std::endl;
         } catch (...) {
@@ -157,6 +156,7 @@ int main() {
                 std::cout << "11\n";
                 num_errors++;
             }
+            std::cout << "GetValue succeeded" << std::endl;
         } catch (NetworkTable::TimeoutException) {
             std::cout << "GetValue timed out" << std::endl;
         } catch (...) {
@@ -170,6 +170,7 @@ int main() {
                 std::cout << "13\n";
                 num_errors++;
             }
+            std::cout << "GetValue succeeded" << std::endl;
         } catch (NetworkTable::TimeoutException) {
             std::cout << "GetValue timed out" << std::endl;
         } catch (...) {

@@ -33,6 +33,16 @@ class Tree {
 
     void PrintTree();
 
+    /*
+     * Writes the tree out to a file
+     */
+    void Write(std::string filepath);
+
+    /*
+     * Loads the tree from a file.
+     */
+    void Load(std::string filepath);
+
  private:
     NetworkTable::Node root_;
 };

@@ -7,7 +7,9 @@
 
 class TreeTest : public ::testing::Test {
  protected:
-    void GetTest();
+    void GetSetTest();
+
+    void WriteLoadTest();
 };
 
 #endif  // TREETEST_H_
