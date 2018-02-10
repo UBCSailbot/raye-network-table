@@ -33,7 +33,7 @@ sudo apt-get install cmake -y
 sudo apt-get install libzmq3-dev
 
 # Protobuf is used to serialize data
-sudo apt-get install libprotobuf-dev protobuf-compiler
+sudo apt-get install libprotobuf-dev
 
 # Boost is a general purpose c++ library
 sudo apt-get install libboost-all-dev
