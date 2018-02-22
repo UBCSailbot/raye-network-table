@@ -87,6 +87,11 @@ The directories `src` and `test/basic_tests` should mirror each other. That is, 
     -   Refer to documentation on **src/** for a guide to the other sub-directories here.
 -   **lib/** - Libraries that are required for the core binaries.
 
+## Run
+run server from `build/bin/server` with `./server`  
+run client from `build/bin/client` with `./client`  
+javascript client is in raye-app repo, inside `/network-table-interface`
+
 ## If you have problems
  - Check that you've initiated the git submodules.
  - Check that all dependencies are met.
