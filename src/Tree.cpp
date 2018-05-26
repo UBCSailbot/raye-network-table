@@ -8,16 +8,43 @@
 #include <iostream>
 #include <sstream>
 
+void PrintTree(NetworkTable::Node root, int depth);
 
 void NetworkTable::PrintTree(NetworkTable::Node root) {
+    ::PrintTree(root, 0);
+    std::cout << std::endl;
+}
+
+// Helper function
+void PrintTree(NetworkTable::Node root, int depth) {
     auto children = root.children();
 
+    // If root is a leaf, just print out the data.
     if (children.size() == 0) {
-        std::cout << root.value().int_data() << std::endl;
-    } else {
+        std::cout << '\t';
+        switch (root.value().type()) {
+            case NetworkTable::Value::INT : std::cout << root.value().int_data();
+                                            break;
+            case NetworkTable::Value::BOOL : std::cout << root.value().bool_data();
+                                            break;
+            case NetworkTable::Value::DOUBLE : std::cout << root.value().double_data();
+                                            break;
+            case NetworkTable::Value::STRING : std::cout << root.value().string_data();
+                                            break;
+            case NetworkTable::Value::BYTES : std::cout << root.value().bytes_data();
+                                            break;
+            default: std::cout << "Unknown type\n";
+        }
+    } 
+    // Otherwise, recursively print its children.
+    else {
         for (auto it = children.begin(); it != children.end(); ++it) {
-            std::cout << it->first << "/";
-            PrintTree(it->second);
+            std::cout << std::endl;
+            for (int i = 0; i < depth; i++) {
+                std::cout << '\t';
+            }
+            std::cout << it->first;
+            PrintTree(it->second, depth + 1);
         }
     }
 }
