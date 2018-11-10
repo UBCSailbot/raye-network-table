@@ -15,10 +15,10 @@ void PrintTree(NetworkTable::Node root);
 class Tree {
  public:
     /*
-     * Returns node at given uri. If it does not exist
-     * @param uri - path to the node to set, seperated by '/'.
-     *              must start with a forward slash.
+     * Returns node at given uri.
+     * @param uri - path to the node to get, seperated by '/'.
      *              eg. "/gps/lat" or "gps/lat"
+     * @throws - NodeNotFoundException if the node at the uri doesn't exist
      */
     NetworkTable::Node GetNode(std::string uri);
 
