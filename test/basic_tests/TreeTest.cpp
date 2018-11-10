@@ -53,5 +53,5 @@ TEST_F(TreeTest, WriteLoadTest) {
               windspeed.int_data());
 
     EXPECT_NEAR(newtree.GetNode("gps/lat").value().double_data(), \
-              gps_lat.double_data(), .001);
+              gps_lat.double_data(), precision);
 }
