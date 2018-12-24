@@ -13,6 +13,11 @@ include(FindPkgConfig)
 pkg_search_module(ZMQ REQUIRED libzmq)
 include_directories(${ZMQ_INCLUDE_DIRS})
 
+set(PROTOBUF_FOLDER ${PROJECT_SOURCE_DIR}/lib/protobuf/cmake/build)
+message(${PROTOBUF_FOLDER})
+set(CMAKE_PREFIX_PATH
+    ${CMAKE_PREFIX_PATH}
+    ${PROTOBUF_FOLDER}
+)
 find_package(Protobuf REQUIRED)
 include_directories(${PROTOBUF_INCLUDE_DIRS})
-

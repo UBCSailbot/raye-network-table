@@ -43,3 +43,15 @@ sudo apt-get install pkg-config
 
 INSTALL_DEPS_DIRECTORY=${BASH_SOURCE%/*}
 LIB_DIRECTORY=${INSTALL_DEPS_DIRECTORY}/../lib
+
+# Install protobuf locally
+# inside the folder lib/protobuf/cmake/build
+SCRIPTDIR="$(cd "$(dirname "$0")" && pwd)"
+pushd $SCRIPTDIR/../lib/protobuf
+./autogen.sh
+./configure --prefix="cmake/build"
+make
+if make check ; then
+    make install
+fi
+popd

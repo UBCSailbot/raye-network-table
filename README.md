@@ -8,7 +8,6 @@ This server which is used as a communication hub by various processes.
 
 ### Initial Setup
 Before you can build the project, you first need to install the dependencies.
-Install [Google Protobuf](https://github.com/google/protobuf/blob/master/src/README.md) (We use the C++ version).
 
 #### Option 1 (Recommended)
 For UNIX, a handy install script is provided at the top level.
