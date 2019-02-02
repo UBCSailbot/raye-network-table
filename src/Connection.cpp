@@ -195,7 +195,7 @@ std::map<std::string, NetworkTable::Node> NetworkTable::Connection::GetNodes(con
     }
 }
 
-void NetworkTable::Connection::Subscribe(std::string uri, void (*callback)(NetworkTable::Value value)) {
+void NetworkTable::Connection::Subscribe(std::string uri, void (*callback)(NetworkTable::Node node)) {
     assert(connected_);
 
     callbacks_[uri] = callback;
@@ -358,7 +358,7 @@ void NetworkTable::Connection::ManageSocket() {
                 // just run the associated callback function.
                     && reply.has_subscribe_reply()) {
                 std::string uri = reply.subscribe_reply().uri();
-                NetworkTable::Value value = reply.subscribe_reply().value();
+                NetworkTable::Node node = reply.subscribe_reply().node();
 
                 // Even after sending an Unsubscribe request,
                 // it can take a while for that request to be processed
@@ -369,7 +369,7 @@ void NetworkTable::Connection::ManageSocket() {
                 // even though this process just sent an UnsubscribeRequest
                 // to the server.
                 if (callbacks_[uri] != NULL) {
-                    callbacks_[uri](value);
+                    callbacks_[uri](node);
                 }
             } else {
                 // Otherwise put it in the reply queue

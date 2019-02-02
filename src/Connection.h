@@ -5,6 +5,7 @@
 
 #include "Reply.pb.h"
 #include "Request.pb.h"
+#include "Node.pb.h"
 #include "Value.pb.h"
 
 #include <atomic>
@@ -86,15 +87,13 @@ class Connection {
     /*
      * Begin receiving updates on a uri in
      * the network table. The callback function is
-     * ran anytime a change occurs. The callback function
-     * returns void, and takes a single argument of type
-     * NetworkTable::Value.
+     * ran anytime a change occurs.
      *
      * @param uri - what uri to subscribe to
-     * @param callback - what function to call when the uri changes.
-     *                   the function takes a single argument: the new value.
+     * @param callback - what function to call when the uri node changes.
+     *                   the function takes a single argument: the new node.
      */
-    void Subscribe(std::string uri, void (*callback)(NetworkTable::Value value));
+    void Subscribe(std::string uri, void (*callback)(NetworkTable::Node node));
 
     /*
      * Stop receiving updates on a uri in the network table.
@@ -146,8 +145,8 @@ class Connection {
     std::mutex reply_queue_mutex_;
 
     std::map<std::string, \
-        void (*)(NetworkTable::Value)> callbacks_;  // Map from table uri
-                                                    // to callback function.
+        void (*)(NetworkTable::Node)> callbacks_;  // Map from table uri
+                                                   // to callback function.
     int timeout_;  // How long to wait before throwing an exception when
                    // communicating with server. This is in milliseconds.
 };

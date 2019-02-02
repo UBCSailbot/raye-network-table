@@ -99,7 +99,7 @@ const std::string kValuesFilePath_ = kWelcome_Directory_ + "values_.txt";  // wh
     /*
      * Gets any sockets which have subscribed to key, and sends value to them.
      */
-    void NotifySubscribers(std::string key, const NetworkTable::Value &value);
+    void NotifySubscribers(std::string key);
 
     /*
      * Serializes a network table reply,

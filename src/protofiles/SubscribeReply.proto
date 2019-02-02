@@ -2,9 +2,9 @@ syntax = "proto3";
 
 package NetworkTable;
 
-import "Value.proto";
+import "Node.proto";
 
 message SubscribeReply {
     string uri = 1;
-    Value value = 2;
+    Node node = 2;
 }

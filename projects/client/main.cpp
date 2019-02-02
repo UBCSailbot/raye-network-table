@@ -1,7 +1,6 @@
 // Copyright 2017 UBC Sailbot
 //
 // Sends requests to the network table
-// Returns the number of errors which occured.
 
 #include "Connection.h"
 #include "Value.pb.h"
@@ -20,18 +19,23 @@ std::atomic_bool winddirectioncallback_called(false); // It would be better to
                                                       // but this depends on what other
                                                       // clients are doing.
 std::atomic_bool wrong_wind_data_received(false);
-void WindDirectionCallback(NetworkTable::Value value) {
+void WindDirectionCallback(NetworkTable::Node node) {
     winddirectioncallback_called = true;
-    if (value.int_data() != 20 && value.int_data() != 40) {
-        std::cout << "Received wind direction data:" << value.int_data() << std::endl;
+    if (node.value().int_data() != 20 && node.value().int_data() != 40) {
+        std::cout << "Received wind direction data:" << node.value().int_data() << std::endl;
         std::cout << "Expected: " << 20 << " or " << 40 << std::endl;
         wrong_wind_data_received = true;
     }
 }
 
+std::atomic_bool batterycallback_called(false);
+void BatteryCallback(NetworkTable::Node node) {
+        batterycallback_called = true;
+}
+
 // This callback should never be called
 std::atomic_bool badcallback_called(false);
-void BadCallback(NetworkTable::Value value) {
+void BadCallback(NetworkTable::Node node) {
     std::cout << "Called bad callback function" << std::endl;
     badcallback_called = true;
 }
@@ -69,12 +73,28 @@ int main() {
     // Subscribe to windspeed then immediately unsubscribe.
     connection.Subscribe("bad", &BadCallback);
     connection.Unsubscribe("bad");
+
+    // Subscribe to something shallow.
+    // Then, when something deep in the tree gets updated, we should still
+    // receive the update
+    connection.Subscribe("batteries", &BatteryCallback);
  
     // Without this timeout, it is possible for BadCallback to be called.
     // What happens in between the call to subscribe with BadCallback, and
     // the time to unsubscribe, another process can change the value
     // of windspeed or winddirection, causing BadCallback to get called.
     std::this_thread::sleep_for(std::chrono::seconds(3));
+
+    // SET battery info
+    try {
+        NetworkTable::Value value;
+        value.set_type(NetworkTable::Value::DOUBLE);
+        value.set_double_data(.663);
+        connection.SetValue("batteries/BAT0/charge_remaining", value);
+    } catch (...) {
+        std::cout << "Error setting battery info" << std::endl;
+        any_test_failed = 1;
+    }
 
     // SET wind direction
     try {
@@ -183,6 +203,10 @@ int main() {
         any_test_failed = 1;
     }
     if (wrong_wind_data_received) {
+        any_test_failed = 1;
+    }
+    if (!batterycallback_called) {
+        std::cout << "Error, battery callback was never called" << std::endl;
         any_test_failed = 1;
     }
     if (badcallback_called) {
