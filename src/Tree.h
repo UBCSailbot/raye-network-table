@@ -53,7 +53,7 @@ class Tree {
  */
 class NodeNotFoundException : public std::runtime_error {
  public:
-     explicit NodeNotFoundException(std::string what) : std::runtime_error(what.c_str()) { }
+     explicit NodeNotFoundException(const std::string &what) : std::runtime_error(what.c_str()) { }
 };
 }  // namespace NetworkTable
 

@@ -23,7 +23,7 @@ void NetworkTable::Connection::Connect() {
             terminate_ = true;
             socket_thread_.join();
             terminate_ = false;
-            throw TimeoutException("timed out");
+            throw TimeoutException(const_cast<char*>("timed out"));
         }
     }
 }
@@ -81,11 +81,11 @@ void NetworkTable::Connection::SetValues(const std::map<std::string, NetworkTabl
     request_queue_mutex_.unlock();
 }
 
-NetworkTable::Value NetworkTable::Connection::GetValue(std::string uri) {
+NetworkTable::Value NetworkTable::Connection::GetValue(const std::string &uri) {
     return GetNode(uri).value();
 }
 
-NetworkTable::Node NetworkTable::Connection::GetNode(std::string uri) {
+NetworkTable::Node NetworkTable::Connection::GetNode(const std::string &uri) {
     assert(connected_);
 
     // Create a GetNodesRequest with a single uri/value pair.
@@ -125,12 +125,12 @@ NetworkTable::Node NetworkTable::Connection::GetNode(std::string uri) {
         reply_queue_mutex_.unlock();
 
         if (TimedOut(start_time)) {
-            throw TimeoutException("timed out");
+            throw TimeoutException(const_cast<char*>("timed out"));
         }
     }
 }
 
-std::map<std::string, NetworkTable::Value> NetworkTable::Connection::GetValues(std::set<std::string> uris) {
+std::map<std::string, NetworkTable::Value> NetworkTable::Connection::GetValues(const std::set<std::string> &uris) {
     std::map<std::string, NetworkTable::Value> values;
 
     for (auto const &uriNodePair : GetNodes(uris)) {
@@ -140,7 +140,7 @@ std::map<std::string, NetworkTable::Value> NetworkTable::Connection::GetValues(s
     return values;
 }
 
-std::map<std::string, NetworkTable::Node> NetworkTable::Connection::GetNodes(std::set<std::string> uris) {
+std::map<std::string, NetworkTable::Node> NetworkTable::Connection::GetNodes(const std::set<std::string> &uris) {
     assert(connected_);
 
     auto *getnodes_request = new NetworkTable::GetNodesRequest();
@@ -189,7 +189,7 @@ std::map<std::string, NetworkTable::Node> NetworkTable::Connection::GetNodes(std
         reply_queue_mutex_.unlock();
 
         if (TimedOut(start_time)) {
-            throw TimeoutException("timed out");
+            throw TimeoutException(const_cast<char*>("timed out"));
         }
     }
 }

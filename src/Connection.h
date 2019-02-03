@@ -54,7 +54,7 @@ class Connection {
      * 
      * @param uri - returns the value located at this uri.
      */
-    NetworkTable::Value GetValue(std::string uri);
+    NetworkTable::Value GetValue(const std::string &uri);
 
     /*
      * Get a node from the network table.
@@ -63,7 +63,7 @@ class Connection {
      * 
      * @param uri - returns the value located at this uri.
      */
-    NetworkTable::Node GetNode(std::string uri);
+    NetworkTable::Node GetNode(const std::string &uri);
 
     /*
      * Get multiple values from the network table.
@@ -72,7 +72,7 @@ class Connection {
      *
      * @param uris - which uris to get which values for.
      */
-    std::map<std::string, NetworkTable::Value> GetValues(std::set<std::string> uris);
+    std::map<std::string, NetworkTable::Value> GetValues(const std::set<std::string> &uris);
 
     /*
      * Get multiple nodes from the network table.
@@ -81,7 +81,7 @@ class Connection {
      *
      * @param uris - which uris to get which values for.
      */
-    std::map<std::string, NetworkTable::Node> GetNodes(std::set<std::string> uris);
+    std::map<std::string, NetworkTable::Node> GetNodes(const std::set<std::string> &uris);
 
     /*
      * Begin receiving updates on a uri in

@@ -35,9 +35,8 @@ void PrintTree(NetworkTable::Node root, int depth) {
                                             break;
             default: std::cout << "Unknown type\n";
         }
-    } 
-    // Otherwise, recursively print its children.
-    else {
+    } else {
+        // Otherwise, recursively print out the children
         for (auto it = children.begin(); it != children.end(); ++it) {
             std::cout << std::endl;
             for (int i = 0; i < depth; i++) {
