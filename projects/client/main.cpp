@@ -14,30 +14,37 @@
 #include <map>
 #include <string>
 
-std::atomic_int num_errors(0); // Total number of errors which have occured.
-
+std::atomic_bool winddirectioncallback_called(false); // It would be better to
+                                                      // check that it was called
+                                                      // the correct number of times
+                                                      // but this depends on what other
+                                                      // clients are doing.
+std::atomic_bool wrong_wind_data_received(false);
 void WindDirectionCallback(NetworkTable::Value value) {
+    winddirectioncallback_called = true;
     if (value.int_data() != 20 && value.int_data() != 40) {
-        std::cout << "1\n";
-        num_errors++;
+        std::cout << "Received wind direction data:" << value.int_data() << std::endl;
+        std::cout << "Expected: " << 20 << " or " << 40 << std::endl;
+        wrong_wind_data_received = true;
     }
 }
 
 // This callback should never be called
+std::atomic_bool badcallback_called(false);
 void BadCallback(NetworkTable::Value value) {
-    std::cout << "2\n";
-    num_errors++;
+    std::cout << "Called bad callback function" << std::endl;
+    badcallback_called = true;
 }
 
 /*
- * This is a basic "stress test"
+ * This is a stress test
  * for the network table server.
- * The total number of errors
- * which occur when querying the network
- * table is returned.
+ * This program will return 0 if no tests failed,
+ * otherwise it will return 1.
  */
 int main() {
     NetworkTable::Node node;
+    int any_test_failed = 0;
     int num_queries = 5; // How many times the set of tests is run.
     const double precision = .1; // Precision to use when comparing doubles.
 
@@ -49,20 +56,19 @@ int main() {
     try {
         connection.Connect();
     } catch (NetworkTable::TimeoutException) {
-        std::cout << "Connection to server timed out." << std::endl;
+        std::cout << "Connection to server timed out" << std::endl;
         return 0;
     }
 
     // Subscribe to wind direction.
     // Note that even though we subscribe to badcallback first,
     // we override it with a call to winddirectioncallback.
-    // This should cause no problems.
     connection.Subscribe("winddirection", &BadCallback);
     connection.Subscribe("winddirection", &WindDirectionCallback);
 
     // Subscribe to windspeed then immediately unsubscribe.
-    connection.Subscribe("windspeed", &BadCallback);
-    connection.Unsubscribe("windspeed");
+    connection.Subscribe("bad", &BadCallback);
+    connection.Unsubscribe("bad");
  
     // Without this timeout, it is possible for BadCallback to be called.
     // What happens in between the call to subscribe with BadCallback, and
@@ -77,8 +83,8 @@ int main() {
         value.set_int_data(20);
         connection.SetValue("winddirection", value);
     } catch (...) {
-        std::cout << "2\n";
-        num_errors++;
+        std::cout << "Error setting wind direction" << std::endl;
+        any_test_failed = 1;
     }
 
     // SET windspeed
@@ -88,8 +94,8 @@ int main() {
         value.set_int_data(100);
         connection.SetValue("windspeed", value);
     } catch (...) {
-        std::cout << "4\n";
-        num_errors++;
+        std::cout << "Error setting wind speed" << std::endl;
+        any_test_failed = 1;
     }
 
     for (int i = 0; i < num_queries; i++) {
@@ -100,29 +106,29 @@ int main() {
             // Normally it is possible for other processes to be modifying
             // the data, so there is no way to know what it should be.
             if (value.int_data() != 100) {
-                std::cout << "5\n";
-                num_errors++;
+                std::cout << "Wrong wind speed data" << std::endl;
+                any_test_failed = 1;
             }
             std::cout << "GetValue succeeded" << std::endl;
         } catch (NetworkTable::TimeoutException) {
             std::cout << "GetValue timed out" << std::endl;
         } catch (...) {
-        std::cout << "6\n";
-            num_errors++;
+            std::cout << "Error getting wind speed" << std::endl;
+            any_test_failed = 1;
         }
         // GET garbage
         try {
             NetworkTable::Value value = connection.GetValue("garbage");
             if (value.type() != NetworkTable::Value::NONE) {
-                std::cout << "7\n";
-                num_errors++;
+                std::cout << "Error, got a value for garbage" << std::endl;
+                any_test_failed = 1;
             }
             std::cout << "GetValue succeeded" << std::endl;
         } catch (NetworkTable::TimeoutException) {
             std::cout << "GetValue timed out" << std::endl;
         } catch (...) {
-            std::cout << "8\n";
-            num_errors++;
+            std::cout << "Error getting garbage" << std::endl;
+            any_test_failed = 1;
         }
         // SET latitude and longitude
         NetworkTable::Value latitude;
@@ -138,8 +144,8 @@ int main() {
 
             connection.SetValues(values);
         } catch (...) {
-            std::cout << "9\n";
-            num_errors++;
+            std::cout << "Error setting latitude and longitude" << std::endl;
+            any_test_failed = 1;
         }
         // GET latitude and longitude
         try {
@@ -149,36 +155,50 @@ int main() {
             
             auto values = connection.GetValues(keys);
             if (!(std::abs(values["gps/latitude"].double_data() - latitude.double_data()) < precision)) {
-                std::cout << "10\n";
-                num_errors++;
+                std::cout << "Error, wrong value for gps/latitude" << std::endl;
+                any_test_failed = 1;
             }
             if (!(std::abs(values["gps/longitude"].double_data() - longitude.double_data()) < precision)) {
-                std::cout << "11\n";
-                num_errors++;
+                std::cout << "Error, wrong value for gps/longitude" << std::endl;
+                any_test_failed = 1;
             }
             std::cout << "GetValue succeeded" << std::endl;
         } catch (NetworkTable::TimeoutException) {
             std::cout << "GetValue timed out" << std::endl;
         } catch (...) {
-            std::cout << "12\n";
-            num_errors++;
+            std::cout << "Error getting gps/latitude and gps/longitude" << std::endl;
+            any_test_failed = 1;
         }
         // GET the whole tree
         try {
             auto root = connection.GetNode("/");
             if (!(std::abs(root.children().at("gps").children().at("latitude").value().double_data() - latitude.double_data()) < precision)) {
-                std::cout << "13\n";
-                num_errors++;
+                std::cout << "Error, gps/latitude was wrong when getting whole tree" << std::endl;
+                any_test_failed = 1;
             }
             std::cout << "GetValue succeeded" << std::endl;
         } catch (NetworkTable::TimeoutException) {
             std::cout << "GetValue timed out" << std::endl;
         } catch (...) {
-            std::cout << "14\n";
-            num_errors++;
+            std::cout << "Error getting whole tree" << std::endl;
+            any_test_failed = 1;
         }
     }
 
+    // Check that everything went OK with the callbacks
+    if (!winddirectioncallback_called) {
+        std::cout << "Error, wind direction callback was never called" << std::endl;
+        any_test_failed = 1;
+    }
+    if (wrong_wind_data_received) {
+        any_test_failed = 1;
+    }
+    if (badcallback_called) {
+        std::cout << "Error, bad callback was called" << std::endl;
+        any_test_failed = 1;
+    }
+
     connection.Disconnect();
-    return num_errors;
+    return any_test_failed;
 }
+

@@ -19,7 +19,7 @@ from threading import Thread
 
 continue_server = True
 
-def run_server():
+def run_server_and_fake_crashes():
     """Runs the network table server, but closes the server and restarts it every few seconds.
     This is to simulate the server crashing and restarting."""
     while continue_server:
@@ -27,6 +27,8 @@ def run_server():
                               preexec_fn=os.setsid)
         for i in range(1, 25):
             if not continue_server:
+                # TODO: There might be a signal other than SIGTERM
+                # which more closely simulates a crash.
                 os.killpg(os.getpgid(server.pid), signal.SIGTERM)
                 return
 
@@ -38,9 +40,9 @@ def run_server():
 # Get the number of clients which will
 # be querying the network table.
 if len(sys.argv) != 2:
-    numClients = 100
+    num_clients = 100
 else:
-    numClients = int(sys.argv[1])
+    num_clients = int(sys.argv[1])
 
 # Go to the build directory, and build
 # the latest version of the server and client
@@ -55,7 +57,7 @@ except subprocess.CalledProcessError:
     exit()
 
 # Start the server
-server_thread = Thread(target=run_server)
+server_thread = Thread(target=run_server_and_fake_crashes)
 server_thread.start()
 
 # This is an array of client processes which will communicate with the server.
@@ -63,17 +65,17 @@ server_thread.start()
 # one will be checked.
 clients = [subprocess.Popen(['./bin/client'],
                             preexec_fn=os.setsid)
-                   for i in range(numClients)]
+                   for i in range(num_clients)]
 
-numErrors = 0
+errors_occured = 0
 for client in clients:
     client.wait()
-    numErrors += client.returncode
+    errors_occured += client.returncode
 
-if numErrors == 0:
+if errors_occured == 0:
     print "No problems detected."
 else:
-    print "A total of " + str(numErrors) + " errors occured."
+    print "One or more clients failed."
 
 # Terminal any remaining processes
 continue_server = False
