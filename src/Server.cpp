@@ -228,6 +228,17 @@ void NetworkTable::Server::DisconnectSocket(socket_ptr socket) {
             sockets_.erase(it);
         }
     }
+
+    // Delete the ipc socket from disk.
+    char endpoint_c_str[1024];
+    size_t endpoint_c_str_size = sizeof(endpoint_c_str);
+    socket->getsockopt(ZMQ_LAST_ENDPOINT, &endpoint_c_str, &endpoint_c_str_size);
+
+    std::string endpoint(endpoint_c_str, endpoint_c_str_size);
+    int transport_len = strlen("ipc://");
+    endpoint.erase(endpoint.begin(), endpoint.begin()+transport_len);
+
+    boost::filesystem::remove(endpoint);
 }
 
 NetworkTable::Value NetworkTable::Server::GetValueFromTable(std::string uri) {
