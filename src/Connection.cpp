@@ -4,6 +4,7 @@
 
 #include <assert.h>
 #include <chrono>
+#include <stdio.h>
 #include "GetNodesRequest.pb.h"
 #include "SetValuesRequest.pb.h"
 
@@ -280,6 +281,7 @@ void NetworkTable::Connection::ManageSocket() {
      */
     zmq::context_t context(1);
     zmq::socket_t socket(context, ZMQ_PAIR);
+    std::string filepath;
     // Ensure that the destructor for
     // socket does not block and simply
     // discards any messages it is still trying to
@@ -319,10 +321,8 @@ void NetworkTable::Connection::ManageSocket() {
 
         // Connect to the ZMQ_PAIR socket which was created
         // by the server.
-        std::string filepath = static_cast<char*>(reply.data());
-
+        filepath = static_cast<char*>(reply.data());
         socket.connect(filepath);
-
         connected_ = true;
     }
 
@@ -389,5 +389,11 @@ void NetworkTable::Connection::ManageSocket() {
         zmq::message_t request(request_body.size()+1);
         memcpy(request.data(), request_body.c_str(), request_body.size()+1);
         socket.send(request);
+
+        // Delete the socket ourselves, in case the server
+        // is down and doesnt receive our disconnect request.
+        int transport_len = strlen("ipc://");
+        filepath.erase(filepath.begin(), filepath.begin()+transport_len);
+        remove(filepath.c_str());
     }
 }
