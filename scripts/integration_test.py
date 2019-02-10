@@ -36,7 +36,6 @@ def run_server_and_fake_crashes():
         os.killpg(os.getpgid(server.pid), signal.SIGTERM)
         sleep(.01)
 
-
 # Get the number of clients which will
 # be querying the network table.
 if len(sys.argv) != 2:
@@ -57,6 +56,7 @@ except subprocess.CalledProcessError:
     exit()
 
 # Start the server
+print "This test may take a few minutes."
 server_thread = Thread(target=run_server_and_fake_crashes)
 server_thread.start()
 

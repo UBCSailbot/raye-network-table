@@ -109,9 +109,7 @@ int main() {
                 std::cout << "Wrong wind speed data" << std::endl;
                 any_test_failed = 1;
             }
-            std::cout << "GetValue succeeded" << std::endl;
         } catch (NetworkTable::TimeoutException) {
-            std::cout << "GetValue timed out" << std::endl;
         } catch (...) {
             std::cout << "Error getting wind speed" << std::endl;
             any_test_failed = 1;
@@ -123,9 +121,7 @@ int main() {
                 std::cout << "Error, got a value for garbage" << std::endl;
                 any_test_failed = 1;
             }
-            std::cout << "GetValue succeeded" << std::endl;
         } catch (NetworkTable::TimeoutException) {
-            std::cout << "GetValue timed out" << std::endl;
         } catch (...) {
             std::cout << "Error getting garbage" << std::endl;
             any_test_failed = 1;
@@ -162,9 +158,7 @@ int main() {
                 std::cout << "Error, wrong value for gps/longitude" << std::endl;
                 any_test_failed = 1;
             }
-            std::cout << "GetValue succeeded" << std::endl;
         } catch (NetworkTable::TimeoutException) {
-            std::cout << "GetValue timed out" << std::endl;
         } catch (...) {
             std::cout << "Error getting gps/latitude and gps/longitude" << std::endl;
             any_test_failed = 1;
@@ -176,9 +170,7 @@ int main() {
                 std::cout << "Error, gps/latitude was wrong when getting whole tree" << std::endl;
                 any_test_failed = 1;
             }
-            std::cout << "GetValue succeeded" << std::endl;
         } catch (NetworkTable::TimeoutException) {
-            std::cout << "GetValue timed out" << std::endl;
         } catch (...) {
             std::cout << "Error getting whole tree" << std::endl;
             any_test_failed = 1;
