@@ -1,66 +1,49 @@
 # Network Table
-
-This server which is used as a communication hub by various processes.
+A communication hub that runs on central controller on Ada 2.0.  
+Receives updates on sensor data (from GPS, wind sensors, etc), allows other modules to connect
+to the network table using pub/sub or request/reply.
 
 [Network Table Communication Protocol](https://confluence.ubcsailbot.org/display/ADA2/Network+Table+Communication+Protocol)
 
-## Setup
-
-### Initial Setup
-Before you can build the project, you first need to install the dependencies.
-
-#### Option 1 (Recommended)
-For UNIX, a handy install script is provided at the top level.
-Simply run `./configure`, and dependencies will be installed and the project will be built.
-
-This works for both macOS and Debian users.
-
-#### macOS
-
-1.  [Buy a Mac](http://store.apple.com)
-2.  `./install_deps/install_deps_osx.sh`
-
-Depending on your env you may run into permission issues. Here's how to fix them:
-```bash
-sudo chown -R `whoami` /usr/local
-```
+## Install Dependencies
+Install the dependencies.
 
 #### Debian Linux (Ubuntu)
 ```bash
 ./install_deps/install_deps_linux.sh
 ```
 
-#### Windows
-Not supported at this time. Feel free to create a PR with instructions on how to get it working.
-Go to the CMake Website: http://www.cmake.org/download/
+#### macOS
+```bash
+./install_deps/install_deps_osx.sh`
+```
 
 ## Building
+In the root directory of the repository:
+```bash
+mkdir build
+cd build
+cmake ..
+make
+```
 
-If you do not want to use the configure script:
-1. Question yourself.
-2. Run `mkdir build` in the repo root directory, which will create a folder called `build`.
-3. Navigate into the folder using `cd build`.
-4. Then run `cmake ..`, which will tell `CMake` to build a project out of the repo directory into your `build` directory.
+## Running
+Executables can be found in `build/bin/`
 
-## Style Guide
-Conforming to a common style guide helps us iterate quickly and avoid creating bugs.
-
+## Style Guide, Linting, and Code Check
 We follow [Google's C++ Style Guide](https://google.github.io/styleguide/cppguide.html).
-Please familiarize yourself with it.
 
-If you see something that doesn't conform to it, submit a PR.
-
-## Linting
-Linting helps us keep our code clean, easy to maintain, and free of bugs.
-
-You can run the cpp lint script from our friends at Google with:
-
+Run cpplint to check the code for style guideline violations.
 ```bash
 ./scripts/run_cpplint.sh
 ```
 
-### Testing
+Run cppcheck to check code for possible bugs.
+```bash
+./scripts/run_cppcheck.sh
+```
 
+## Testing
 ##### Creating & Running Tests
 Whenever you add new tests, you will need to add the required `.cpp` and `.h` files to the `TEST_FILES` parameter in `test/basic_tests/CMakelists.txt`.
 
@@ -74,23 +57,13 @@ set(TEST_FILES
 To run the tests, use CMake to compile the project, then run `basic_tests` in `build/bin`.
 It will notify you if tests pass or fail.
 
-If your tests fail, it will make the build fail which will make people upset.
-
 ## Structure of the code
 The directories `src` and `test/basic_tests` should mirror each other. That is, any unit testing code for the file `src/a/b.cpp` should be in `test/basic_tests/a/bTest.cpp`.
 
--   **src/** - Source code. For more details, check out the README files in each sub-directory.
-    -   **core/** - The foundation of the source code. We avoid putting target or device-specific code here if we can, as it makes it easier to compile the fundamentals.
-    -   **main/** - All the files that contain binary targets.
--   **test/** - Testing, including both unit tests and manually-run tests.
-    -   **lib/** - Libraries that are required for testing.
-    -   Refer to documentation on **src/** for a guide to the other sub-directories here.
--   **lib/** - Libraries that are required for the core binaries.
+-   **src/** - Source code.
+-   **test/** - Unit tests.
+-   **projects/** - Target specific code. For more details, check out the README file in this directory.
 
-## Run
-run server from `build/bin/server` with `./server`  
-run client from `build/bin/client` with `./client`  
-javascript client is in raye-app repo, inside `/network-table-interface`
 
 ## If you have problems
  - Check that you've initiated the git submodules.
@@ -99,4 +72,17 @@ javascript client is in raye-app repo, inside `/network-table-interface`
  - If all else fails, delete your build directory and try again.
 
 ## Contributing
-Please read the [contribution guide](CONTRIBUTING.md).
+#### How to contribute
+If your changes are significant then make a new branch that is named after the JIRA issue, in the format SOFT-XXX-brief-description
+
+e.g. SOFT-753-boxes2headings
+
+##### Making Changes
+* Create a feature branch from where you want to base your work.
+  * This is usually the master branch.
+  * To quickly create a feature branch based on master; `git checkout -b
+    feature/my_contribution master`.
+  * **Do not work directly on the `master` branch.**
+* Make commits of logical units.
+* Check for unnecessary whitespace with `git diff --check` before committing.
+* Make sure your commit messages are accurate and coherent.
