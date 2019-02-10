@@ -24,11 +24,9 @@ NetworkTable::Server::Server()
 
     ReconnectAbandonedSockets();
 
-#ifdef SAVE_TREE
     if (boost::filesystem::exists(kValuesFilePath_)) {
         values_.Load(kValuesFilePath_);
     }
-#endif
 }
 
 void NetworkTable::Server::Run() {
@@ -275,9 +273,7 @@ void NetworkTable::Server::SetValueInTable(std::string uri, \
         const NetworkTable::Value &value) {
     values_.SetNode(uri, value);
 
-#ifdef SAVE_TREE
     values_.Write(kValuesFilePath_);
-#endif
 
     // When the table has changed, make sure to
     // notify anyone who subscribed to that uri,

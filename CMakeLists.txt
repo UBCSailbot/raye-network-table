@@ -26,12 +26,8 @@ include(lib/core_libs.cmake)
 
 # Define the command-line flags that should be accessible to programs
 option(SAILBOT_DEBUG "Whether to build the project with the SAILBOT_DEBUG variable defined at the preprocessor level" OFF)
-option(SAVE_TREE "Whether or not to save the network table tree to the disk whenever it changes." ON)
 if(SAILBOT_DEBUG)
   add_definitions(-DSAILBOT_DEBUG)
-endif()
-if(SAVE_TREE)
-    add_definitions(-DSAVE_TREE)
 endif()
 
 ############
