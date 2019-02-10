@@ -28,9 +28,18 @@ void WindDirectionCallback(NetworkTable::Node node) {
     }
 }
 
+std::atomic_bool batterycallback_correct_data(false);
 std::atomic_bool batterycallback_called(false);
 void BatteryCallback(NetworkTable::Node node) {
-        batterycallback_called = true;
+    batterycallback_called = true;
+    int charge = node.children().at("BAT0").children().at("charge").value().int_data();
+    bool is_charging =  node.children().at("BAT0").children().at("is_charging").value().bool_data();
+    if (is_charging == true && charge == 63) {
+        batterycallback_correct_data = true;
+    } else {
+        std::cout << "Received wrong battery data. charge: " << charge << std::endl\
+            << "is charging: " << is_charging << std::endl;
+    }
 }
 
 // This callback should never be called
@@ -87,10 +96,17 @@ int main() {
 
     // SET battery info
     try {
-        NetworkTable::Value value;
-        value.set_type(NetworkTable::Value::DOUBLE);
-        value.set_double_data(.663);
-        connection.SetValue("batteries/BAT0/charge_remaining", value);
+        NetworkTable::Value charge;
+        charge.set_type(NetworkTable::Value::INT);
+        charge.set_int_data(63);
+        NetworkTable::Value is_charging;
+        is_charging.set_type(NetworkTable::Value::BOOL);
+        is_charging.set_bool_data(true);
+
+        std::map<std::string, NetworkTable::Value> values;
+        values.insert(std::pair<std::string, NetworkTable::Value>("batteries/BAT0/charge", charge));
+        values.insert(std::pair<std::string, NetworkTable::Value>("batteries/BAT0/is_charging", is_charging));
+        connection.SetValues(values);
     } catch (...) {
         std::cout << "Error setting battery info" << std::endl;
         any_test_failed = 1;
@@ -207,6 +223,10 @@ int main() {
     }
     if (!batterycallback_called) {
         std::cout << "Error, battery callback was never called" << std::endl;
+        any_test_failed = 1;
+    }
+    if (!batterycallback_correct_data) {
+        std::cout << "Error, battery callback received the wrong data" << std::endl;
         any_test_failed = 1;
     }
     if (badcallback_called) {

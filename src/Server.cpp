@@ -12,7 +12,6 @@
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include <iostream>
-#include <vector>
 
 NetworkTable::Server::Server()
     : context_(1), welcome_socket_(context_, ZMQ_REP) {
@@ -177,11 +176,21 @@ void NetworkTable::Server::HandleRequest(socket_ptr socket) {
 }
 
 void NetworkTable::Server::SetValues(const NetworkTable::SetValuesRequest &request) {
+    std::set<std::string> uris;
     for (auto const &entry : request.values()) {
         std::string uri = entry.first;
         NetworkTable::Value value = entry.second;
-        SetValueInTable(uri, value);
+        values_.SetNode(uri, value);
+
+        uris.insert(uri);
     }
+
+    values_.Write(kValuesFilePath_);
+
+    // When the table has changed, make sure to
+    // notify anyone who subscribed to those uris,
+    // or any parent uris.
+    NotifySubscribers(uris);
 }
 
 void NetworkTable::Server::GetNodes(const NetworkTable::GetNodesRequest &request, \
@@ -269,46 +278,47 @@ NetworkTable::Node NetworkTable::Server::GetNodeFromTable(std::string uri) {
     }
 }
 
-void NetworkTable::Server::SetValueInTable(std::string uri, \
-        const NetworkTable::Value &value) {
-    values_.SetNode(uri, value);
+void NetworkTable::Server::NotifySubscribers(const std::set<std::string> &uris) {
+    // This will contain a list of uris
+    // for which the update was already sent out to.
+    // This is to make sure we don't send multiple of the same
+    // update to a subscriber.
+    std::set<std::string> do_not_send;
 
-    values_.Write(kValuesFilePath_);
+    for (std::string uri : uris) {
+        // This will contain the uri itself, and all parent
+        // uris. Anyone subscribed to these uris will receive
+        // a single publish message.
+        std::set<std::string> subscribed_uris;
+        while (true) {
+            subscribed_uris.insert(uri);
 
-    // When the table has changed, make sure to
-    // notify anyone who subscribed to that uri,
-    // or any parent uri.
-    NotifySubscribers(uri);
-}
-
-void NetworkTable::Server::NotifySubscribers(std::string uri) {
-    // Make a list of uris. If anyone is subscribed to
-    // these uris, they will receive the update.
-    std::vector<std::string> subscribed_uris;
-    while (true) {
-        subscribed_uris.push_back(uri);
-
-        size_t slash_idx = uri.find_last_of('/');
-        if (slash_idx != std::string::npos) {
-            uri = uri.substr(0, slash_idx);
-        } else {
-            break;
+            size_t slash_idx = uri.find_last_of('/');
+            if (slash_idx != std::string::npos) {
+                uri = uri.substr(0, slash_idx);
+            } else {
+                break;
+            }
         }
-    }
-    subscribed_uris.push_back("");  // Also notify anyone who subscribed to the root
+        subscribed_uris.insert("");  // Also notify anyone who subscribed to the root
 
-    // Now, send the reply to anybody who is subscribed to those uris
-    for (std::string &subscribed_uri : subscribed_uris) {
-        auto *subscribe_reply = new NetworkTable::SubscribeReply();
-        subscribe_reply->set_allocated_node(new NetworkTable::Node(values_.GetNode(subscribed_uri)));
-        subscribe_reply->set_uri(subscribed_uri);
-        NetworkTable::Reply reply;
-        reply.set_type(NetworkTable::Reply::SUBSCRIBE);
-        reply.set_allocated_subscribe_reply(subscribe_reply);
+        // Now, send the reply to anybody who is subscribed to those uris
+        for (const std::string &subscribed_uri : subscribed_uris) {
+            if (do_not_send.find(subscribed_uri) == do_not_send.end()) {
+                auto *subscribe_reply = new NetworkTable::SubscribeReply();
+                subscribe_reply->set_allocated_node(new NetworkTable::Node(values_.GetNode(subscribed_uri)));
+                subscribe_reply->set_uri(subscribed_uri);
+                NetworkTable::Reply reply;
+                reply.set_type(NetworkTable::Reply::SUBSCRIBE);
+                reply.set_allocated_subscribe_reply(subscribe_reply);
 
-        std::set<socket_ptr> subscription_sockets = subscriptions_table_[subscribed_uri];
-        for (const auto& socket : subscription_sockets) {
-            SendReply(reply, socket);
+                std::set<socket_ptr> subscription_sockets = subscriptions_table_[subscribed_uri];
+                for (const auto& socket : subscription_sockets) {
+                    SendReply(reply, socket);
+                }
+
+                do_not_send.insert(subscribed_uri);
+            }
         }
     }
 }

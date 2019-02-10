@@ -90,16 +90,9 @@ const std::string kValuesFilePath_ = kWelcome_Directory_ + "values_.txt";  // wh
     NetworkTable::Node GetNodeFromTable(std::string key);
 
     /*
-     * Sets a value stored in values_ if it exists, creates
-     * a new entry if the entry does not already exist.
-     * Also sends an update any subscribers of the key.
-     */
-    void SetValueInTable(std::string key, const NetworkTable::Value &value);
-
-    /*
      * Gets any sockets which have subscribed to key, and sends value to them.
      */
-    void NotifySubscribers(std::string key);
+    void NotifySubscribers(const std::set<std::string> &uris);
 
     /*
      * Serializes a network table reply,
