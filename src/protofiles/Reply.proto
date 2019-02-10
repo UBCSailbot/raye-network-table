@@ -4,15 +4,18 @@ package NetworkTable;
 
 import "GetNodesReply.proto";
 import "SubscribeReply.proto";
+import "ErrorReply.proto";
 
 message Reply {
     Type type = 1;
 
     GetNodesReply getnodes_reply = 2;
     SubscribeReply subscribe_reply = 3;
+    ErrorReply error_reply = 4;
 
     enum Type {
         GETNODES = 0;
         SUBSCRIBE = 1;
+        ERROR = 2;
     }
 }

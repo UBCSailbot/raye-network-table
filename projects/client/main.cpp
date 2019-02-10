@@ -5,6 +5,7 @@
 #include "Connection.h"
 #include "Value.pb.h"
 #include "Node.pb.h"
+#include "Exceptions.h"
 
 #include <atomic>
 #include <chrono>
@@ -152,12 +153,11 @@ int main() {
         }
         // GET garbage
         try {
+            // This should throw NodeNotFoundException
             NetworkTable::Value value = connection.GetValue("garbage");
-            if (value.type() != NetworkTable::Value::NONE) {
-                std::cout << "Error, got a value for garbage" << std::endl;
-                any_test_failed = 1;
-            }
+            any_test_failed = 1;
         } catch (NetworkTable::TimeoutException) {
+        } catch (NetworkTable::NodeNotFoundException) {
         } catch (...) {
             std::cout << "Error getting garbage" << std::endl;
             any_test_failed = 1;

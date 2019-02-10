@@ -117,6 +117,12 @@ class Connection {
 
     bool TimedOut(std::chrono::steady_clock::time_point start_time);
 
+    /*
+     * Checks to see if reply is an error message and
+     * throws appropriate exception if it is.
+     */
+    void CheckForError(const NetworkTable::Reply &reply);
+
     void ManageSocket();
 
     std::thread socket_thread_;  // This interacts with the socket.

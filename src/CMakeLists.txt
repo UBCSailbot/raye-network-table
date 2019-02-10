@@ -24,6 +24,7 @@ protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS
     protofiles/SubscribeReply.proto
     protofiles/UnsubscribeRequest.proto
     protofiles/Value.proto
+    protofiles/ErrorReply.proto
     )
 
 # Define the src_core library target

@@ -46,15 +46,6 @@ class Tree {
  private:
     NetworkTable::Node root_;
 };
-
-/*
- * This exception is thrown when the node a client is trying
- * to get does not exist, eg the wrong uri was passed.
- */
-class NodeNotFoundException : public std::runtime_error {
- public:
-     explicit NodeNotFoundException(const std::string &what) : std::runtime_error(what.c_str()) { }
-};
 }  // namespace NetworkTable
 
 #endif  // TREE_H_

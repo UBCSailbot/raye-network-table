@@ -1,8 +1,10 @@
 // Copyright 2017 UBC Sailbot
 
 #include "Server.h"
+#include "Exceptions.h"
 #include "GetNodesReply.pb.h"
 #include "SubscribeReply.pb.h"
+#include "ErrorReply.pb.h"
 #include "Request.pb.h"
 
 #include <algorithm>
@@ -200,8 +202,18 @@ void NetworkTable::Server::GetNodes(const NetworkTable::GetNodesRequest &request
 
     for (int i = 0; i < request.uris_size(); i++) {
         std::string uri = request.uris(i);
-        NetworkTable::Node node = GetNodeFromTable(uri);
-        (*mutable_nodes)[uri] = node;
+        try {
+            NetworkTable::Node node = values_.GetNode(uri);
+            (*mutable_nodes)[uri] = node;
+        } catch (NetworkTable::NodeNotFoundException) {
+            NetworkTable::Reply reply;
+            reply.set_type(NetworkTable::Reply::ERROR);
+            auto *error_reply = new NetworkTable::ErrorReply;
+            error_reply->set_message_data(std::string(uri + " does not exit"));
+            reply.set_allocated_error_reply(error_reply);
+            SendReply(reply, socket);
+            return;
+        }
     }
 
     NetworkTable::Reply reply;
@@ -248,34 +260,6 @@ void NetworkTable::Server::DisconnectSocket(socket_ptr socket) {
     endpoint.erase(endpoint.begin(), endpoint.begin()+transport_len);
 
     boost::filesystem::remove(endpoint);
-}
-
-NetworkTable::Value NetworkTable::Server::GetValueFromTable(std::string uri) {
-    try {
-        NetworkTable::Node node = values_.GetNode(uri);
-        return node.value();
-    } catch (NetworkTable::NodeNotFoundException &e) {
-        // If the value wasn't found, create a new value
-        // of type NONE and return that to the client.
-        NetworkTable::Value value;
-        value.set_type(NetworkTable::Value::NONE);
-        return value;
-    }
-}
-
-NetworkTable::Node NetworkTable::Server::GetNodeFromTable(std::string uri) {
-    try {
-        NetworkTable::Node node = values_.GetNode(uri);
-        return node;
-    } catch (NetworkTable::NodeNotFoundException &e) {
-        // If the node wasn't found, create a new node
-        // with value of type NONE and return that to the client.
-        NetworkTable::Node node;
-        NetworkTable::Value *value = new NetworkTable::Value();
-        value->set_type(NetworkTable::Value::NONE);
-        node.set_allocated_value(value);
-        return node;
-    }
 }
 
 void NetworkTable::Server::NotifySubscribers(const std::set<std::string> &uris) {

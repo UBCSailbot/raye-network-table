@@ -74,20 +74,11 @@ const std::string kValuesFilePath_ = kWelcome_Directory_ + "values_.txt";  // wh
     void DisconnectSocket(socket_ptr socket);
 
     /*
-     * Returns value stored in values_ if it exists.
-     * Otherwise returns a value with type NONE.
-     * Use this instead of directly getting values
-     * from the table.
+     * Sets a value stored in values_ if it exists, creates
+     * a new entry if the entry does not already exist.
+     * Also sends an update any subscribers of the key.
      */
-    NetworkTable::Value GetValueFromTable(std::string key);
-
-    /*
-     * Returns a node stored in values_ if it exists.
-     * Otherwise returns a node with value of type NONE.
-     * Use this instead of directly getting values
-     * from the table.
-     */
-    NetworkTable::Node GetNodeFromTable(std::string key);
+    void SetValueInTable(std::string key, const NetworkTable::Value &value);
 
     /*
      * Gets any sockets which have subscribed to key, and sends value to them.

@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package NetworkTable;
+
+message ErrorReply {
+    Type type = 1;
+    string message_data = 2;
+
+    enum Type {
+         NODE_NOT_FOUND = 0;
+    }
+}

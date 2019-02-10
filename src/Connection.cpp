@@ -5,8 +5,10 @@
 #include <assert.h>
 #include <chrono>
 #include <stdio.h>
+#include "Exceptions.h"
 #include "GetNodesRequest.pb.h"
 #include "SetValuesRequest.pb.h"
+#include "ErrorReply.pb.h"
 
 
 NetworkTable::Connection::Connection() : connected_(false), terminate_(false),
@@ -120,6 +122,7 @@ NetworkTable::Node NetworkTable::Connection::GetNode(const std::string &uri) {
             // request we sent.
             // If not, just throw out the reply.
             if (reply_uuid == request_uuid) {
+                CheckForError(reply);
                 return reply.getnodes_reply().nodes().at(uri);
             }
         }
@@ -270,6 +273,20 @@ bool NetworkTable::Connection::TimedOut(std::chrono::steady_clock::time_point st
     auto current_time = std::chrono::steady_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(current_time - start_time);
     return (duration.count() > timeout_);
+}
+
+
+void NetworkTable::Connection::CheckForError(const NetworkTable::Reply &reply) {
+    if (reply.type() == NetworkTable::Reply::ERROR) {
+        if (reply.has_error_reply()) {
+            NetworkTable::ErrorReply error_reply = reply.error_reply();
+            if (error_reply.type() == NetworkTable::ErrorReply::NODE_NOT_FOUND) {
+                throw NetworkTable::NodeNotFoundException(error_reply.message_data());
+            }
+        } else {
+            throw std::runtime_error("Server replied with unset error message.");
+        }
+    }
 }
 
 void NetworkTable::Connection::ManageSocket() {

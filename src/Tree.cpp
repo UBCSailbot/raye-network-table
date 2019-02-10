@@ -1,6 +1,7 @@
 // Copyright 2017 UBC Sailbot
 
 #include "Tree.h"
+#include "Exceptions.h"
 
 #include <boost/algorithm/string.hpp>
 #include <vector>
