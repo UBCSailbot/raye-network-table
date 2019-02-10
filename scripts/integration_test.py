@@ -25,14 +25,14 @@ def run_server_and_fake_crashes():
     while continue_server:
         server = subprocess.Popen(['./bin/server'],
                               preexec_fn=os.setsid)
-        for i in range(1, 25):
+        for i in range(1, 5):
             if not continue_server:
-                # TODO: There might be a signal other than SIGTERM
-                # which more closely simulates a crash.
                 os.killpg(os.getpgid(server.pid), signal.SIGTERM)
                 return
 
             sleep(1)
+        # TODO: There might be a signal other than SIGTERM
+        # which more closely simulates a crash.
         os.killpg(os.getpgid(server.pid), signal.SIGTERM)
         sleep(.01)
 
