@@ -56,7 +56,7 @@ except subprocess.CalledProcessError:
     exit()
 
 # Start the server
-print "This test may take a few minutes."
+print "This test may take a few seconds."
 server_thread = Thread(target=run_server_and_fake_crashes)
 server_thread.start()
 

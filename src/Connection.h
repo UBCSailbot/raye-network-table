@@ -31,13 +31,10 @@ class Connection {
     void Disconnect();
 
     /*
-     * Set a value in the network table, or create it
-     * if it doesn't exist already.
-     *
-     * @param uri - which uri in the table to set.
-     * @param value - what value to set the value at that uri to.
+     * Set value in the network table, or create
+     * it if it doesn't exist.
      */
-    void SetValue(std::string uri, const NetworkTable::Value &value);
+    void SetValue(const std::string &uri, const NetworkTable::Value &values);
 
     /*
      * Set multiple values in the network table, or create
@@ -49,22 +46,9 @@ class Connection {
     void SetValues(const std::map<std::string, NetworkTable::Value> &values);
 
     /*
-     * Get a value from the network table.
-     * Returns a value with NetworkTable::Value type NONE
-     * if no value at the specified uri exists.
-     * 
-     * @param uri - returns the value located at this uri.
+     * Get value from the network table.
      */
     NetworkTable::Value GetValue(const std::string &uri);
-
-    /*
-     * Get a node from the network table.
-     * Returns a node with NetworkTable::Value type NONE
-     * if no node at the specified uri exists.
-     * 
-     * @param uri - returns the value located at this uri.
-     */
-    NetworkTable::Node GetNode(const std::string &uri);
 
     /*
      * Get multiple values from the network table.
@@ -74,6 +58,12 @@ class Connection {
      * @param uris - which uris to get which values for.
      */
     std::map<std::string, NetworkTable::Value> GetValues(const std::set<std::string> &uris);
+
+    /*
+     * Get node from the network table.
+     *
+     */
+    NetworkTable::Node GetNode(const std::string &uri);
 
     /*
      * Get multiple nodes from the network table.
@@ -108,12 +98,13 @@ class Connection {
     void SetTimeout(int timeout);
 
  private:
-    void Send(const NetworkTable::Request &request, zmq::socket_t *socket);
+    int Send(const NetworkTable::Request &request, zmq::socket_t *socket);
 
-    /*
-     * Returns true only if a message was received.
-     */
-    bool Receive(NetworkTable::Reply *reply, zmq::socket_t *socket);
+    int Send(const NetworkTable::Reply &reply, zmq::socket_t *socket);
+
+    int Receive(NetworkTable::Reply *reply, zmq::socket_t *socket);
+
+    int Receive(NetworkTable::Request *request, zmq::socket_t *socket);
 
     bool TimedOut(std::chrono::steady_clock::time_point start_time);
 
@@ -125,30 +116,13 @@ class Connection {
 
     void ManageSocket();
 
+    zmq::context_t context_;
+    zmq::socket_t mst_socket_;
+
     std::thread socket_thread_;  // This interacts with the socket.
     std::atomic_bool connected_;  // True when connected to the server.
                                   // This is set by the manage socket thread
                                   // and read by the main thread.
-    std::atomic_bool terminate_;  // This is used to gracefully
-                                  // terminate the manage socket thread.
-                                  // It is set by the main thread
-                                  // and read by the manage socket thread.
-
-    // The request_queue_ is a queue
-    // containing pairs of uuids and
-    // network table requests.
-    // The uuid is used to link a request to a reply.
-    std::queue< \
-        std::pair< \
-            boost::uuids::uuid, \
-            NetworkTable::Request>> request_queue_;
-    std::queue< \
-        std::pair< \
-            boost::uuids::uuid, \
-            NetworkTable::Reply>> reply_queue_;
-
-    std::mutex request_queue_mutex_;
-    std::mutex reply_queue_mutex_;
 
     std::map<std::string, \
         void (*)(NetworkTable::Node)> callbacks_;  // Map from table uri

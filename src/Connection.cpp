@@ -5,27 +5,33 @@
 #include <assert.h>
 #include <chrono>
 #include <stdio.h>
+#include <string.h>
 #include "Exceptions.h"
 #include "GetNodesRequest.pb.h"
 #include "SetValuesRequest.pb.h"
 #include "ErrorReply.pb.h"
 
 
-NetworkTable::Connection::Connection() : connected_(false), terminate_(false),
+NetworkTable::Connection::Connection() : context_(1),
+                                         mst_socket_(context_, ZMQ_PAIR),
+                                         connected_(false),
                                          timeout_(-1) {
 }
 
 void NetworkTable::Connection::Connect() {
     assert(!connected_);
 
+    mst_socket_.bind("inproc://#1");
+    if (timeout_ > 0) {
+        mst_socket_.setsockopt(ZMQ_RCVTIMEO, timeout_);
+        mst_socket_.setsockopt(ZMQ_SNDTIMEO, timeout_);
+    }
     socket_thread_ = std::thread(&NetworkTable::Connection::ManageSocket, this);
 
     auto start_time = std::chrono::steady_clock::now();
     while (!connected_) {
         if (TimedOut(start_time)) {
-            terminate_ = true;
             socket_thread_.join();
-            terminate_ = false;
             throw TimeoutException(const_cast<char*>("timed out"));
         }
     }
@@ -34,31 +40,23 @@ void NetworkTable::Connection::Connect() {
 void NetworkTable::Connection::Disconnect() {
     assert(connected_);
 
-    terminate_ = true;
+    // Tell manage socket thread to disconnect
+    std::string request_body = "disconnect";
+    zmq::message_t request(request_body.size()+1);
+    memcpy(request.data(), request_body.c_str(), request_body.size()+1);
+    if (!mst_socket_.send(request)) {
+        throw TimeoutException(const_cast<char*>("timed out"));
+    }
+
     socket_thread_.join();
-    terminate_ = false;
 }
 
 ////////////////////// PUBLIC //////////////////////
 
-void NetworkTable::Connection::SetValue(std::string uri, const NetworkTable::Value &value) {
+void NetworkTable::Connection::SetValue(const std::string &uri, const NetworkTable::Value &value) {
     assert(connected_);
-
-    // Create a SetValuesRequest with a single
-    // uri/value pair.
-    auto *setvalues_request = new NetworkTable::SetValuesRequest();
-    auto mutable_values = setvalues_request->mutable_values();
-    (*mutable_values)[uri] = NetworkTable::Value(value);
-
-    NetworkTable::Request request;
-    request.set_type(NetworkTable::Request::SETVALUES);
-    request.set_allocated_setvalues_request(setvalues_request);
-
-    // Push the request into the shared request_queue_.
-    request_queue_mutex_.lock();
-    request_queue_.push(\
-            std::make_pair(boost::uuids::nil_uuid(), request));
-    request_queue_mutex_.unlock();
+    std::map<std::string, NetworkTable::Value> values = {{uri, value}};
+    SetValues(values);
 }
 
 void NetworkTable::Connection::SetValues(const std::map<std::string, NetworkTable::Value> &values) {
@@ -77,64 +75,22 @@ void NetworkTable::Connection::SetValues(const std::map<std::string, NetworkTabl
     request.set_type(NetworkTable::Request::SETVALUES);
     request.set_allocated_setvalues_request(setvalues_request);
 
-    // Push the request into the shared request_queue_.
-    request_queue_mutex_.lock();
-    request_queue_.push(\
-            std::make_pair(boost::uuids::nil_uuid(), request));
-    request_queue_mutex_.unlock();
-}
-
-NetworkTable::Value NetworkTable::Connection::GetValue(const std::string &uri) {
-    return GetNode(uri).value();
-}
-
-NetworkTable::Node NetworkTable::Connection::GetNode(const std::string &uri) {
-    assert(connected_);
-
-    // Create a GetNodesRequest with a single uri/value pair.
-    auto *getnodes_request = new NetworkTable::GetNodesRequest();
-    getnodes_request->add_uris(uri);
-
-    NetworkTable::Request request;
-    request.set_type(NetworkTable::Request::GETNODES);
-    request.set_allocated_getnodes_request(getnodes_request);
-
-    // We need to attach a uuid to the request
-    // to ensure we get the correct reply.
-    boost::uuids::uuid request_uuid = boost::uuids::random_generator()();
-
-    request_queue_mutex_.lock();
-    request_queue_.push(\
-            std::make_pair(request_uuid, request));
-    request_queue_mutex_.unlock();
-
-    // Keep checking the reply queue until a reply is there.
-    auto start_time = std::chrono::steady_clock::now();
-    while (true) {
-        reply_queue_mutex_.lock();
-        if (!reply_queue_.empty()) {
-            boost::uuids::uuid reply_uuid = reply_queue_.front().first;
-            NetworkTable::Reply reply = reply_queue_.front().second;
-            reply_queue_.pop();
-            reply_queue_mutex_.unlock();
-
-            // Check to make sure the reply has the same id as the
-            // request we sent.
-            // If not, just throw out the reply.
-            if (reply_uuid == request_uuid) {
-                CheckForError(reply);
-                return reply.getnodes_reply().nodes().at(uri);
-            }
-        }
-        reply_queue_mutex_.unlock();
-
-        if (TimedOut(start_time)) {
-            throw TimeoutException(const_cast<char*>("timed out"));
-        }
+    if (Send(request, &mst_socket_) == EAGAIN) {
+        throw TimeoutException(const_cast<char*>("timed out"));
     }
 }
 
+NetworkTable::Value NetworkTable::Connection::GetValue(const std::string &uri) {
+    assert(connected_);
+
+    std::set<std::string> uris = {uri};
+
+    return GetValues(uris)[uri];
+}
+
 std::map<std::string, NetworkTable::Value> NetworkTable::Connection::GetValues(const std::set<std::string> &uris) {
+    assert(connected_);
+
     std::map<std::string, NetworkTable::Value> values;
 
     for (auto const &uriNodePair : GetNodes(uris)) {
@@ -142,6 +98,14 @@ std::map<std::string, NetworkTable::Value> NetworkTable::Connection::GetValues(c
     }
 
     return values;
+}
+
+NetworkTable::Node NetworkTable::Connection::GetNode(const std::string &uri) {
+    assert(connected_);
+
+    std::set<std::string> uris = {uri};
+
+    return GetNodes(uris)[uri];
 }
 
 std::map<std::string, NetworkTable::Node> NetworkTable::Connection::GetNodes(const std::set<std::string> &uris) {
@@ -157,45 +121,25 @@ std::map<std::string, NetworkTable::Node> NetworkTable::Connection::GetNodes(con
     request.set_type(NetworkTable::Request::GETNODES);
     request.set_allocated_getnodes_request(getnodes_request);
 
-    // We need to attach a uuid to the request
-    // to ensure we get the correct reply.
-    boost::uuids::uuid request_uuid = boost::uuids::random_generator()();
-
-    request_queue_mutex_.lock();
-    request_queue_.push(\
-            std::make_pair(request_uuid, request));
-    request_queue_mutex_.unlock();
-
-    // Keep checking the reply queue until a reply is there.
-    auto start_time = std::chrono::steady_clock::now();
-    while (true) {
-        reply_queue_mutex_.lock();
-        if (!reply_queue_.empty()) {
-            boost::uuids::uuid reply_uuid = reply_queue_.front().first;
-            NetworkTable::Reply reply = reply_queue_.front().second;
-            reply_queue_.pop();
-            reply_queue_mutex_.unlock();
-
-            // Check to make sure the reply has the same id as the
-            // request we sent.
-            // If not, just throw out the reply.
-            if (reply_uuid == request_uuid) {
-                std::map<std::string, NetworkTable::Node> nodes;
-                for (auto const &entry : reply.getnodes_reply().nodes()) {
-                    std::string uri = entry.first;
-                    NetworkTable::Node node = entry.second;
-                    nodes[uri] = node;
-                }
-
-                return nodes;
-            }
-        }
-        reply_queue_mutex_.unlock();
-
-        if (TimedOut(start_time)) {
-            throw TimeoutException(const_cast<char*>("timed out"));
-        }
+    if (Send(request, &mst_socket_) == EAGAIN) {
+        throw TimeoutException(const_cast<char*>("timed out"));
     }
+
+    NetworkTable::Reply reply;
+    if (Receive(&reply, &mst_socket_) == EAGAIN) {
+        throw TimeoutException(const_cast<char*>("timed out"));
+    }
+
+    CheckForError(reply);
+
+    std::map<std::string, NetworkTable::Node> nodes;
+    for (auto const &entry : reply.getnodes_reply().nodes()) {
+        std::string uri = entry.first;
+        NetworkTable::Node node = entry.second;
+        nodes[uri] = node;
+    }
+
+    return nodes;
 }
 
 void NetworkTable::Connection::Subscribe(std::string uri, void (*callback)(NetworkTable::Node node)) {
@@ -210,14 +154,15 @@ void NetworkTable::Connection::Subscribe(std::string uri, void (*callback)(Netwo
     request.set_type(NetworkTable::Request::SUBSCRIBE);
     request.set_allocated_subscribe_request(subscribe_request);
 
-    request_queue_mutex_.lock();
-    request_queue_.push(\
-            std::make_pair(boost::uuids::nil_uuid(), request));
-    request_queue_mutex_.unlock();
+    if (Send(request, &mst_socket_) == EAGAIN) {
+        throw TimeoutException(const_cast<char*>("timed out"));
+    }
 }
 
 void NetworkTable::Connection::Unsubscribe(std::string uri) {
     assert(connected_);
+
+    callbacks_.erase(uri);
 
     auto *unsubscribe_request = new NetworkTable::UnsubscribeRequest();
     unsubscribe_request->set_uri(uri);
@@ -226,12 +171,9 @@ void NetworkTable::Connection::Unsubscribe(std::string uri) {
     request.set_type(NetworkTable::Request::UNSUBSCRIBE);
     request.set_allocated_unsubscribe_request(unsubscribe_request);
 
-    request_queue_mutex_.lock();
-    request_queue_.push(\
-            std::make_pair(boost::uuids::nil_uuid(), request));
-    request_queue_mutex_.unlock();
-
-    callbacks_.erase(uri);
+    if (Send(request, &mst_socket_) == EAGAIN) {
+        throw TimeoutException(const_cast<char*>("timed out"));
+    }
 }
 
 void NetworkTable::Connection::SetTimeout(int timeout) {
@@ -240,7 +182,7 @@ void NetworkTable::Connection::SetTimeout(int timeout) {
 
 ////////////////////// PRIVATE //////////////////////
 
-void NetworkTable::Connection::Send(const NetworkTable::Request &request, zmq::socket_t *socket) {
+int NetworkTable::Connection::Send(const NetworkTable::Request &request, zmq::socket_t *socket) {
     // Serialize the message to a string
     std::string serialized_request;
     request.SerializeToString(&serialized_request);
@@ -248,21 +190,38 @@ void NetworkTable::Connection::Send(const NetworkTable::Request &request, zmq::s
     // Send the string to the server.
     zmq::message_t message(serialized_request.length());
     memcpy(message.data(), serialized_request.data(), serialized_request.length());
-    socket->send(message);
+    return socket->send(message);
 }
 
-bool NetworkTable::Connection::Receive(NetworkTable::Reply *reply, zmq::socket_t *socket) {
+int NetworkTable::Connection::Send(const NetworkTable::Reply &reply, zmq::socket_t *socket) {
+    // Serialize the message to a string
+    std::string serialized_request;
+    reply.SerializeToString(&serialized_request);
+
+    // Send the string to the server.
+    zmq::message_t message(serialized_request.length());
+    memcpy(message.data(), serialized_request.data(), serialized_request.length());
+    return socket->send(message);
+}
+
+int NetworkTable::Connection::Receive(NetworkTable::Reply *reply, zmq::socket_t *socket) {
     zmq::message_t message;
-    if (socket->recv(&message, ZMQ_DONTWAIT) == true) {
-        std::string serialized_reply(static_cast<char*>(message.data()), \
-                                message.size());
+    int rc = socket->recv(&message);
+    std::string serialized_reply(static_cast<char*>(message.data()), \
+                            message.size());
 
-        reply->ParseFromString(serialized_reply);
+    reply->ParseFromString(serialized_reply);
+    return rc;
+}
 
-        return true;
-    } else {
-        return false;
-    }
+int NetworkTable::Connection::Receive(NetworkTable::Request *request, zmq::socket_t *socket) {
+    zmq::message_t message;
+    int rc = socket->recv(&message);
+    std::string serialized_reply(static_cast<char*>(message.data()), \
+                            message.size());
+
+    request->ParseFromString(serialized_reply);
+    return rc;
 }
 
 bool NetworkTable::Connection::TimedOut(std::chrono::steady_clock::time_point start_time) {
@@ -296,8 +255,7 @@ void NetworkTable::Connection::ManageSocket() {
      * ends. For more info see:
      * http://zeromq.org/whitepapers:0mq-termination
      */
-    zmq::context_t context(1);
-    zmq::socket_t socket(context, ZMQ_PAIR);
+    zmq::socket_t socket(context_, ZMQ_PAIR);
     std::string filepath;
     // Ensure that the destructor for
     // socket does not block and simply
@@ -305,11 +263,12 @@ void NetworkTable::Connection::ManageSocket() {
     // send/receive:
     socket.setsockopt(ZMQ_LINGER, 0);
 
+    // Connect to the server
     {
         // First, send a request to Network Table Server
         // to get a location to connect to. This is done
         // using request/reply sockets.
-        zmq::socket_t init_socket(context, ZMQ_REQ);
+        zmq::socket_t init_socket(context_, ZMQ_REQ);
         // Ensure that the destructor for
         // init_socket does not block and simply
         // discards any messages it is still trying to
@@ -343,36 +302,34 @@ void NetworkTable::Connection::ManageSocket() {
         connected_ = true;
     }
 
-    // This queue is used to store ids of
-    // requests which have a non-nil id so that
-    // the reply can have the same id.
-    std::queue<boost::uuids::uuid> ids;
+    // This socket will be used to talk
+    // to the main thread.
+    zmq::socket_t mt_socket(context_, ZMQ_PAIR);
+    mt_socket.connect("inproc://#1");
 
-    while (!terminate_) {
-        // First, check to see if there are any requests
-        // that need to be sent.
-        request_queue_mutex_.lock();
-        if (!request_queue_.empty()) {
-            boost::uuids::uuid request_uuid = request_queue_.front().first;
-            NetworkTable::Request request = request_queue_.front().second;
-            request_queue_.pop();
-            request_queue_mutex_.unlock();
+    // Poll the two sockets.
+    std::vector<zmq::pollitem_t> pollitems;
 
-            if (!request_uuid.is_nil()) {
-                ids.push(request_uuid);
-            }
+    zmq::pollitem_t pollitem;
+    pollitem.socket = static_cast<void*>(socket);
+    pollitem.events = ZMQ_POLLIN;
+    pollitems.push_back(pollitem);
 
-            Send(request, &socket);
-        } else {
-            request_queue_mutex_.unlock();
-        }
+    zmq::pollitem_t mt_pollitem;
+    mt_pollitem.socket = static_cast<void*>(mt_socket);
+    mt_pollitem.events = ZMQ_POLLIN;
+    pollitems.push_back(mt_pollitem);
 
-        // Check to see if there are any replies from the server.
-        NetworkTable::Reply reply;
-        if (Receive(&reply, &socket)) {
+    while (true) {
+        zmq::poll(pollitems.data(), 2, -1);
+
+        // If message from server
+        if (pollitems[0].revents & ZMQ_POLLIN) {
+            NetworkTable::Reply reply;
+            Receive(&reply, &socket);
+            // If it's a subscribe reply,
+            // just run the associated callback function.
             if (reply.type() == NetworkTable::Reply::SUBSCRIBE \
-                // If it's a subscribe reply,
-                // just run the associated callback function.
                     && reply.has_subscribe_reply()) {
                 std::string uri = reply.subscribe_reply().uri();
                 NetworkTable::Node node = reply.subscribe_reply().node();
@@ -389,14 +346,23 @@ void NetworkTable::Connection::ManageSocket() {
                     callbacks_[uri](node);
                 }
             } else {
-                // Otherwise put it in the reply queue
-                // where the main thread will get it.
-                boost::uuids::uuid reply_uuid = ids.front();
-                ids.pop();
-                reply_queue_mutex_.lock();
-                reply_queue_.push(std::make_pair(reply_uuid, reply));
-                reply_queue_mutex_.unlock();
+                Send(reply, &mt_socket);
             }
+        }
+
+        // If request from main thread
+        if (pollitems[1].revents & ZMQ_POLLIN) {
+            zmq::message_t message;
+            mt_socket.recv(&message);
+
+            std::string message_data(static_cast<char*>(message.data()), message.size());
+            if (strcmp(message_data.c_str(), "disconnect") == 0) {
+                break;
+            }
+
+            NetworkTable::Request request;
+            request.ParseFromString(message_data);
+            Send(request, &socket);
         }
     }
 

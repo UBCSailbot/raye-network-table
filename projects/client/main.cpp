@@ -57,7 +57,6 @@ void BadCallback(NetworkTable::Node node) {
  * otherwise it will return 1.
  */
 int main() {
-    NetworkTable::Node node;
     int any_test_failed = 0;
     int num_queries = 5; // How many times the set of tests is run.
     const double precision = .1; // Precision to use when comparing doubles.
@@ -155,6 +154,7 @@ int main() {
         try {
             // This should throw NodeNotFoundException
             NetworkTable::Value value = connection.GetValue("garbage");
+            std::cout << "Got garbage without throwing exception" << std::endl;
             any_test_failed = 1;
         } catch (NetworkTable::TimeoutException) {
         } catch (NetworkTable::NodeNotFoundException) {
@@ -219,6 +219,7 @@ int main() {
         any_test_failed = 1;
     }
     if (wrong_wind_data_received) {
+        std::cout << "Wrong wind data received" << std::endl;
         any_test_failed = 1;
     }
     if (!batterycallback_called) {
