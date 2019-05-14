@@ -49,7 +49,7 @@ LIB_DIRECTORY=${INSTALL_DEPS_DIRECTORY}/../lib
 SCRIPTDIR="$(cd "$(dirname "$0")" && pwd)"
 pushd $SCRIPTDIR/../lib/protobuf
 ./autogen.sh
-./configure --prefix="cmake/build"
+./configure --prefix="$(pwd)/cmake/build"
 make
 if make check ; then
     make install
