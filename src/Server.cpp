@@ -284,7 +284,10 @@ void NetworkTable::Server::NotifySubscribers(const std::set<std::string> &uris) 
                 break;
             }
         }
-        subscribed_uris.insert("");  // Also notify anyone who subscribed to the root
+
+        // Also notify anyone who subscribed to the root
+        subscribed_uris.insert("");
+        subscribed_uris.insert("/");
 
         // Now, send the reply to anybody who is subscribed to those uris
         for (const std::string &subscribed_uri : subscribed_uris) {
