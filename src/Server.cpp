@@ -209,7 +209,7 @@ void NetworkTable::Server::GetNodes(const NetworkTable::GetNodesRequest &request
             NetworkTable::Reply reply;
             reply.set_type(NetworkTable::Reply::ERROR);
             auto *error_reply = new NetworkTable::ErrorReply;
-            error_reply->set_message_data(std::string(uri + " does not exit"));
+            error_reply->set_message_data(std::string(uri + " does not exist"));
             reply.set_allocated_error_reply(error_reply);
             SendReply(reply, socket);
             return;
