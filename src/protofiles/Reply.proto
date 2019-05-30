@@ -8,10 +8,11 @@ import "ErrorReply.proto";
 
 message Reply {
     Type type = 1;
+    string id = 2;
 
-    GetNodesReply getnodes_reply = 2;
-    SubscribeReply subscribe_reply = 3;
-    ErrorReply error_reply = 4;
+    GetNodesReply getnodes_reply = 3;
+    SubscribeReply subscribe_reply = 4;
+    ErrorReply error_reply = 5;
 
     enum Type {
         GETNODES = 0;

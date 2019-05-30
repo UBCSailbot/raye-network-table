@@ -153,7 +153,8 @@ void NetworkTable::Server::HandleRequest(socket_ptr socket) {
         }
         case NetworkTable::Request::GETNODES: {
             if (request.has_getnodes_request()) {
-                GetNodes(request.getnodes_request(), socket);
+                GetNodes(request.getnodes_request(), \
+                       request.id(), socket);
             }
             break;
         }
@@ -196,7 +197,7 @@ void NetworkTable::Server::SetValues(const NetworkTable::SetValuesRequest &reque
 }
 
 void NetworkTable::Server::GetNodes(const NetworkTable::GetNodesRequest &request, \
-            socket_ptr socket) {
+            std::string id, socket_ptr socket) {
     auto *getnodes_reply = new NetworkTable::GetNodesReply();
     auto *mutable_nodes = getnodes_reply->mutable_nodes();
 
@@ -207,6 +208,7 @@ void NetworkTable::Server::GetNodes(const NetworkTable::GetNodesRequest &request
             (*mutable_nodes)[uri] = node;
         } catch (NetworkTable::NodeNotFoundException) {
             NetworkTable::Reply reply;
+            reply.set_id(id);
             reply.set_type(NetworkTable::Reply::ERROR);
             auto *error_reply = new NetworkTable::ErrorReply;
             error_reply->set_message_data(std::string(uri + " does not exist"));
@@ -217,6 +219,7 @@ void NetworkTable::Server::GetNodes(const NetworkTable::GetNodesRequest &request
     }
 
     NetworkTable::Reply reply;
+    reply.set_id(id);
     reply.set_type(NetworkTable::Reply::GETNODES);
     reply.set_allocated_getnodes_reply(getnodes_reply);
 

@@ -9,11 +9,12 @@ import "UnsubscribeRequest.proto";
 
 message Request {
     Type type = 1;
+    string id = 2;
 
-    SetValuesRequest setvalues_request = 2;
-    GetNodesRequest getnodes_request = 3;
-    SubscribeRequest subscribe_request = 4;
-    UnsubscribeRequest unsubscribe_request = 5;
+    SetValuesRequest setvalues_request = 3;
+    GetNodesRequest getnodes_request = 4;
+    SubscribeRequest subscribe_request = 5;
+    UnsubscribeRequest unsubscribe_request = 6;
 
     enum Type {
         SETVALUES = 0;

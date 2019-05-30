@@ -6,6 +6,9 @@
 #include <chrono>
 #include <stdio.h>
 #include <string.h>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
 #include "Exceptions.h"
 #include "GetNodesRequest.pb.h"
 #include "SetValuesRequest.pb.h"
@@ -318,6 +321,10 @@ void NetworkTable::Connection::ManageSocket() {
     mt_pollitem.events = ZMQ_POLLIN;
     pollitems.push_back(mt_pollitem);
 
+    // Used to avoid stale replies
+    // ie (client times out then server replies)
+    std::string current_request_id = "";
+
     while (true) {
         zmq::poll(pollitems.data(), 2, -1);
 
@@ -344,7 +351,10 @@ void NetworkTable::Connection::ManageSocket() {
                     callbacks_[uri](node);
                 }
             } else {
-                Send(reply, &mt_socket);
+                if (reply.id() == current_request_id) {
+                    Send(reply, &mt_socket);
+                    current_request_id = "";
+                }
             }
         }
 
@@ -360,6 +370,9 @@ void NetworkTable::Connection::ManageSocket() {
 
             NetworkTable::Request request;
             request.ParseFromString(message_data);
+            current_request_id = boost::uuids::to_string(\
+                        boost::uuids::random_generator()());
+            request.set_id(current_request_id);
             Send(request, &socket);
         }
     }

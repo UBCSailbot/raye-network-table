@@ -63,7 +63,7 @@ const std::string kValuesFilePath_ = kWelcome_Directory_ + "values_.txt";  // wh
     void SetValues(const NetworkTable::SetValuesRequest &request);
 
     void GetNodes(const NetworkTable::GetNodesRequest &request, \
-            socket_ptr socket);
+            std::string id, socket_ptr socket);
 
     void Subscribe(const NetworkTable::SubscribeRequest &request, \
             socket_ptr socket);
