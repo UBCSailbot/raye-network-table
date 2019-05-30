@@ -75,7 +75,7 @@ void NetworkTable::Connection::SetValues(const std::map<std::string, NetworkTabl
     request.set_type(NetworkTable::Request::SETVALUES);
     request.set_allocated_setvalues_request(setvalues_request);
 
-    if (Send(request, &mst_socket_) == EAGAIN) {
+    if (!Send(request, &mst_socket_)) {
         throw TimeoutException(const_cast<char*>("timed out"));
     }
 }
@@ -121,12 +121,12 @@ std::map<std::string, NetworkTable::Node> NetworkTable::Connection::GetNodes(con
     request.set_type(NetworkTable::Request::GETNODES);
     request.set_allocated_getnodes_request(getnodes_request);
 
-    if (Send(request, &mst_socket_) == EAGAIN) {
+    if (!Send(request, &mst_socket_)) {
         throw TimeoutException(const_cast<char*>("timed out"));
     }
 
     NetworkTable::Reply reply;
-    if (Receive(&reply, &mst_socket_) == EAGAIN) {
+    if (!Receive(&reply, &mst_socket_)) {
         throw TimeoutException(const_cast<char*>("timed out"));
     }
 
@@ -154,7 +154,7 @@ void NetworkTable::Connection::Subscribe(std::string uri, void (*callback)(Netwo
     request.set_type(NetworkTable::Request::SUBSCRIBE);
     request.set_allocated_subscribe_request(subscribe_request);
 
-    if (Send(request, &mst_socket_) == EAGAIN) {
+    if (!Send(request, &mst_socket_)) {
         throw TimeoutException(const_cast<char*>("timed out"));
     }
 }
@@ -171,7 +171,7 @@ void NetworkTable::Connection::Unsubscribe(std::string uri) {
     request.set_type(NetworkTable::Request::UNSUBSCRIBE);
     request.set_allocated_unsubscribe_request(unsubscribe_request);
 
-    if (Send(request, &mst_socket_) == EAGAIN) {
+    if (!Send(request, &mst_socket_)) {
         throw TimeoutException(const_cast<char*>("timed out"));
     }
 }
