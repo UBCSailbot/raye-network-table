@@ -17,6 +17,7 @@
 
 NetworkTable::Server::Server()
     : context_(1), welcome_socket_(context_, ZMQ_REP) {
+    std::cout << "starting network table server" << std::endl;
     // Create the folders where sockets go.
     boost::filesystem::create_directory(kWelcome_Directory_);
     boost::filesystem::create_directory(kClients_Directory_);
@@ -118,7 +119,6 @@ void NetworkTable::Server::ReconnectAbandonedSockets() {
         if (itr->status().type() == boost::filesystem::file_type::socket_file) {
             socket_ptr socket = std::make_shared<zmq::socket_t>(context_, ZMQ_PAIR);
             std::string full_path_to_socket = itr->path().root_path().string() + itr->path().relative_path().string();
-            std::cout << "Reconnecting to " << full_path_to_socket << std::endl;
             socket->bind("ipc://" + full_path_to_socket);
             sockets_.push_back(socket);
         }

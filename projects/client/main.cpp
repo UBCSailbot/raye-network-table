@@ -217,7 +217,7 @@ int main() {
         std::cout << "Error, sensor_b_callback was never called" << std::endl;
         any_test_failed = 1;
     }
-    if (!sensor_b_callback_correct_data) {
+    if (!sensor_b_callback_correct_data && sensor_b_callback_called) {
         std::cout << "Error, sensor_b_callback received the wrong data" << std::endl;
         any_test_failed = 1;
     }
