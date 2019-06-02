@@ -22,18 +22,20 @@ void NetworkTable::Connection::Connect() {
     assert(!connected_);
 
     mst_socket_.bind("inproc://#1");
+    socket_thread_ = std::thread(&NetworkTable::Connection::ManageSocket, this);
+
+    zmq::message_t message;
+    mst_socket_.recv(&message);
+
+    std::string message_data(static_cast<char*>(message.data()), message.size());
+    if (strcmp(message_data.c_str(), "timeout") == 0) {
+        socket_thread_.join();
+        throw TimeoutException(const_cast<char*>("timed out when connecting to server"));
+    }
+
     if (timeout_ > 0) {
         mst_socket_.setsockopt(ZMQ_RCVTIMEO, timeout_);
         mst_socket_.setsockopt(ZMQ_SNDTIMEO, timeout_);
-    }
-    socket_thread_ = std::thread(&NetworkTable::Connection::ManageSocket, this);
-
-    auto start_time = std::chrono::steady_clock::now();
-    while (!connected_) {
-        if (TimedOut(start_time)) {
-            socket_thread_.join();
-            throw TimeoutException(const_cast<char*>("timed out"));
-        }
     }
 }
 
@@ -224,17 +226,6 @@ int NetworkTable::Connection::Receive(NetworkTable::Request *request, zmq::socke
     return rc;
 }
 
-bool NetworkTable::Connection::TimedOut(std::chrono::steady_clock::time_point start_time) {
-    if (timeout_ < 0) {
-        return false;
-    }
-
-    auto current_time = std::chrono::steady_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(current_time - start_time);
-    return (duration.count() > timeout_);
-}
-
-
 void NetworkTable::Connection::CheckForError(const NetworkTable::Reply &reply) {
     if (reply.type() == NetworkTable::Reply::ERROR) {
         if (reply.has_error_reply()) {
@@ -263,6 +254,11 @@ void NetworkTable::Connection::ManageSocket() {
     // send/receive:
     socket.setsockopt(ZMQ_LINGER, 0);
 
+    // This socket will be used to talk
+    // to the main thread.
+    zmq::socket_t mt_socket(context_, ZMQ_PAIR);
+    mt_socket.connect("inproc://#1");
+
     // Connect to the server
     {
         // First, send a request to Network Table Server
@@ -290,22 +286,24 @@ void NetworkTable::Connection::ManageSocket() {
         // after this, this ZMQ_REQ socket is no longer needed.
         zmq::message_t reply;
         if (!init_socket.recv(&reply)) {
-            // If the server is not available,
-            // just return.
+            std::string request_body = "timeout";
+            zmq::message_t request(request_body.size()+1);
+            memcpy(request.data(), request_body.c_str(), request_body.size()+1);
+            mt_socket.send(request);
             return;
+        } else {
+            connected_ = true;
+            std::string request_body = "connected";
+            zmq::message_t request(request_body.size()+1);
+            memcpy(request.data(), request_body.c_str(), request_body.size()+1);
+            mt_socket.send(request);
         }
 
         // Connect to the ZMQ_PAIR socket which was created
         // by the server.
         filepath = static_cast<char*>(reply.data());
         socket.connect(filepath);
-        connected_ = true;
     }
-
-    // This socket will be used to talk
-    // to the main thread.
-    zmq::socket_t mt_socket(context_, ZMQ_PAIR);
-    mt_socket.connect("inproc://#1");
 
     // Poll the two sockets.
     std::vector<zmq::pollitem_t> pollitems;

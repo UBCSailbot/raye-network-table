@@ -106,8 +106,6 @@ class Connection {
 
     int Receive(NetworkTable::Request *request, zmq::socket_t *socket);
 
-    bool TimedOut(std::chrono::steady_clock::time_point start_time);
-
     /*
      * Checks to see if reply is an error message and
      * throws appropriate exception if it is.
