@@ -24,6 +24,7 @@ typedef std::shared_ptr<zmq::socket_t> socket_ptr;
 const std::string kWelcome_Directory_ = "/tmp/sailbot/";  // location of welcoming socket
 const std::string kClients_Directory_ = kWelcome_Directory_ + "clients/";  // location of client sockets
 const std::string kValuesFilePath_ = kWelcome_Directory_ + "values_.txt";  // where values_ is saved
+const std::string kSubscriptionsTableFilePath_ = kWelcome_Directory_ + "subscriptions_table_.txt";
 
  public:
     Server();
@@ -90,6 +91,21 @@ const std::string kValuesFilePath_ = kWelcome_Directory_ + "values_.txt";  // wh
      * then sends it on the socket.
      */
     void SendReply(const NetworkTable::Reply &reply, socket_ptr socket);
+
+    /*
+     * Save subscription table to disk.
+     */
+    void WriteSubscriptionTable();
+
+    /*
+     * Load subscription table from disk.
+     */
+    void LoadSubscriptionTable();
+
+    /*
+     * Given a socket, returns a filesystem path to that socket.
+     */
+    std::string GetEndpoint(socket_ptr socket);
 
     zmq::context_t context_;  // The context which sockets are created from.
     zmq::socket_t welcome_socket_;  // Used to connect to the server for the first time.

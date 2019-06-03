@@ -13,6 +13,10 @@
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
+#include <boost/serialization/map.hpp>
+#include <boost/serialization/set.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
 #include <iostream>
 
 NetworkTable::Server::Server()
@@ -25,6 +29,8 @@ NetworkTable::Server::Server()
     welcome_socket_.bind("ipc://" + kWelcome_Directory_ + "NetworkTable");
 
     ReconnectAbandonedSockets();
+
+    LoadSubscriptionTable();
 
     if (boost::filesystem::exists(kValuesFilePath_)) {
         values_.Load(kValuesFilePath_);
@@ -229,11 +235,13 @@ void NetworkTable::Server::GetNodes(const NetworkTable::GetNodesRequest &request
 void NetworkTable::Server::Subscribe(const NetworkTable::SubscribeRequest &request, \
             socket_ptr socket) {
     subscriptions_table_[request.uri()].insert(socket);
+    WriteSubscriptionTable();
 }
 
 void NetworkTable::Server::Unsubscribe(const NetworkTable::UnsubscribeRequest &request, \
             socket_ptr socket) {
     subscriptions_table_[request.uri()].erase(socket);
+    WriteSubscriptionTable();
 }
 
 void NetworkTable::Server::DisconnectSocket(socket_ptr socket) {
@@ -253,16 +261,9 @@ void NetworkTable::Server::DisconnectSocket(socket_ptr socket) {
         }
     }
 
-    // Delete the ipc socket from disk.
-    char endpoint_c_str[1024];
-    size_t endpoint_c_str_size = sizeof(endpoint_c_str);
-    socket->getsockopt(ZMQ_LAST_ENDPOINT, &endpoint_c_str, &endpoint_c_str_size);
-
-    std::string endpoint(endpoint_c_str, endpoint_c_str_size);
-    int transport_len = strlen("ipc://");
-    endpoint.erase(endpoint.begin(), endpoint.begin()+transport_len);
-
-    boost::filesystem::remove(endpoint);
+    // Delete it from the disk to avoid reconnecting
+    // in the future.
+    boost::filesystem::remove(GetEndpoint(socket));
 }
 
 void NetworkTable::Server::NotifySubscribers(const std::set<std::string> &uris) {
@@ -320,4 +321,55 @@ void NetworkTable::Server::SendReply(const NetworkTable::Reply &reply, socket_pt
     zmq::message_t message(serialized_reply.length());
     memcpy(message.data(), serialized_reply.data(), serialized_reply.length());
     socket->send(message, ZMQ_DONTWAIT);
+}
+
+void NetworkTable::Server::WriteSubscriptionTable() {
+    std::map<std::string, std::set<std::string>> simple_subscription_table;
+    for (auto const& entry : subscriptions_table_) {
+        auto uri = entry.first;
+        auto subscription_sockets = entry.second;
+        for (auto const& socket : subscription_sockets) {
+            simple_subscription_table[uri].insert(GetEndpoint(socket));
+        }
+    }
+
+    std::ofstream ofs(kSubscriptionsTableFilePath_);
+    boost::archive::text_oarchive oarch(ofs);
+    oarch << simple_subscription_table;
+}
+
+void NetworkTable::Server::LoadSubscriptionTable() {
+    if (!boost::filesystem::exists(kSubscriptionsTableFilePath_)) {
+        return;
+    }
+
+    std::map<std::string, std::set<std::string>> simple_subscription_table;
+
+    std::ifstream ifs(kSubscriptionsTableFilePath_);
+    boost::archive::text_iarchive iarch(ifs);
+    iarch >> simple_subscription_table;
+
+    for (auto const& entry : simple_subscription_table) {
+        auto uri = entry.first;
+        auto subscription_socket_endpoints = entry.second;
+        for (auto const& endpoint : subscription_socket_endpoints) {
+            for (auto const& socket : sockets_) {
+                if (GetEndpoint(socket) == endpoint) {
+                    subscriptions_table_[uri].insert(socket);
+                }
+            }
+        }
+    }
+}
+
+std::string NetworkTable::Server::GetEndpoint(socket_ptr socket) {
+    char endpoint_c_str[1024];
+    size_t endpoint_c_str_size = sizeof(endpoint_c_str);
+    socket->getsockopt(ZMQ_LAST_ENDPOINT, &endpoint_c_str, &endpoint_c_str_size);
+
+    std::string endpoint(endpoint_c_str, endpoint_c_str_size);
+    int transport_len = strlen("ipc://");
+    endpoint.erase(endpoint.begin(), endpoint.begin()+transport_len);
+
+    return endpoint;
 }

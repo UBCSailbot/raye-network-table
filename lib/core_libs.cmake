@@ -6,7 +6,7 @@ set(CORE_LIBS)
 
 list(APPEND CORE_LIBS ${CMAKE_THREAD_LIBS_INIT})
 
-find_package(Boost COMPONENTS system filesystem REQUIRED)
+find_package(Boost COMPONENTS system filesystem serialization REQUIRED)
 include_directories(${Boost_INCLUDE_DIR})
 
 include(FindPkgConfig)
