@@ -83,6 +83,8 @@ void NetworkTable::Connection::SetValues(const std::map<std::string, NetworkTabl
     if (!Send(request, &mst_socket_)) {
         throw TimeoutException(const_cast<char*>("timed out"));
     }
+
+    WaitForAck();
 }
 
 NetworkTable::Value NetworkTable::Connection::GetValue(const std::string &uri) {
@@ -162,6 +164,8 @@ void NetworkTable::Connection::Subscribe(std::string uri, void (*callback)(Netwo
     if (!Send(request, &mst_socket_)) {
         throw TimeoutException(const_cast<char*>("timed out"));
     }
+
+    WaitForAck();
 }
 
 void NetworkTable::Connection::Unsubscribe(std::string uri) {
@@ -179,6 +183,8 @@ void NetworkTable::Connection::Unsubscribe(std::string uri) {
     if (!Send(request, &mst_socket_)) {
         throw TimeoutException(const_cast<char*>("timed out"));
     }
+
+    WaitForAck();
 }
 
 void NetworkTable::Connection::SetTimeout(int timeout) {
@@ -239,6 +245,16 @@ void NetworkTable::Connection::CheckForError(const NetworkTable::Reply &reply) {
         } else {
             throw std::runtime_error("Server replied with unset error message.");
         }
+    }
+}
+
+void NetworkTable::Connection::WaitForAck() {
+    NetworkTable::Reply reply;
+    if (!Receive(&reply, &mst_socket_)) {
+        throw TimeoutException(const_cast<char*>("timed out"));
+    }
+    if (reply.type() != NetworkTable::Reply::ACK) {
+        throw std::runtime_error(const_cast<char*>("error receiving ack from server"));
     }
 }
 
@@ -328,7 +344,7 @@ void NetworkTable::Connection::ManageSocket() {
     while (true) {
         zmq::poll(pollitems.data(), 2, -1);
 
-        // If message from server
+        // If message from network table server
         if (pollitems[0].revents & ZMQ_POLLIN) {
             NetworkTable::Reply reply;
             Receive(&reply, &socket);
@@ -355,6 +371,9 @@ void NetworkTable::Connection::ManageSocket() {
                     Send(reply, &mt_socket);
                     current_request_id = "";
                 }
+                // If the reply id is incorrect,
+                // its should just be an old reply
+                // which we can discard.
             }
         }
 

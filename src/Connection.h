@@ -112,6 +112,12 @@ class Connection {
      */
     void CheckForError(const NetworkTable::Reply &reply);
 
+    /*
+     * Waits to receive an ACK message from the server.
+     * Throws timeout if takes too long.
+     */
+    void WaitForAck();
+
     void ManageSocket();
 
     zmq::context_t context_;

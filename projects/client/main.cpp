@@ -42,13 +42,6 @@ void SensorBCallback(NetworkTable::Node node) {
     }
 }
 
-// This callback should never be called
-std::atomic_bool badcallback_called(false);
-void BadCallback(NetworkTable::Node node) {
-    std::cout << "Called bad callback function" << std::endl;
-    badcallback_called = true;
-}
-
 /*
  * This is a stress test
  * for the network table server.
@@ -61,7 +54,7 @@ int main() {
     const double precision = .1; // Precision to use when comparing doubles.
 
     NetworkTable::Connection connection;
-    connection.SetTimeout(2000); // This will occasionally timeout
+    connection.SetTimeout(5000); // This will occasionally timeout
                                  // if the integration test uses 100
                                  // clients, which is good! We should
                                  // be testing the timeout functionality.
@@ -72,25 +65,18 @@ int main() {
         return 0;
     }
 
-    // Note that even though we subscribe to badcallback first,
-    // we override it with sensoracallback.
-    connection.Subscribe("sensor_a", &BadCallback);
-    connection.Subscribe("sensor_a", &SensorACallback);
-
-    // Subscribe then immediately unsubscribe.
-    connection.Subscribe("bad", &BadCallback);
-    connection.Unsubscribe("bad");
+    try {
+        connection.Subscribe("sensor_a", &SensorACallback);
+    } catch (NetworkTable::TimeoutException) {}
 
     // Subscribe to something shallow.
     // Then, when something deep in the tree gets updated, we should still
     // receive the update
-    connection.Subscribe("sensor_b", &SensorBCallback);
+    try {
+        connection.Subscribe("sensor_b", &SensorBCallback);
+    } catch (NetworkTable::TimeoutException) {}
  
-    // Without this timeout, it is possible for BadCallback to be called.
-    // What happens in between the call to subscribe with BadCallback, and
-    // the time to unsubscribe, another process can change the value
-    // of windspeed or winddirection, causing BadCallback to get called.
-    std::this_thread::sleep_for(std::chrono::seconds(3));
+    std::this_thread::sleep_for(std::chrono::seconds(2));
 
     // SET
     try {
@@ -101,6 +87,7 @@ int main() {
         std::map<std::string, NetworkTable::Value> values;
         values.insert(std::pair<std::string, NetworkTable::Value>("sensor_a/a/b", value));
         connection.SetValues(values);
+    } catch (NetworkTable::TimeoutException) {
     } catch (...) {
         std::cout << "Error setting sensor_a/a/b" << std::endl;
         any_test_failed = 1;
@@ -112,6 +99,7 @@ int main() {
         value.set_type(NetworkTable::Value::INT);
         value.set_int_data(63);
         connection.SetValue("sensor_b/a", value);
+    } catch (NetworkTable::TimeoutException) {
     } catch (...) {
         std::cout << "Error setting sensor_b/a" << std::endl;
         any_test_failed = 1;
@@ -123,6 +111,7 @@ int main() {
         value.set_type(NetworkTable::Value::INT);
         value.set_int_data(100);
         connection.SetValue("sensor_c/a", value);
+    } catch (NetworkTable::TimeoutException) {
     } catch (...) {
         std::cout << "Error setting sensor_c/a" << std::endl;
         any_test_failed = 1;
@@ -166,6 +155,7 @@ int main() {
             values.insert(std::pair<std::string, NetworkTable::Value>("sensor_d/b", val_b));
 
             connection.SetValues(values);
+        } catch (NetworkTable::TimeoutException) {
         } catch (...) {
             std::cout << "Error setting sensor_d" << std::endl;
             any_test_failed = 1;
@@ -219,10 +209,6 @@ int main() {
     }
     if (!sensor_b_callback_correct_data && sensor_b_callback_called) {
         std::cout << "Error, sensor_b_callback received the wrong data" << std::endl;
-        any_test_failed = 1;
-    }
-    if (badcallback_called) {
-        std::cout << "Error, bad callback was called" << std::endl;
         any_test_failed = 1;
     }
 

@@ -154,6 +154,7 @@ void NetworkTable::Server::HandleRequest(socket_ptr socket) {
         case NetworkTable::Request::SETVALUES: {
             if (request.has_setvalues_request()) {
                 SetValues(request.setvalues_request());
+                Ack(request.id(), socket);
             }
             break;
         }
@@ -167,12 +168,14 @@ void NetworkTable::Server::HandleRequest(socket_ptr socket) {
         case NetworkTable::Request::SUBSCRIBE: {
             if (request.has_subscribe_request()) {
                 Subscribe(request.subscribe_request(), socket);
+                Ack(request.id(), socket);
             }
             break;
         }
         case NetworkTable::Request::UNSUBSCRIBE: {
             if (request.has_unsubscribe_request()) {
                 Unsubscribe(request.unsubscribe_request(), socket);
+                Ack(request.id(), socket);
             }
             break;
         }
@@ -315,6 +318,19 @@ void NetworkTable::Server::NotifySubscribers(const std::set<std::string> &uris) 
 }
 
 void NetworkTable::Server::SendReply(const NetworkTable::Reply &reply, socket_ptr socket) {
+    std::string serialized_reply;
+    reply.SerializeToString(&serialized_reply);
+
+    zmq::message_t message(serialized_reply.length());
+    memcpy(message.data(), serialized_reply.data(), serialized_reply.length());
+    socket->send(message, ZMQ_DONTWAIT);
+}
+
+void NetworkTable::Server::Ack(const std::string &id, socket_ptr socket) {
+    NetworkTable::Reply reply;
+    reply.set_type(NetworkTable::Reply::ACK);
+    reply.set_id(id);
+
     std::string serialized_reply;
     reply.SerializeToString(&serialized_reply);
 

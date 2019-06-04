@@ -93,6 +93,12 @@ const std::string kSubscriptionsTableFilePath_ = kWelcome_Directory_ + "subscrip
     void SendReply(const NetworkTable::Reply &reply, socket_ptr socket);
 
     /*
+     * Sends an ack reply,
+     * so the client knows its request was recieved.
+     */
+    void Ack(const std::string &id, socket_ptr socket);
+
+    /*
      * Save subscription table to disk.
      */
     void WriteSubscriptionTable();

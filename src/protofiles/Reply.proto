@@ -18,5 +18,6 @@ message Reply {
         GETNODES = 0;
         SUBSCRIBE = 1;
         ERROR = 2;
+        ACK = 3;
     }
 }
