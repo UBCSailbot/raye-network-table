@@ -102,7 +102,7 @@ int main() {
         values.insert(std::pair<std::string, NetworkTable::Value>("sensor_a/a/b", value));
         connection.SetValues(values);
     } catch (...) {
-        std::cout << "Error setting battery info" << std::endl;
+        std::cout << "Error setting sensor_a/a/b" << std::endl;
         any_test_failed = 1;
     }
 
@@ -113,7 +113,7 @@ int main() {
         value.set_int_data(63);
         connection.SetValue("sensor_b/a", value);
     } catch (...) {
-        std::cout << "Error setting wind direction" << std::endl;
+        std::cout << "Error setting sensor_b/a" << std::endl;
         any_test_failed = 1;
     }
 
