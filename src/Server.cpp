@@ -95,12 +95,12 @@ void NetworkTable::Server::CreateNewConnection() {
         // Get a location for new socket.
         // The filename for the socket is a randomly generated id.
         std::string socket_name = boost::uuids::to_string(boost::uuids::random_generator()());
-        std::string filepath = "ipc://" + kClients_Directory_ \
+        std::string filepath = kClients_Directory_ \
             +  socket_name;
 
         // Add new socket to sockets_ and bind it.
         socket_ptr socket = std::make_shared<zmq::socket_t>(context_, ZMQ_PAIR);
-        socket->bind(filepath);
+        socket->bind("ipc://" + filepath);
         sockets_.push_back(socket);
 
         // Reply to client with location of socket.
@@ -153,7 +153,8 @@ void NetworkTable::Server::HandleRequest(socket_ptr socket) {
     switch (request.type()) {
         case NetworkTable::Request::SETVALUES: {
             if (request.has_setvalues_request()) {
-                SetValues(request.setvalues_request());
+                SetValues(request.setvalues_request(), \
+                        socket);
                 Ack(request.id(), socket);
             }
             break;
@@ -187,7 +188,8 @@ void NetworkTable::Server::HandleRequest(socket_ptr socket) {
     }
 }
 
-void NetworkTable::Server::SetValues(const NetworkTable::SetValuesRequest &request) {
+void NetworkTable::Server::SetValues(const NetworkTable::SetValuesRequest &request, \
+        socket_ptr socket) {
     std::set<std::string> uris;
     for (auto const &entry : request.values()) {
         std::string uri = entry.first;
@@ -202,7 +204,7 @@ void NetworkTable::Server::SetValues(const NetworkTable::SetValuesRequest &reque
     // When the table has changed, make sure to
     // notify anyone who subscribed to those uris,
     // or any parent uris.
-    NotifySubscribers(uris);
+    NotifySubscribers(uris, request.values(), socket);
 }
 
 void NetworkTable::Server::GetNodes(const NetworkTable::GetNodesRequest &request, \
@@ -269,7 +271,11 @@ void NetworkTable::Server::DisconnectSocket(socket_ptr socket) {
     boost::filesystem::remove(GetEndpoint(socket));
 }
 
-void NetworkTable::Server::NotifySubscribers(const std::set<std::string> &uris) {
+void NetworkTable::Server::NotifySubscribers(const std::set<std::string> &uris, \
+        const google::protobuf::Map<std::string, NetworkTable::Value> &diffs, \
+        socket_ptr responsible_socket) {
+    std::string responsible_socket_filepath = GetEndpoint(responsible_socket);
+
     // This will contain a list of uris
     // for which the update was already sent out to.
     // This is to make sure we don't send multiple of the same
@@ -302,6 +308,11 @@ void NetworkTable::Server::NotifySubscribers(const std::set<std::string> &uris) 
                 auto *subscribe_reply = new NetworkTable::SubscribeReply();
                 subscribe_reply->set_allocated_node(new NetworkTable::Node(values_.GetNode(subscribed_uri)));
                 subscribe_reply->set_uri(subscribed_uri);
+                subscribe_reply->set_responsible_socket(responsible_socket_filepath);
+                auto reply_diffs = subscribe_reply->mutable_diffs();
+                for (auto const &diff : diffs) {
+                    (*reply_diffs)[diff.first] = diff.second;
+                }
                 NetworkTable::Reply reply;
                 reply.set_type(NetworkTable::Reply::SUBSCRIBE);
                 reply.set_allocated_subscribe_reply(subscribe_reply);
@@ -383,7 +394,7 @@ std::string NetworkTable::Server::GetEndpoint(socket_ptr socket) {
     size_t endpoint_c_str_size = sizeof(endpoint_c_str);
     socket->getsockopt(ZMQ_LAST_ENDPOINT, &endpoint_c_str, &endpoint_c_str_size);
 
-    std::string endpoint(endpoint_c_str, endpoint_c_str_size);
+    std::string endpoint(endpoint_c_str, endpoint_c_str_size-1);  // Get rid of null at end
     int transport_len = strlen("ipc://");
     endpoint.erase(endpoint.begin(), endpoint.begin()+transport_len);
 
