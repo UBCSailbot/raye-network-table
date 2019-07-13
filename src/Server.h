@@ -61,7 +61,8 @@ const std::string kSubscriptionsTableFilePath_ = kWelcome_Directory_ + "subscrip
      * must send back a reply, so the helper function
      * also needs a socket to send the reply to.
      */
-    void SetValues(const NetworkTable::SetValuesRequest &request);
+    void SetValues(const NetworkTable::SetValuesRequest &request, \
+            socket_ptr socket);
 
     void GetNodes(const NetworkTable::GetNodesRequest &request, \
             std::string id, socket_ptr socket);
@@ -83,8 +84,11 @@ const std::string kSubscriptionsTableFilePath_ = kWelcome_Directory_ + "subscrip
 
     /*
      * Gets any sockets which have subscribed to key, and sends value to them.
+     * Also include who caused this notify.
      */
-    void NotifySubscribers(const std::set<std::string> &uris);
+    void NotifySubscribers(const std::set<std::string> &uris, \
+            const google::protobuf::Map<std::string, NetworkTable::Value> &diffs, \
+            socket_ptr responsible_socket);
 
     /*
      * Serializes a network table reply,

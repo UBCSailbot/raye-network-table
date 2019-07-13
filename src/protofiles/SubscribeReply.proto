@@ -3,8 +3,18 @@ syntax = "proto3";
 package NetworkTable;
 
 import "Node.proto";
+import "Value.proto";
 
 message SubscribeReply {
     string uri = 1;
+
+    // This node that changed. This is the node at uri.
     Node node = 2;
+    
+    // List of differences.
+    map<string, Value> diffs = 3;
+
+    // Name of the socket which caused this
+    // reply to be sent
+    string responsible_socket = 4;
 }

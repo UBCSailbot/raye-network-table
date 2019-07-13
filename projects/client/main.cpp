@@ -20,7 +20,9 @@ std::atomic_bool gps_quality_callback_called(false); // It would be better to
                                                       // but this depends on what other
                                                       // clients are doing.
 std::atomic_bool wrong_gps_quality_data_received(false);
-void GpsQualityCallback(NetworkTable::Node node) {
+void GpsQualityCallback(NetworkTable::Node node, \
+        std::map<std::string, NetworkTable::Value> diffs, \
+        bool is_self_reply) {
     gps_quality_callback_called = true;
     auto data = node.value().int_data();
     if (data != 3) {
@@ -32,7 +34,9 @@ void GpsQualityCallback(NetworkTable::Node node) {
 
 std::atomic_bool root_callback_called(false);
 std::atomic_bool wrong_root_data_received(false);
-void RootCallback(NetworkTable::Node node) {
+void RootCallback(NetworkTable::Node node, \
+        std::map<std::string, NetworkTable::Value> diffs, \
+        bool is_self_reply) {
     root_callback_called = true;
     auto data = node.children().at("gps").children().at("gpgga")\
             .children().at("quality_indicator").value().int_data();

@@ -149,7 +149,10 @@ std::map<std::string, NetworkTable::Node> NetworkTable::Connection::GetNodes(con
     return nodes;
 }
 
-void NetworkTable::Connection::Subscribe(std::string uri, void (*callback)(NetworkTable::Node node)) {
+void NetworkTable::Connection::Subscribe(std::string uri, \
+        void (*callback)(NetworkTable::Node node, \
+            std::map<std::string, NetworkTable::Value> diffs, \
+            bool is_self_reply)) {
     assert(connected_);
 
     callbacks_[uri] = callback;
@@ -320,8 +323,8 @@ void NetworkTable::Connection::ManageSocket() {
 
         // Connect to the ZMQ_PAIR socket which was created
         // by the server.
-        filepath = static_cast<char*>(reply.data());
-        socket.connect(filepath);
+        socket_filepath_ = std::string(static_cast<char*>(reply.data()));
+        socket.connect("ipc://" + socket_filepath_);
     }
 
     // Poll the two sockets.
@@ -355,6 +358,14 @@ void NetworkTable::Connection::ManageSocket() {
                 std::string uri = reply.subscribe_reply().uri();
                 NetworkTable::Node node = reply.subscribe_reply().node();
 
+                bool is_self_reply = \
+                  reply.subscribe_reply().responsible_socket() == socket_filepath_;
+
+                std::map<std::string, NetworkTable::Value> diffs;
+                for (const auto &diff : reply.subscribe_reply().diffs()) {
+                    diffs[diff.first] = diff.second;
+                }
+
                 // Even after sending an Unsubscribe request,
                 // it can take a while for that request to be processed
                 // if other processes are also sending requests to the server.
@@ -364,7 +375,7 @@ void NetworkTable::Connection::ManageSocket() {
                 // even though this process just sent an UnsubscribeRequest
                 // to the server.
                 if (callbacks_[uri] != NULL) {
-                    callbacks_[uri](node);
+                    callbacks_[uri](node, diffs, is_self_reply);
                 }
             } else {
                 if (reply.id() == current_request_id) {
@@ -408,5 +419,6 @@ void NetworkTable::Connection::ManageSocket() {
         int transport_len = strlen("ipc://");
         filepath.erase(filepath.begin(), filepath.begin()+transport_len);
         remove(filepath.c_str());
+        socket_filepath_ = "";
     }
 }

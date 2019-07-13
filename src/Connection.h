@@ -81,9 +81,16 @@ class Connection {
      *
      * @param uri - what uri to subscribe to
      * @param callback - what function to call when the uri node changes.
-     *                   the function takes a single argument: the new node.
+     *                   the function takes arguments: the new node, and
+     *                   a bool which is set to true iff the reply was triggered
+     *                   by this connection. Ie, if you send a SetValues request,
+     *                   and you are subscribed to the root node "/", you will be 
+     *                   able to tell that it was you who caused this subscribe request.
      */
-    void Subscribe(std::string uri, void (*callback)(NetworkTable::Node node));
+    void Subscribe(std::string uri, \
+            void (*callback)(NetworkTable::Node node,
+                std::map<std::string, NetworkTable::Value> diffs,
+                bool is_self_reply));
 
     /*
      * Stop receiving updates on a uri in the network table.
@@ -123,14 +130,16 @@ class Connection {
     zmq::context_t context_;
     zmq::socket_t mst_socket_;
 
+    std::string socket_filepath_;  // Path to the socket used to connect to the server.
     std::thread socket_thread_;  // This interacts with the socket.
     std::atomic_bool connected_;  // True when connected to the server.
                                   // This is set by the manage socket thread
                                   // and read by the main thread.
 
     std::map<std::string, \
-        void (*)(NetworkTable::Node)> callbacks_;  // Map from table uri
-                                                   // to callback function.
+        void (*)(NetworkTable::Node, \
+                std::map<std::string, NetworkTable::Value>, \
+                bool)> callbacks_;
     int timeout_;  // How long to wait before throwing an exception when
                    // communicating with server. This is in milliseconds.
 };
