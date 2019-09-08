@@ -15,6 +15,12 @@ Prints out all the values in the network table
 ## Light Client
 Simply updates a single value in the network table forever
 
+## Read Wind Sensor Canbus
+When the beaglebone is connected to the canbus, this uses 
+[socketCAN](https://en.wikipedia.org/wiki/SocketCAN) to read
+the wind sensor data off the can network, and put it in the network
+table.
+
 ## Dummy Satellite
 Synchronize two network tables
 on either end of an ethernet cable.
