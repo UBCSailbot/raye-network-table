@@ -67,6 +67,13 @@ void RootCallback(NetworkTable::Node node, \
     }
 }
 
+void PrintUsage() {
+    std::cout << "Provide the ip address to connect to, as well as whether"
+        "  this is client or server. Example:\n"
+        "./dummy-satellite client 10.0.0.8" << std::endl <<
+        "./dummy-satellite server 10.0.0.8" << std::endl;
+}
+
 /*
  * Subscribe to receive any changes in the entire
  * network table. When a change occurs, send ONLY the
@@ -77,10 +84,8 @@ void RootCallback(NetworkTable::Node node, \
  * on the webserver.
  */
 int main(int argc, char *argv[]) {
-    if (argc != 2) {
-        std::cout << "Please provide ip address of other end"
-            " of ethernet cable. Example:\n"
-            "./dummy-satellite 10.0.0.8" << std::endl;
+    if (argc != 3) {
+        PrintUsage();
         return 1;
     }
 
@@ -94,7 +99,14 @@ int main(int argc, char *argv[]) {
     }
 
     try {
-        eth_socket.bind("tcp://" + std::string(argv[1]) + ":5555");
+        if (strcmp(argv[1], "server") == 0) {
+            eth_socket.bind("tcp://" + std::string(argv[1]) + ":5555");
+        } else if (strcmp(argv[1], "client") == 0) {
+            eth_socket.connect("tcp://" + std::string(argv[1]) + ":5555");
+        } else {
+            PrintUsage();
+            return 1;
+        }
     } catch (std::exception &e) {
         std::cout << e.what() << std::endl;
         return 0;
