@@ -269,7 +269,6 @@ void NetworkTable::Connection::ManageSocket() {
      * http://zeromq.org/whitepapers:0mq-termination
      */
     zmq::socket_t socket(context_, ZMQ_PAIR);
-    std::string filepath;
     // Ensure that the destructor for
     // socket does not block and simply
     // discards any messages it is still trying to
@@ -416,9 +415,7 @@ void NetworkTable::Connection::ManageSocket() {
 
         // Delete the socket ourselves, in case the server
         // is down and doesnt receive our disconnect request.
-        int transport_len = strlen("ipc://");
-        filepath.erase(filepath.begin(), filepath.begin()+transport_len);
-        remove(filepath.c_str());
+        remove(socket_filepath_.c_str());
         socket_filepath_ = "";
     }
 }
