@@ -1,6 +1,6 @@
 // Copyright 2017 UBC Sailbot
 //
-// Sends requests to the network table
+// Synchronize two network tables
 
 #include "Connection.h"
 #include "Node.pb.h"
@@ -11,7 +11,6 @@
 
 zmq::context_t context(1);
 zmq::socket_t eth_socket(context, ZMQ_PAIR);
-NetworkTable::Node cur_nt;
 
 /*
  * Send data over the ethernet connection.
@@ -112,7 +111,6 @@ int main(int argc, char *argv[]) {
         return 0;
     }
 
-    cur_nt = connection.GetNode("/");
     connection.Subscribe("/", &RootCallback);
     while (true) {
         std::map<std::string, NetworkTable::Value> their_diff;
