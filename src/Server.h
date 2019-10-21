@@ -15,7 +15,7 @@
 #include "SetValuesRequest.pb.h"
 #include "SubscribeRequest.pb.h"
 #include "UnsubscribeRequest.pb.h"
-#include "Tree.h"
+#include "Help.h"
 #include "Value.pb.h"
 
 namespace NetworkTable {
@@ -23,7 +23,7 @@ class Server {
 typedef std::shared_ptr<zmq::socket_t> socket_ptr;
 const std::string kWelcome_Directory_ = "/tmp/sailbot/";  // location of welcoming socket
 const std::string kClients_Directory_ = kWelcome_Directory_ + "clients/";  // location of client sockets
-const std::string kValuesFilePath_ = kWelcome_Directory_ + "values_.txt";  // where values_ is saved
+const std::string kRootFilePath_ = kWelcome_Directory_ + "root_.txt";  // where root_ is saved
 const std::string kSubscriptionsTableFilePath_ = kWelcome_Directory_ + "subscriptions_table_.txt";
 
  public:
@@ -76,7 +76,7 @@ const std::string kSubscriptionsTableFilePath_ = kWelcome_Directory_ + "subscrip
     void DisconnectSocket(socket_ptr socket);
 
     /*
-     * Sets a value stored in values_ if it exists, creates
+     * Sets a value stored in root_ if it exists, creates
      * a new entry if the entry does not already exist.
      * Also sends an update any subscribers of the key.
      */
@@ -120,7 +120,7 @@ const std::string kSubscriptionsTableFilePath_ = kWelcome_Directory_ + "subscrip
     zmq::context_t context_;  // The context which sockets are created from.
     zmq::socket_t welcome_socket_;  // Used to connect to the server for the first time.
     std::vector<socket_ptr> sockets_;  // Each socket is a connection to another process.
-    NetworkTable::Tree values_;  // This is where the actual data is stored.
+    NetworkTable::Node root_;  // This is where the actual data is stored.
     std::unordered_map<std::string, \
         std::set<socket_ptr>> subscriptions_table_;  // maps from a key in the network table
                                                       // to a set of sockets subscribe to that key.

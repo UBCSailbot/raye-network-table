@@ -32,8 +32,8 @@ NetworkTable::Server::Server()
 
     LoadSubscriptionTable();
 
-    if (boost::filesystem::exists(kValuesFilePath_)) {
-        values_.Load(kValuesFilePath_);
+    if (boost::filesystem::exists(kRootFilePath_)) {
+        root_ = NetworkTable::Load(kRootFilePath_);
     }
 }
 
@@ -194,12 +194,12 @@ void NetworkTable::Server::SetValues(const NetworkTable::SetValuesRequest &reque
     for (auto const &entry : request.values()) {
         std::string uri = entry.first;
         NetworkTable::Value value = entry.second;
-        values_.SetNode(uri, value);
+        NetworkTable::SetNode(uri, value, root_);
 
         uris.insert(uri);
     }
 
-    values_.Write(kValuesFilePath_);
+    NetworkTable::Write(kRootFilePath_, root_);
 
     // When the table has changed, make sure to
     // notify anyone who subscribed to those uris,
@@ -215,7 +215,7 @@ void NetworkTable::Server::GetNodes(const NetworkTable::GetNodesRequest &request
     for (int i = 0; i < request.uris_size(); i++) {
         std::string uri = request.uris(i);
         try {
-            NetworkTable::Node node = values_.GetNode(uri);
+            NetworkTable::Node node = NetworkTable::GetNode(uri, root_);
             (*mutable_nodes)[uri] = node;
         } catch (NetworkTable::NodeNotFoundException) {
             NetworkTable::Reply reply;
@@ -306,7 +306,8 @@ void NetworkTable::Server::NotifySubscribers(const std::set<std::string> &uris, 
         for (const std::string &subscribed_uri : subscribed_uris) {
             if (do_not_send.find(subscribed_uri) == do_not_send.end()) {
                 auto *subscribe_reply = new NetworkTable::SubscribeReply();
-                subscribe_reply->set_allocated_node(new NetworkTable::Node(values_.GetNode(subscribed_uri)));
+                subscribe_reply->set_allocated_node(\
+                        new NetworkTable::Node(NetworkTable::GetNode(subscribed_uri, root_)));
                 subscribe_reply->set_uri(subscribed_uri);
                 subscribe_reply->set_responsible_socket(responsible_socket_filepath);
                 auto reply_diffs = subscribe_reply->mutable_diffs();

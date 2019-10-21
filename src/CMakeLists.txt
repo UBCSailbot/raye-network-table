@@ -4,17 +4,19 @@
 
 set(LIB_SRCS
         Server.cpp
-        Tree.cpp
+        Help.cpp
         Connection.cpp
         )
 
 set(LIB_HDRS
         Server.h
+        Help.h
         Connection.h
         )
 
 protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS
     protofiles/Node.proto
+    protofiles/Nt.proto
     protofiles/Reply.proto
     protofiles/Request.proto
     protofiles/SetValuesRequest.proto

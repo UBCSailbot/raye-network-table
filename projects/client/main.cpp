@@ -371,7 +371,7 @@ int main() {
             wind_temperature.set_type(NetworkTable::Value::DOUBLE);
             wind_temperature.set_double_data(3.83);
             values.insert(std::pair<std::string, NetworkTable::Value>\
-                    ("wind_sensor_"+std::to_string(i)+"/wixdr/wind_temperature", wind_temperature));
+                    ("wind_sensor_"+std::to_string(i)+"/wixdir/wind_temperature", wind_temperature));
 
             connection.SetValues(values);
         }

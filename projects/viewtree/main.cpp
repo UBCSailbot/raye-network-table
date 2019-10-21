@@ -4,7 +4,7 @@
 // The tree structure is printed to stdout.
 
 #include "Connection.h"
-#include "Tree.h"
+#include "Help.h"
 
 #include <iostream>
 
@@ -17,8 +17,11 @@ int main() {
         return 0;
     }
 
-    NetworkTable::Node tree = connection.GetNode("/");
-    NetworkTable::PrintTree(tree);
+    NetworkTable::Node root = connection.GetNode("/");
+    std::cout << "sizeof serialized root: " << root.SerializeAsString().size() << std::endl;
+    std::cout << "sizeof serialized nt: " << \
+        NetworkTable::RootToNt(root).SerializeAsString().size() << std::endl;
+    NetworkTable::PrintNode(root);
 
     connection.Disconnect();
 }

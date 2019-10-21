@@ -1,15 +1,15 @@
 // Copyright 2017 UBC Sailbot
 
-#ifndef TREETEST_H_
-#define TREETEST_H_
+#ifndef HELPTEST_H_
+#define HELPTEST_H_
 
 #include <gtest/gtest.h>
 
-class TreeTest : public ::testing::Test {
+class HelpTest : public ::testing::Test {
  protected:
     void GetSetTest();
 
     void WriteLoadTest();
 };
 
-#endif  // TREETEST_H_
+#endif  // HELPTEST_H_

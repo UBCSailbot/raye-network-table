@@ -1,57 +1,56 @@
 // Copyright 2017 UBC Sailbot
 
-#include "TreeTest.h"
-#include "Tree.h"
+#include "HelpTest.h"
+#include "Help.h"
 
 const double precision = 0.001;
 
-TEST_F(TreeTest, GetSetTest) {
-    NetworkTable::Tree tree;
+TEST_F(HelpTest, GetSetTest) {
+    NetworkTable::Node root;
 
     // Test setting an integer
     NetworkTable::Value windspeed;
     windspeed.set_type(NetworkTable::Value::INT);
     windspeed.set_int_data(5);
 
-    tree.SetNode("/wind/speed", windspeed);
-    EXPECT_EQ(tree.GetNode("wind/speed").value().int_data(), \
+    NetworkTable::SetNode("/wind/speed", windspeed, root);
+    EXPECT_EQ(NetworkTable::GetNode("wind/speed", root).value().int_data(), \
               windspeed.int_data());
 
     // Try getting the trees root, and make sure it has the correct node(s)
-    NetworkTable::Node root = tree.GetNode("/");
+    NetworkTable::Node node = NetworkTable::GetNode("/", root);
     EXPECT_EQ(root.children().at("wind").children().at("speed").value().int_data(), \
              windspeed.int_data());
 
     // Try getting a child of the root and make sure it has the correct node
-    NetworkTable::Node child_of_root  = tree.GetNode("/wind");
+    NetworkTable::Node child_of_root  = NetworkTable::GetNode("/wind", root);
     EXPECT_EQ(child_of_root.children().at("speed").value().int_data(), \
              windspeed.int_data());
 }
 
-TEST_F(TreeTest, WriteLoadTest) {
-    NetworkTable::Tree tree;
+TEST_F(HelpTest, WriteLoadTest) {
+    NetworkTable::Node root;
 
-    // Set some stuff in the tree
+    // Set some stuff in the root
     NetworkTable::Value windspeed;
     windspeed.set_type(NetworkTable::Value::INT);
     windspeed.set_int_data(5);
-    tree.SetNode("/wind/speed", windspeed);
+    NetworkTable::SetNode("/wind/speed", windspeed, root);
 
     NetworkTable::Value gps_lat;
     gps_lat.set_type(NetworkTable::Value::DOUBLE);
     gps_lat.set_double_data(-41.11);
-    tree.SetNode("/gps/lat", gps_lat);
+    NetworkTable::SetNode("/gps/lat", gps_lat, root);
 
-    // Write the tree to the disk
-    tree.Write("/tmp/testtree.txt");
+    // Write the root to the disk
+    NetworkTable::Write("/tmp/testtree.txt", root);
 
-    // Load the tree from the disk
-    NetworkTable::Tree newtree;
-    newtree.Load("/tmp/testtree.txt");
+    // Load the root from the disk
+    NetworkTable::Node new_root = NetworkTable::Load("/tmp/testtree.txt");
 
-    EXPECT_EQ(newtree.GetNode("wind/speed").value().int_data(), \
+    EXPECT_EQ(NetworkTable::GetNode("wind/speed", new_root).value().int_data(), \
               windspeed.int_data());
 
-    EXPECT_NEAR(newtree.GetNode("gps/lat").value().double_data(), \
+    EXPECT_NEAR(NetworkTable::GetNode("gps/lat", new_root).value().double_data(), \
               gps_lat.double_data(), precision);
 }
