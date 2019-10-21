@@ -26,7 +26,7 @@ void GpsQualityCallback(NetworkTable::Node node, \
     gps_quality_callback_called = true;
     auto data = node.value().int_data();
     if (data != 3) {
-        std::cout << "Received gps/gpgga/quality_indicator data: " << data << std::endl;
+        std::cout << "Received gps_0/gpgga/quality_indicator data: " << data << std::endl;
         std::cout << "Expected: " << 3 << std::endl;
         wrong_gps_quality_data_received = true;
     }
@@ -38,10 +38,10 @@ void RootCallback(NetworkTable::Node node, \
         std::map<std::string, NetworkTable::Value> diffs, \
         bool is_self_reply) {
     root_callback_called = true;
-    auto data = node.children().at("gps").children().at("gpgga")\
+    auto data = node.children().at("gps_0").children().at("gpgga")\
             .children().at("quality_indicator").value().int_data();
     if (data != 3) {
-        std::cout << "(root) Received gps/gpgga/quality_indicator data: " << data << std::endl;
+        std::cout << "(root) Received gps_0/gpgga/quality_indicator data: " << data << std::endl;
         std::cout << "Expected: " << 3 << std::endl;
         wrong_root_data_received = true;
     }
@@ -71,7 +71,7 @@ int main() {
     }
 
     try {
-        connection.Subscribe("gps/gpgga/quality_indicator", &GpsQualityCallback);
+        connection.Subscribe("gps_0/gpgga/quality_indicator", &GpsQualityCallback);
     } catch (NetworkTable::TimeoutException) {}
 
     // Subscribe to root of tree.
@@ -86,111 +86,113 @@ int main() {
     // SET gps (this must be first or the callbacks will fail with
     // key not found error)
     try {
-        std::map<std::string, NetworkTable::Value> values;
+        for (int i = 0; i < 2; i++) {
+            std::map<std::string, NetworkTable::Value> values;
 
-        NetworkTable::Value uccm_current;
-        uccm_current.set_type(NetworkTable::Value::DOUBLE);
-        uccm_current.set_double_data(.14);
-        values.insert(std::pair<std::string, NetworkTable::Value>\
-                ("gps/uccm/current", uccm_current));
+            NetworkTable::Value uccm_current;
+            uccm_current.set_type(NetworkTable::Value::DOUBLE);
+            uccm_current.set_double_data(.14);
+            values.insert(std::pair<std::string, NetworkTable::Value>\
+                    ("gps_"+std::to_string(i)+"/uccm/current", uccm_current));
 
-        NetworkTable::Value uccm_voltage;
-        uccm_voltage.set_type(NetworkTable::Value::DOUBLE);
-        uccm_voltage.set_double_data(5);
-        values.insert(std::pair<std::string, NetworkTable::Value>\
-                ("gps/uccm/voltage", uccm_voltage));
+            NetworkTable::Value uccm_voltage;
+            uccm_voltage.set_type(NetworkTable::Value::DOUBLE);
+            uccm_voltage.set_double_data(5);
+            values.insert(std::pair<std::string, NetworkTable::Value>\
+                    ("gps_"+std::to_string(i)+"/uccm/voltage", uccm_voltage));
 
-        NetworkTable::Value uccm_temperature;
-        uccm_temperature.set_type(NetworkTable::Value::DOUBLE);
-        uccm_temperature.set_double_data(40.2);
-        values.insert(std::pair<std::string, NetworkTable::Value>\
-                ("gps/uccm/temperature", uccm_temperature));
+            NetworkTable::Value uccm_temperature;
+            uccm_temperature.set_type(NetworkTable::Value::DOUBLE);
+            uccm_temperature.set_double_data(40.2);
+            values.insert(std::pair<std::string, NetworkTable::Value>\
+                    ("gps_"+std::to_string(i)+"/uccm/temperature", uccm_temperature));
 
-        NetworkTable::Value uccm_status;
-        uccm_status.set_type(NetworkTable::Value::STRING);
-        uccm_status.set_string_data("ON");
-        values.insert(std::pair<std::string, NetworkTable::Value>\
-                ("gps/uccm/status", uccm_status));
+            NetworkTable::Value uccm_status;
+            uccm_status.set_type(NetworkTable::Value::STRING);
+            uccm_status.set_string_data("ON");
+            values.insert(std::pair<std::string, NetworkTable::Value>\
+                    ("gps_"+std::to_string(i)+"/uccm/status", uccm_status));
 
-        NetworkTable::Value utc_timestamp;
-        utc_timestamp.set_type(NetworkTable::Value::STRING);
-        utc_timestamp.set_string_data("02/06/19, 22:45:32.54");
-        values.insert(std::pair<std::string, NetworkTable::Value>\
-                ("gps/gprmc/utc_timestamp", utc_timestamp));
+            NetworkTable::Value utc_timestamp;
+            utc_timestamp.set_type(NetworkTable::Value::STRING);
+            utc_timestamp.set_string_data("02/06/19, 22:45:32.54");
+            values.insert(std::pair<std::string, NetworkTable::Value>\
+                    ("gps_"+std::to_string(i)+"/gprmc/utc_timestamp", utc_timestamp));
 
-        NetworkTable::Value latitude;
-        latitude.set_type(NetworkTable::Value::DOUBLE);
-        latitude.set_double_data(11.33214);
-        values.insert(std::pair<std::string, NetworkTable::Value>\
-                ("gps/gprmc/latitude", latitude));
+            NetworkTable::Value latitude;
+            latitude.set_type(NetworkTable::Value::DOUBLE);
+            latitude.set_double_data(11.33214);
+            values.insert(std::pair<std::string, NetworkTable::Value>\
+                    ("gps_"+std::to_string(i)+"/gprmc/latitude", latitude));
 
-        NetworkTable::Value longitude;
-        longitude.set_type(NetworkTable::Value::DOUBLE);
-        longitude.set_double_data(-105.451);
-        values.insert(std::pair<std::string, NetworkTable::Value>\
-                ("gps/gprmc/longitude", longitude));
+            NetworkTable::Value longitude;
+            longitude.set_type(NetworkTable::Value::DOUBLE);
+            longitude.set_double_data(-105.451);
+            values.insert(std::pair<std::string, NetworkTable::Value>\
+                    ("gps_"+std::to_string(i)+"/gprmc/longitude", longitude));
 
-        NetworkTable::Value latitude_loc;
-        latitude_loc.set_type(NetworkTable::Value::DOUBLE);
-        latitude_loc.set_double_data(22.451);
-        values.insert(std::pair<std::string, NetworkTable::Value>\
-                ("gps/gprmc/latitude_loc", latitude_loc));
+            NetworkTable::Value latitude_loc;
+            latitude_loc.set_type(NetworkTable::Value::DOUBLE);
+            latitude_loc.set_double_data(22.451);
+            values.insert(std::pair<std::string, NetworkTable::Value>\
+                    ("gps_"+std::to_string(i)+"/gprmc/latitude_loc", latitude_loc));
 
-        NetworkTable::Value longitude_loc;
-        longitude_loc.set_type(NetworkTable::Value::DOUBLE);
-        longitude_loc.set_double_data(-2.451);
-        values.insert(std::pair<std::string, NetworkTable::Value>\
-                ("gps/gprmc/longitude_loc", longitude_loc));
+            NetworkTable::Value longitude_loc;
+            longitude_loc.set_type(NetworkTable::Value::DOUBLE);
+            longitude_loc.set_double_data(-2.451);
+            values.insert(std::pair<std::string, NetworkTable::Value>\
+                    ("gps_"+std::to_string(i)+"/gprmc/longitude_loc", longitude_loc));
 
-        NetworkTable::Value ground_speed;
-        ground_speed.set_type(NetworkTable::Value::DOUBLE);
-        ground_speed.set_double_data(4.451);
-        values.insert(std::pair<std::string, NetworkTable::Value>\
-                ("gps/gprmc/ground_speed", ground_speed));
+            NetworkTable::Value ground_speed;
+            ground_speed.set_type(NetworkTable::Value::DOUBLE);
+            ground_speed.set_double_data(4.451);
+            values.insert(std::pair<std::string, NetworkTable::Value>\
+                    ("gps_"+std::to_string(i)+"/gprmc/ground_speed", ground_speed));
 
-        NetworkTable::Value track_made_good;
-        track_made_good.set_type(NetworkTable::Value::DOUBLE);
-        track_made_good.set_double_data(1.1);
-        values.insert(std::pair<std::string, NetworkTable::Value>\
-                ("gps/gprmc/track_made_good", track_made_good));
+            NetworkTable::Value track_made_good;
+            track_made_good.set_type(NetworkTable::Value::DOUBLE);
+            track_made_good.set_double_data(1.1);
+            values.insert(std::pair<std::string, NetworkTable::Value>\
+                    ("gps_"+std::to_string(i)+"/gprmc/track_made_good", track_made_good));
 
-        NetworkTable::Value magnetic_variation;
-        magnetic_variation.set_type(NetworkTable::Value::DOUBLE);
-        magnetic_variation.set_double_data(1.1);
-        values.insert(std::pair<std::string, NetworkTable::Value>\
-                ("gps/gprmc/magnetic_variation", magnetic_variation));
+            NetworkTable::Value magnetic_variation;
+            magnetic_variation.set_type(NetworkTable::Value::DOUBLE);
+            magnetic_variation.set_double_data(1.1);
+            values.insert(std::pair<std::string, NetworkTable::Value>\
+                    ("gps_"+std::to_string(i)+"/gprmc/magnetic_variation", magnetic_variation));
 
-        NetworkTable::Value magnetic_variation_sense;
-        magnetic_variation_sense.set_type(NetworkTable::Value::DOUBLE);
-        magnetic_variation_sense.set_double_data(1.1);
-        values.insert(std::pair<std::string, NetworkTable::Value>\
-                ("gps/gprmc/magnetic_variation_sense", magnetic_variation_sense));
+            NetworkTable::Value magnetic_variation_sense;
+            magnetic_variation_sense.set_type(NetworkTable::Value::DOUBLE);
+            magnetic_variation_sense.set_double_data(1.1);
+            values.insert(std::pair<std::string, NetworkTable::Value>\
+                    ("gps_"+std::to_string(i)+"/gprmc/magnetic_variation_sense", magnetic_variation_sense));
 
-        NetworkTable::Value quality_indicator;
-        quality_indicator.set_type(NetworkTable::Value::INT);
-        quality_indicator.set_int_data(3);
-        values.insert(std::pair<std::string, NetworkTable::Value>\
-                ("gps/gpgga/quality_indicator", quality_indicator));
+            NetworkTable::Value quality_indicator;
+            quality_indicator.set_type(NetworkTable::Value::INT);
+            quality_indicator.set_int_data(3);
+            values.insert(std::pair<std::string, NetworkTable::Value>\
+                    ("gps_"+std::to_string(i)+"/gpgga/quality_indicator", quality_indicator));
 
-        NetworkTable::Value hdop;
-        hdop.set_type(NetworkTable::Value::DOUBLE);
-        hdop.set_double_data(1.1);
-        values.insert(std::pair<std::string, NetworkTable::Value>\
-                ("gps/gpgga/hdop", hdop));
+            NetworkTable::Value hdop;
+            hdop.set_type(NetworkTable::Value::DOUBLE);
+            hdop.set_double_data(1.1);
+            values.insert(std::pair<std::string, NetworkTable::Value>\
+                    ("gps_"+std::to_string(i)+"/gpgga/hdop", hdop));
 
-        NetworkTable::Value antenna_altitude;
-        antenna_altitude.set_type(NetworkTable::Value::DOUBLE);
-        antenna_altitude.set_double_data(0.45);
-        values.insert(std::pair<std::string, NetworkTable::Value>\
-                ("gps/gpgga/antenna_altitude", antenna_altitude));
+            NetworkTable::Value antenna_altitude;
+            antenna_altitude.set_type(NetworkTable::Value::DOUBLE);
+            antenna_altitude.set_double_data(0.45);
+            values.insert(std::pair<std::string, NetworkTable::Value>\
+                    ("gps_"+std::to_string(i)+"/gpgga/antenna_altitude", antenna_altitude));
 
-        NetworkTable::Value geoidal_separation;
-        geoidal_separation.set_type(NetworkTable::Value::DOUBLE);
-        geoidal_separation.set_double_data(0.45);
-        values.insert(std::pair<std::string, NetworkTable::Value>\
-                ("gps/gpgga/geoidal_separation", geoidal_separation));
+            NetworkTable::Value geoidal_separation;
+            geoidal_separation.set_type(NetworkTable::Value::DOUBLE);
+            geoidal_separation.set_double_data(0.45);
+            values.insert(std::pair<std::string, NetworkTable::Value>\
+                    ("gps_"+std::to_string(i)+"/gpgga/geoidal_separation", geoidal_separation));
 
-        connection.SetValues(values);
+            connection.SetValues(values);
+        }
     } catch (NetworkTable::TimeoutException) {
     } catch (...) {
         std::cout << "Error setting gps" << std::endl;
@@ -244,33 +246,35 @@ int main() {
 
     // SET rudder motor control
     try {
-        std::map<std::string, NetworkTable::Value> values;
+        for (int i = 0; i < 2; i++) {
+            std::map<std::string, NetworkTable::Value> values;
 
-        NetworkTable::Value uccm_current;
-        uccm_current.set_type(NetworkTable::Value::DOUBLE);
-        uccm_current.set_double_data(.14);
-        values.insert(std::pair<std::string, NetworkTable::Value>\
-                ("rudder_motor_control/uccm/current", uccm_current));
+            NetworkTable::Value uccm_current;
+            uccm_current.set_type(NetworkTable::Value::DOUBLE);
+            uccm_current.set_double_data(.14);
+            values.insert(std::pair<std::string, NetworkTable::Value>\
+                    ("rudder_motor_control_"+std::to_string(i)+"/uccm/current", uccm_current));
 
-        NetworkTable::Value uccm_voltage;
-        uccm_voltage.set_type(NetworkTable::Value::DOUBLE);
-        uccm_voltage.set_double_data(5);
-        values.insert(std::pair<std::string, NetworkTable::Value>\
-                ("rudder_motor_control/uccm/voltage", uccm_voltage));
+            NetworkTable::Value uccm_voltage;
+            uccm_voltage.set_type(NetworkTable::Value::DOUBLE);
+            uccm_voltage.set_double_data(5);
+            values.insert(std::pair<std::string, NetworkTable::Value>\
+                    ("rudder_motor_control_"+std::to_string(i)+"/uccm/voltage", uccm_voltage));
 
-        NetworkTable::Value uccm_temperature;
-        uccm_temperature.set_type(NetworkTable::Value::DOUBLE);
-        uccm_temperature.set_double_data(40.2);
-        values.insert(std::pair<std::string, NetworkTable::Value>\
-                ("rudder_motor_control/uccm/temperature", uccm_temperature));
+            NetworkTable::Value uccm_temperature;
+            uccm_temperature.set_type(NetworkTable::Value::DOUBLE);
+            uccm_temperature.set_double_data(40.2);
+            values.insert(std::pair<std::string, NetworkTable::Value>\
+                    ("rudder_motor_control_"+std::to_string(i)+"/uccm/temperature", uccm_temperature));
 
-        NetworkTable::Value uccm_status;
-        uccm_status.set_type(NetworkTable::Value::STRING);
-        uccm_status.set_string_data("ON");
-        values.insert(std::pair<std::string, NetworkTable::Value>\
-                ("rudder_motor_control/uccm/status", uccm_status));
+            NetworkTable::Value uccm_status;
+            uccm_status.set_type(NetworkTable::Value::STRING);
+            uccm_status.set_string_data("ON");
+            values.insert(std::pair<std::string, NetworkTable::Value>\
+                    ("rudder_motor_control_"+std::to_string(i)+"/uccm/status", uccm_status));
 
-        connection.SetValues(values);
+            connection.SetValues(values);
+        }
     } catch (NetworkTable::TimeoutException) {
     } catch (...) {
         std::cout << "Error setting rudder_motor_control" << std::endl;
@@ -280,33 +284,35 @@ int main() {
 
     // SET winch motor control
     try {
-        std::map<std::string, NetworkTable::Value> values;
+        for (int i = 0; i < 2; i++) {
+            std::map<std::string, NetworkTable::Value> values;
 
-        NetworkTable::Value uccm_current;
-        uccm_current.set_type(NetworkTable::Value::DOUBLE);
-        uccm_current.set_double_data(.14);
-        values.insert(std::pair<std::string, NetworkTable::Value>\
-                ("winch_motor_control/uccm/current", uccm_current));
+            NetworkTable::Value uccm_current;
+            uccm_current.set_type(NetworkTable::Value::DOUBLE);
+            uccm_current.set_double_data(.14);
+            values.insert(std::pair<std::string, NetworkTable::Value>\
+                    ("winch_motor_control_"+std::to_string(i)+"/uccm/current", uccm_current));
 
-        NetworkTable::Value uccm_voltage;
-        uccm_voltage.set_type(NetworkTable::Value::DOUBLE);
-        uccm_voltage.set_double_data(5);
-        values.insert(std::pair<std::string, NetworkTable::Value>\
-                ("winch_motor_control/uccm/voltage", uccm_voltage));
+            NetworkTable::Value uccm_voltage;
+            uccm_voltage.set_type(NetworkTable::Value::DOUBLE);
+            uccm_voltage.set_double_data(5);
+            values.insert(std::pair<std::string, NetworkTable::Value>\
+                    ("winch_motor_control_"+std::to_string(i)+"/uccm/voltage", uccm_voltage));
 
-        NetworkTable::Value uccm_temperature;
-        uccm_temperature.set_type(NetworkTable::Value::DOUBLE);
-        uccm_temperature.set_double_data(40.2);
-        values.insert(std::pair<std::string, NetworkTable::Value>\
-                ("winch_motor_control/uccm/temperature", uccm_temperature));
+            NetworkTable::Value uccm_temperature;
+            uccm_temperature.set_type(NetworkTable::Value::DOUBLE);
+            uccm_temperature.set_double_data(40.2);
+            values.insert(std::pair<std::string, NetworkTable::Value>\
+                    ("winch_motor_control_"+std::to_string(i)+"/uccm/temperature", uccm_temperature));
 
-        NetworkTable::Value uccm_status;
-        uccm_status.set_type(NetworkTable::Value::STRING);
-        uccm_status.set_string_data("ON");
-        values.insert(std::pair<std::string, NetworkTable::Value>\
-                ("winch_motor_control/uccm/status", uccm_status));
+            NetworkTable::Value uccm_status;
+            uccm_status.set_type(NetworkTable::Value::STRING);
+            uccm_status.set_string_data("ON");
+            values.insert(std::pair<std::string, NetworkTable::Value>\
+                    ("winch_motor_control_"+std::to_string(i)+"/uccm/status", uccm_status));
 
-        connection.SetValues(values);
+            connection.SetValues(values);
+        }
     } catch (NetworkTable::TimeoutException) {
     } catch (...) {
         std::cout << "Error setting winch_motor_control" << std::endl;
@@ -316,57 +322,59 @@ int main() {
 
     // SET wind sensor
     try {
-        std::map<std::string, NetworkTable::Value> values;
+        for (int i = 0; i < 3; i++) {
+            std::map<std::string, NetworkTable::Value> values;
 
-        NetworkTable::Value uccm_current;
-        uccm_current.set_type(NetworkTable::Value::DOUBLE);
-        uccm_current.set_double_data(.14);
-        values.insert(std::pair<std::string, NetworkTable::Value>\
-                ("wind_sensor/uccm/current", uccm_current));
+            NetworkTable::Value uccm_current;
+            uccm_current.set_type(NetworkTable::Value::DOUBLE);
+            uccm_current.set_double_data(.14);
+            values.insert(std::pair<std::string, NetworkTable::Value>\
+                    ("wind_sensor_"+std::to_string(i)+"/uccm/current", uccm_current));
 
-        NetworkTable::Value uccm_voltage;
-        uccm_voltage.set_type(NetworkTable::Value::DOUBLE);
-        uccm_voltage.set_double_data(5);
-        values.insert(std::pair<std::string, NetworkTable::Value>\
-                ("wind_sensor/uccm/voltage", uccm_voltage));
+            NetworkTable::Value uccm_voltage;
+            uccm_voltage.set_type(NetworkTable::Value::DOUBLE);
+            uccm_voltage.set_double_data(5);
+            values.insert(std::pair<std::string, NetworkTable::Value>\
+                    ("wind_sensor_"+std::to_string(i)+"/uccm/voltage", uccm_voltage));
 
-        NetworkTable::Value uccm_temperature;
-        uccm_temperature.set_type(NetworkTable::Value::DOUBLE);
-        uccm_temperature.set_double_data(40.2);
-        values.insert(std::pair<std::string, NetworkTable::Value>\
-                ("wind_sensor/uccm/temperature", uccm_temperature));
+            NetworkTable::Value uccm_temperature;
+            uccm_temperature.set_type(NetworkTable::Value::DOUBLE);
+            uccm_temperature.set_double_data(40.2);
+            values.insert(std::pair<std::string, NetworkTable::Value>\
+                    ("wind_sensor_"+std::to_string(i)+"/uccm/temperature", uccm_temperature));
 
-        NetworkTable::Value uccm_status;
-        uccm_status.set_type(NetworkTable::Value::STRING);
-        uccm_status.set_string_data("ON");
-        values.insert(std::pair<std::string, NetworkTable::Value>\
-                ("wind_sensor/uccm/status", uccm_status));
+            NetworkTable::Value uccm_status;
+            uccm_status.set_type(NetworkTable::Value::STRING);
+            uccm_status.set_string_data("ON");
+            values.insert(std::pair<std::string, NetworkTable::Value>\
+                    ("wind_sensor_"+std::to_string(i)+"/uccm/status", uccm_status));
 
-        NetworkTable::Value wind_speed;
-        wind_speed.set_type(NetworkTable::Value::DOUBLE);
-        wind_speed.set_double_data(11.2);
-        values.insert(std::pair<std::string, NetworkTable::Value>\
-                ("wind_sensor/iimwv/wind_speed", wind_speed));
+            NetworkTable::Value wind_speed;
+            wind_speed.set_type(NetworkTable::Value::DOUBLE);
+            wind_speed.set_double_data(11.2);
+            values.insert(std::pair<std::string, NetworkTable::Value>\
+                    ("wind_sensor_"+std::to_string(i)+"/iimwv/wind_speed", wind_speed));
 
-        NetworkTable::Value wind_direction;
-        wind_direction.set_type(NetworkTable::Value::DOUBLE);
-        wind_direction.set_double_data(-11.2);
-        values.insert(std::pair<std::string, NetworkTable::Value>\
-                ("wind_sensor/iimwv/wind_direction", wind_direction));
+            NetworkTable::Value wind_direction;
+            wind_direction.set_type(NetworkTable::Value::DOUBLE);
+            wind_direction.set_double_data(-11.2);
+            values.insert(std::pair<std::string, NetworkTable::Value>\
+                    ("wind_sensor_"+std::to_string(i)+"/iimwv/wind_direction", wind_direction));
 
-        NetworkTable::Value wind_reference;
-        wind_reference.set_type(NetworkTable::Value::DOUBLE);
-        wind_reference.set_double_data(-1.2);
-        values.insert(std::pair<std::string, NetworkTable::Value>\
-                ("wind_sensor/iimwv/wind_reference", wind_reference));
+            NetworkTable::Value wind_reference;
+            wind_reference.set_type(NetworkTable::Value::DOUBLE);
+            wind_reference.set_double_data(-1.2);
+            values.insert(std::pair<std::string, NetworkTable::Value>\
+                    ("wind_sensor_"+std::to_string(i)+"/iimwv/wind_reference", wind_reference));
 
-        NetworkTable::Value wind_temperature;
-        wind_temperature.set_type(NetworkTable::Value::DOUBLE);
-        wind_temperature.set_double_data(3.83);
-        values.insert(std::pair<std::string, NetworkTable::Value>\
-                ("wind_sensor/wixdr/wind_temperature", wind_temperature));
+            NetworkTable::Value wind_temperature;
+            wind_temperature.set_type(NetworkTable::Value::DOUBLE);
+            wind_temperature.set_double_data(3.83);
+            values.insert(std::pair<std::string, NetworkTable::Value>\
+                    ("wind_sensor_"+std::to_string(i)+"/wixdr/wind_temperature", wind_temperature));
 
-        connection.SetValues(values);
+            connection.SetValues(values);
+        }
     } catch (NetworkTable::TimeoutException) {
     } catch (...) {
         std::cout << "Error setting wind_sensor" << std::endl;
@@ -376,51 +384,53 @@ int main() {
 
     // SET bms
     try {
-        std::map<std::string, NetworkTable::Value> values;
+        for (int i = 0; i < 6; i++) {
+            std::map<std::string, NetworkTable::Value> values;
 
-        NetworkTable::Value uccm_current;
-        uccm_current.set_type(NetworkTable::Value::DOUBLE);
-        uccm_current.set_double_data(.14);
-        values.insert(std::pair<std::string, NetworkTable::Value>\
-                ("bms/uccm/current", uccm_current));
+            NetworkTable::Value uccm_current;
+            uccm_current.set_type(NetworkTable::Value::DOUBLE);
+            uccm_current.set_double_data(.14);
+            values.insert(std::pair<std::string, NetworkTable::Value>\
+                    ("bms_"+std::to_string(i)+"/uccm/current", uccm_current));
 
-        NetworkTable::Value uccm_voltage;
-        uccm_voltage.set_type(NetworkTable::Value::DOUBLE);
-        uccm_voltage.set_double_data(5);
-        values.insert(std::pair<std::string, NetworkTable::Value>\
-                ("bms/uccm/voltage", uccm_voltage));
+            NetworkTable::Value uccm_voltage;
+            uccm_voltage.set_type(NetworkTable::Value::DOUBLE);
+            uccm_voltage.set_double_data(5);
+            values.insert(std::pair<std::string, NetworkTable::Value>\
+                    ("bms_"+std::to_string(i)+"/uccm/voltage", uccm_voltage));
 
-        NetworkTable::Value uccm_temperature;
-        uccm_temperature.set_type(NetworkTable::Value::DOUBLE);
-        uccm_temperature.set_double_data(40.2);
-        values.insert(std::pair<std::string, NetworkTable::Value>\
-                ("bms/uccm/temperature", uccm_temperature));
+            NetworkTable::Value uccm_temperature;
+            uccm_temperature.set_type(NetworkTable::Value::DOUBLE);
+            uccm_temperature.set_double_data(40.2);
+            values.insert(std::pair<std::string, NetworkTable::Value>\
+                    ("bms_"+std::to_string(i)+"/uccm/temperature", uccm_temperature));
 
-        NetworkTable::Value uccm_status;
-        uccm_status.set_type(NetworkTable::Value::STRING);
-        uccm_status.set_string_data("ON");
-        values.insert(std::pair<std::string, NetworkTable::Value>\
-                ("bms/uccm/status", uccm_status));
+            NetworkTable::Value uccm_status;
+            uccm_status.set_type(NetworkTable::Value::STRING);
+            uccm_status.set_string_data("ON");
+            values.insert(std::pair<std::string, NetworkTable::Value>\
+                    ("bms_"+std::to_string(i)+"/uccm/status", uccm_status));
 
-        NetworkTable::Value current;
-        current.set_type(NetworkTable::Value::DOUBLE);
-        current.set_double_data(1.2);
-        values.insert(std::pair<std::string, NetworkTable::Value>\
-                ("bms/battery_pack_data/current", current));
+            NetworkTable::Value current;
+            current.set_type(NetworkTable::Value::DOUBLE);
+            current.set_double_data(1.2);
+            values.insert(std::pair<std::string, NetworkTable::Value>\
+                    ("bms_"+std::to_string(i)+"/battery_pack_data/current", current));
 
-        NetworkTable::Value total_voltage;
-        total_voltage.set_type(NetworkTable::Value::DOUBLE);
-        total_voltage.set_double_data(11.2);
-        values.insert(std::pair<std::string, NetworkTable::Value>\
-                ("bms/battery_pack_data/total_voltage", total_voltage));
+            NetworkTable::Value total_voltage;
+            total_voltage.set_type(NetworkTable::Value::DOUBLE);
+            total_voltage.set_double_data(11.2);
+            values.insert(std::pair<std::string, NetworkTable::Value>\
+                    ("bms_"+std::to_string(i)+"/battery_pack_data/total_voltage", total_voltage));
 
-        NetworkTable::Value temperature;
-        temperature.set_type(NetworkTable::Value::DOUBLE);
-        temperature.set_double_data(41.2);
-        values.insert(std::pair<std::string, NetworkTable::Value>\
-                ("bms/battery_pack_data/temperature", temperature));
+            NetworkTable::Value temperature;
+            temperature.set_type(NetworkTable::Value::DOUBLE);
+            temperature.set_double_data(41.2);
+            values.insert(std::pair<std::string, NetworkTable::Value>\
+                    ("bms_"+std::to_string(i)+"/battery_pack_data/temperature", temperature));
 
-        connection.SetValues(values);
+            connection.SetValues(values);
+        }
     } catch (NetworkTable::TimeoutException) {
     } catch (...) {
         std::cout << "Error setting bms" << std::endl;
@@ -485,14 +495,14 @@ int main() {
     for (int i = 0; i < num_queries; i++) {
        // GET 
        try {
-           NetworkTable::Value value = connection.GetValue("gps/gpgga/quality_indicator");
+           NetworkTable::Value value = connection.GetValue("gps_0/gpgga/quality_indicator");
            if (value.int_data() != 3) {
-               std::cout << "Wrong gps/gpgga/quality_indicator data" << std::endl;
+               std::cout << "Wrong gps_0/gpgga/quality_indicator data" << std::endl;
                any_test_failed = 1;
            }
        } catch (NetworkTable::TimeoutException) {
        } catch (...) {
-           std::cout << "Error getting gps/gpgga/quality_indicator" << std::endl;
+           std::cout << "Error getting gps_0/gpgga/quality_indicator" << std::endl;
            any_test_failed = 1;
        }
        // GET garbage
@@ -527,7 +537,7 @@ int main() {
            std::cout << "Error setting boom_angle_sensor/uccm" << std::endl;
            any_test_failed = 1;
        }
-       // GET latitude and longitude
+       // GET
        try {
            std::set<std::string> keys;
            keys.insert("boom_angle_sensor/uccm/voltage");
