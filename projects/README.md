@@ -21,6 +21,9 @@ When the beaglebone is connected to the canbus, this uses
 the wind sensor data off the can network, and put it in the network
 table.
 
+## Simulator
+Publish data on a ROS node about the sensors.
+
 ## Dummy Satellite
 Synchronize two network tables
 on either end of an ethernet cable.

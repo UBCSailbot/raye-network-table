@@ -2,8 +2,21 @@
 # CORE LIBRARIES #
 #################
 
+
 find_package(Boost COMPONENTS system filesystem serialization REQUIRED)
 include_directories(${Boost_INCLUDE_DIR})
+
+find_package(catkin REQUIRED COMPONENTS
+  roscpp
+  std_msgs
+  message_generation
+)
+
+catkin_package(
+  CATKIN_DEPENDS message_runtime
+)
+
+include_directories(${catkin_INCLUDE_DIRS})
 
 include(FindPkgConfig)
 pkg_search_module(ZMQ REQUIRED libzmq)
@@ -17,3 +30,4 @@ set(CMAKE_PREFIX_PATH
 )
 find_package(Protobuf REQUIRED)
 include_directories(${PROTOBUF_INCLUDE_DIRS})
+

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8.3)
 
 set(CMAKE_C_COMPILER "clang")
 set(CMAKE_CXX_COMPILER "clang++")
@@ -13,37 +13,9 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-############
-# INCLUDES #
-############
-
-# Include libraries
 include(lib/core_libs.cmake)
-
-#########
-# FLAGS #
-#########
-
-# Define the command-line flags that should be accessible to programs
-option(SAILBOT_DEBUG "Whether to build the project with the SAILBOT_DEBUG variable defined at the preprocessor level" OFF)
-if(SAILBOT_DEBUG)
-  add_definitions(-DSAILBOT_DEBUG)
-endif()
-
-############
-# PROGRAMS #
-############
-
 set(ProtobufIncludePath ${CMAKE_CURRENT_BINARY_DIR}/src)
 
-# Include library files to avoid ugly relative paths
 include_directories(src ${ProtobufIncludePath})
-
-# Add main library
 add_subdirectory(src)
-
-# Add projects (all executables)
 add_subdirectory(projects)
-
-# Add tests
-add_subdirectory(test)
