@@ -18,9 +18,12 @@ int main() {
     }
 
     NetworkTable::Node root = connection.GetNode("/");
-    std::cout << "sizeof serialized root: " << root.SerializeAsString().size() << std::endl;
-    std::cout << "sizeof serialized nt: " << \
-        NetworkTable::RootToNt(root).SerializeAsString().size() << std::endl;
+    std::cout << "sizeof serialized sensors: " << \
+        NetworkTable::RootToSensors(&root).SerializeAsString().size() << std::endl;
+
+    std::cout << "sizeof serialized uccms: " << \
+        NetworkTable::RootToUccms(&root).SerializeAsString().size() << std::endl;
+
     NetworkTable::PrintNode(root);
 
     connection.Disconnect();

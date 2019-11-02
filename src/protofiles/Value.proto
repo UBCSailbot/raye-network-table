@@ -4,14 +4,14 @@ package NetworkTable;
 
 message Value {
     Type type = 1;
-    double double_data = 2;
+    double float_data = 2;
     bool bool_data = 3;
     int32 int_data = 4;
     string string_data = 5;
     bytes bytes_data = 6;
 
     enum Type {
-         DOUBLE = 0;
+         FLOAT = 0;
          BOOL = 1;
          INT = 2;
          STRING = 3;

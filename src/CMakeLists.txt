@@ -16,14 +16,15 @@ set(LIB_HDRS
 
 protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS
     protofiles/Node.proto
-    protofiles/Nt.proto
     protofiles/Reply.proto
     protofiles/Request.proto
     protofiles/SetValuesRequest.proto
     protofiles/GetNodesReply.proto
     protofiles/GetNodesRequest.proto
+    protofiles/Sensors.proto
     protofiles/SubscribeRequest.proto
     protofiles/SubscribeReply.proto
+    protofiles/Uccms.proto
     protofiles/UnsubscribeRequest.proto
     protofiles/Value.proto
     protofiles/ErrorReply.proto

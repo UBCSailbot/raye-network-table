@@ -13,17 +13,17 @@ TEST_F(HelpTest, GetSetTest) {
     windspeed.set_type(NetworkTable::Value::INT);
     windspeed.set_int_data(5);
 
-    NetworkTable::SetNode("/wind/speed", windspeed, root);
-    EXPECT_EQ(NetworkTable::GetNode("wind/speed", root).value().int_data(), \
+    NetworkTable::SetNode("/wind/speed", windspeed, &root);
+    EXPECT_EQ(NetworkTable::GetNode("wind/speed", &root).value().int_data(), \
               windspeed.int_data());
 
     // Try getting the trees root, and make sure it has the correct node(s)
-    NetworkTable::Node node = NetworkTable::GetNode("/", root);
+    NetworkTable::Node node = NetworkTable::GetNode("/", &root);
     EXPECT_EQ(root.children().at("wind").children().at("speed").value().int_data(), \
              windspeed.int_data());
 
     // Try getting a child of the root and make sure it has the correct node
-    NetworkTable::Node child_of_root  = NetworkTable::GetNode("/wind", root);
+    NetworkTable::Node child_of_root  = NetworkTable::GetNode("/wind", &root);
     EXPECT_EQ(child_of_root.children().at("speed").value().int_data(), \
              windspeed.int_data());
 }
@@ -35,12 +35,12 @@ TEST_F(HelpTest, WriteLoadTest) {
     NetworkTable::Value windspeed;
     windspeed.set_type(NetworkTable::Value::INT);
     windspeed.set_int_data(5);
-    NetworkTable::SetNode("/wind/speed", windspeed, root);
+    NetworkTable::SetNode("/wind/speed", windspeed, &root);
 
     NetworkTable::Value gps_lat;
-    gps_lat.set_type(NetworkTable::Value::DOUBLE);
-    gps_lat.set_double_data(-41.11);
-    NetworkTable::SetNode("/gps/lat", gps_lat, root);
+    gps_lat.set_type(NetworkTable::Value::FLOAT);
+    gps_lat.set_float_data(-41.11);
+    NetworkTable::SetNode("/gps/lat", gps_lat, &root);
 
     // Write the root to the disk
     NetworkTable::Write("/tmp/testtree.txt", root);
@@ -48,9 +48,9 @@ TEST_F(HelpTest, WriteLoadTest) {
     // Load the root from the disk
     NetworkTable::Node new_root = NetworkTable::Load("/tmp/testtree.txt");
 
-    EXPECT_EQ(NetworkTable::GetNode("wind/speed", new_root).value().int_data(), \
+    EXPECT_EQ(NetworkTable::GetNode("wind/speed", &new_root).value().int_data(), \
               windspeed.int_data());
 
-    EXPECT_NEAR(NetworkTable::GetNode("gps/lat", new_root).value().double_data(), \
-              gps_lat.double_data(), precision);
+    EXPECT_NEAR(NetworkTable::GetNode("gps/lat", &new_root).value().float_data(), \
+              gps_lat.float_data(), precision);
 }

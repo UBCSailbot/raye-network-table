@@ -1,0 +1,81 @@
+syntax = "proto3";
+
+package NetworkTable;
+
+message Sensors {
+    message BoomAngleSensor {
+        message SensorData {
+            int32 angle = 1;
+        }
+    
+        SensorData sensor_data = 1;
+    }
+    
+    message WindSensor {
+        message Iimwv {
+            int32 wind_speed = 1;
+            int32 wind_direction = 2;
+            int32 wind_reference = 3;
+        }
+        message Wixdir {
+            int32 wind_temperature = 1;
+        }
+        Iimwv iimwv = 1;
+        Wixdir wixdir = 2;
+    }
+
+    message Gps {
+        message Gprmc {
+            string utc_timestamp = 1;
+            float latitude = 2;
+            float longitude = 3;
+            int32 latitude_loc = 4;
+            int32 longitude_loc = 5;
+            int32 ground_speed = 6;
+            int32 track_made_good = 7;
+            int32 magnetic_variation = 8;
+            int32 magnetic_variation_sense = 9;
+        }
+        message Gpgga {
+            int32 quality_indicator = 1;
+            int32 hdop = 2;
+            int32 antenna_altitude = 3;
+            int32 geoidal_separation = 4;
+        }
+        
+        Gpgga gpgga = 1;
+        Gprmc gprmc = 2;
+    }
+    
+    message Bms {
+        message BatteryPackData {
+            int32 current = 1;
+            int32 total_voltage = 2;
+            int32 temperature = 3;
+        }
+        BatteryPackData battery_pack_data = 1;
+    }
+    
+    message Accelerometer {
+        message BoatOrientationData {
+            int32 x_axis_acceleration = 1;
+            int32 y_axis_acceleration = 2;
+            int32 z_axis_acceleration = 3;
+        }
+        BoatOrientationData boat_orientation_data = 1;
+    }
+
+    BoomAngleSensor boom_angle_sensor = 1;
+    WindSensor wind_sensor_0 = 2;
+    WindSensor wind_sensor_1 = 3;
+    WindSensor wind_sensor_2 = 4;
+    Gps gps_0 = 5;
+    Gps gps_1 = 6;
+    Bms bms_0 = 7;
+    Bms bms_1 = 8;
+    Bms bms_2 = 9;
+    Bms bms_3 = 10;
+    Bms bms_4 = 11;
+    Bms bms_5 = 12;
+    Accelerometer accelerometer = 13;
+}
