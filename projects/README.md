@@ -37,3 +37,6 @@ but as a client. Use the following command:
 Note that the code is 99% the same on the client and server side.
 It's just the zmq has to call bind on the server side,
 and connect on the client side in order to work.
+
+## Rockblock
+WIP. Sends/receives data over satellite via a serial connection to Rockblock+.
