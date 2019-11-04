@@ -162,8 +162,8 @@ int main() {
                     ("gps_"+std::to_string(i)+"/gprmc/magnetic_variation", magnetic_variation));
 
             NetworkTable::Value magnetic_variation_sense;
-            magnetic_variation_sense.set_type(NetworkTable::Value::INT);
-            magnetic_variation_sense.set_int_data(1);
+            magnetic_variation_sense.set_type(NetworkTable::Value::BOOL);
+            magnetic_variation_sense.set_bool_data(true);
             values.insert(std::pair<std::string, NetworkTable::Value>\
                     ("gps_"+std::to_string(i)+"/gprmc/magnetic_variation_sense", magnetic_variation_sense));
 
@@ -207,7 +207,7 @@ int main() {
 
         NetworkTable::Value uccm_current;
         uccm_current.set_type(NetworkTable::Value::INT);
-        uccm_current.set_int_data(.12);
+        uccm_current.set_int_data(12);
         values.insert(std::pair<std::string, NetworkTable::Value>\
                 ("boom_angle_sensor/uccm/current", uccm_current));
 
@@ -219,7 +219,7 @@ int main() {
 
         NetworkTable::Value uccm_temperature;
         uccm_temperature.set_type(NetworkTable::Value::INT);
-        uccm_temperature.set_int_data(30.2);
+        uccm_temperature.set_int_data(32);
         values.insert(std::pair<std::string, NetworkTable::Value>\
                 ("boom_angle_sensor/uccm/temperature", uccm_temperature));
 
@@ -231,7 +231,7 @@ int main() {
 
         NetworkTable::Value angle;
         angle.set_type(NetworkTable::Value::INT);
-        angle.set_int_data(-2.9);
+        angle.set_int_data(2);
         values.insert(std::pair<std::string, NetworkTable::Value>\
                 ("boom_angle_sensor/sensor_data/angle", angle));
 
@@ -251,7 +251,7 @@ int main() {
 
             NetworkTable::Value uccm_current;
             uccm_current.set_type(NetworkTable::Value::INT);
-            uccm_current.set_int_data(.14);
+            uccm_current.set_int_data(4);
             values.insert(std::pair<std::string, NetworkTable::Value>\
                     ("rudder_motor_control_"+std::to_string(i)+"/uccm/current", uccm_current));
 
@@ -263,7 +263,7 @@ int main() {
 
             NetworkTable::Value uccm_temperature;
             uccm_temperature.set_type(NetworkTable::Value::INT);
-            uccm_temperature.set_int_data(40.2);
+            uccm_temperature.set_int_data(4);
             values.insert(std::pair<std::string, NetworkTable::Value>\
                     ("rudder_motor_control_"+std::to_string(i)+"/uccm/temperature", uccm_temperature));
 
@@ -289,7 +289,7 @@ int main() {
 
             NetworkTable::Value uccm_current;
             uccm_current.set_type(NetworkTable::Value::INT);
-            uccm_current.set_int_data(.14);
+            uccm_current.set_int_data(4);
             values.insert(std::pair<std::string, NetworkTable::Value>\
                     ("winch_motor_control_"+std::to_string(i)+"/uccm/current", uccm_current));
 
@@ -301,7 +301,7 @@ int main() {
 
             NetworkTable::Value uccm_temperature;
             uccm_temperature.set_type(NetworkTable::Value::INT);
-            uccm_temperature.set_int_data(40.2);
+            uccm_temperature.set_int_data(4);
             values.insert(std::pair<std::string, NetworkTable::Value>\
                     ("winch_motor_control_"+std::to_string(i)+"/uccm/temperature", uccm_temperature));
 
@@ -327,7 +327,7 @@ int main() {
 
             NetworkTable::Value uccm_current;
             uccm_current.set_type(NetworkTable::Value::INT);
-            uccm_current.set_int_data(.14);
+            uccm_current.set_int_data(4);
             values.insert(std::pair<std::string, NetworkTable::Value>\
                     ("wind_sensor_"+std::to_string(i)+"/uccm/current", uccm_current));
 
@@ -339,7 +339,7 @@ int main() {
 
             NetworkTable::Value uccm_temperature;
             uccm_temperature.set_type(NetworkTable::Value::INT);
-            uccm_temperature.set_int_data(40.2);
+            uccm_temperature.set_int_data(40);
             values.insert(std::pair<std::string, NetworkTable::Value>\
                     ("wind_sensor_"+std::to_string(i)+"/uccm/temperature", uccm_temperature));
 
@@ -351,25 +351,25 @@ int main() {
 
             NetworkTable::Value wind_speed;
             wind_speed.set_type(NetworkTable::Value::INT);
-            wind_speed.set_int_data(11.2);
+            wind_speed.set_int_data(11);
             values.insert(std::pair<std::string, NetworkTable::Value>\
                     ("wind_sensor_"+std::to_string(i)+"/iimwv/wind_speed", wind_speed));
 
             NetworkTable::Value wind_direction;
             wind_direction.set_type(NetworkTable::Value::INT);
-            wind_direction.set_int_data(-11.2);
+            wind_direction.set_int_data(12);
             values.insert(std::pair<std::string, NetworkTable::Value>\
                     ("wind_sensor_"+std::to_string(i)+"/iimwv/wind_direction", wind_direction));
 
             NetworkTable::Value wind_reference;
             wind_reference.set_type(NetworkTable::Value::INT);
-            wind_reference.set_int_data(-1.2);
+            wind_reference.set_int_data(3);
             values.insert(std::pair<std::string, NetworkTable::Value>\
                     ("wind_sensor_"+std::to_string(i)+"/iimwv/wind_reference", wind_reference));
 
             NetworkTable::Value wind_temperature;
             wind_temperature.set_type(NetworkTable::Value::INT);
-            wind_temperature.set_int_data(3.83);
+            wind_temperature.set_int_data(3);
             values.insert(std::pair<std::string, NetworkTable::Value>\
                     ("wind_sensor_"+std::to_string(i)+"/wixdir/wind_temperature", wind_temperature));
 
@@ -389,7 +389,7 @@ int main() {
 
             NetworkTable::Value uccm_current;
             uccm_current.set_type(NetworkTable::Value::INT);
-            uccm_current.set_int_data(.14);
+            uccm_current.set_int_data(4);
             values.insert(std::pair<std::string, NetworkTable::Value>\
                     ("bms_"+std::to_string(i)+"/uccm/current", uccm_current));
 
@@ -401,7 +401,7 @@ int main() {
 
             NetworkTable::Value uccm_temperature;
             uccm_temperature.set_type(NetworkTable::Value::INT);
-            uccm_temperature.set_int_data(40.2);
+            uccm_temperature.set_int_data(2);
             values.insert(std::pair<std::string, NetworkTable::Value>\
                     ("bms_"+std::to_string(i)+"/uccm/temperature", uccm_temperature));
 
@@ -413,19 +413,19 @@ int main() {
 
             NetworkTable::Value current;
             current.set_type(NetworkTable::Value::INT);
-            current.set_int_data(1.2);
+            current.set_int_data(2);
             values.insert(std::pair<std::string, NetworkTable::Value>\
                     ("bms_"+std::to_string(i)+"/battery_pack_data/current", current));
 
             NetworkTable::Value total_voltage;
             total_voltage.set_type(NetworkTable::Value::INT);
-            total_voltage.set_int_data(11.2);
+            total_voltage.set_int_data(2);
             values.insert(std::pair<std::string, NetworkTable::Value>\
                     ("bms_"+std::to_string(i)+"/battery_pack_data/total_voltage", total_voltage));
 
             NetworkTable::Value temperature;
             temperature.set_type(NetworkTable::Value::INT);
-            temperature.set_int_data(41.2);
+            temperature.set_int_data(2);
             values.insert(std::pair<std::string, NetworkTable::Value>\
                     ("bms_"+std::to_string(i)+"/battery_pack_data/temperature", temperature));
 
@@ -444,7 +444,7 @@ int main() {
 
         NetworkTable::Value uccm_current;
         uccm_current.set_type(NetworkTable::Value::INT);
-        uccm_current.set_int_data(.14);
+        uccm_current.set_int_data(4);
         values.insert(std::pair<std::string, NetworkTable::Value>\
                 ("accelerometer/uccm/current", uccm_current));
 
@@ -456,7 +456,7 @@ int main() {
 
         NetworkTable::Value uccm_temperature;
         uccm_temperature.set_type(NetworkTable::Value::INT);
-        uccm_temperature.set_int_data(40.2);
+        uccm_temperature.set_int_data(2);
         values.insert(std::pair<std::string, NetworkTable::Value>\
                 ("accelerometer/uccm/temperature", uccm_temperature));
 
@@ -468,19 +468,19 @@ int main() {
 
         NetworkTable::Value x_axis_acceleration;
         x_axis_acceleration.set_type(NetworkTable::Value::INT);
-        x_axis_acceleration.set_int_data(1.2);
+        x_axis_acceleration.set_int_data(2);
         values.insert(std::pair<std::string, NetworkTable::Value>\
                 ("accelerometer/boat_orientation_data/x_axis_acceleration", x_axis_acceleration));
 
         NetworkTable::Value y_axis_acceleration;
         y_axis_acceleration.set_type(NetworkTable::Value::INT);
-        y_axis_acceleration.set_int_data(1.2);
+        y_axis_acceleration.set_int_data(2);
         values.insert(std::pair<std::string, NetworkTable::Value>\
                 ("accelerometer/boat_orientation_data/y_axis_acceleration", y_axis_acceleration));
 
         NetworkTable::Value z_axis_acceleration;
         z_axis_acceleration.set_type(NetworkTable::Value::INT);
-        z_axis_acceleration.set_int_data(1.2);
+        z_axis_acceleration.set_int_data(2);
         values.insert(std::pair<std::string, NetworkTable::Value>\
                 ("accelerometer/boat_orientation_data/z_axis_acceleration", z_axis_acceleration));
 
@@ -520,10 +520,10 @@ int main() {
        // SET
        NetworkTable::Value boom_angle_sensor_uccm_voltage;
        boom_angle_sensor_uccm_voltage.set_type(NetworkTable::Value::INT);
-       boom_angle_sensor_uccm_voltage.set_int_data(15.3225);
+       boom_angle_sensor_uccm_voltage.set_int_data(25);
        NetworkTable::Value boom_angle_sensor_uccm_current;
        boom_angle_sensor_uccm_current.set_type(NetworkTable::Value::INT);
-       boom_angle_sensor_uccm_current.set_int_data(1.9594);
+       boom_angle_sensor_uccm_current.set_int_data(4);
        try {
            std::map<std::string, NetworkTable::Value> values;
            values.insert(std::pair<std::string, NetworkTable::Value>(\

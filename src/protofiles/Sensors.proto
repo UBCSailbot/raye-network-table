@@ -29,12 +29,12 @@ message Sensors {
             string utc_timestamp = 1;
             float latitude = 2;
             float longitude = 3;
-            int32 latitude_loc = 4;
-            int32 longitude_loc = 5;
+            bool latitude_loc = 4;
+            bool longitude_loc = 5;
             int32 ground_speed = 6;
             int32 track_made_good = 7;
             int32 magnetic_variation = 8;
-            int32 magnetic_variation_sense = 9;
+            bool magnetic_variation_sense = 9;
         }
         message Gpgga {
             int32 quality_indicator = 1;

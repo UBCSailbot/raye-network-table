@@ -154,9 +154,9 @@ NetworkTable::Sensors NetworkTable::RootToSensors(NetworkTable::Node *root) {
     sensors.mutable_gps_0()->mutable_gprmc()->set_longitude(\
             GetNode("/gps_0/gprmc/longitude", root).value().float_data());
     sensors.mutable_gps_0()->mutable_gprmc()->set_latitude_loc(\
-            GetNode("/gps_0/gprmc/latitude_loc", root).value().int_data());
+            GetNode("/gps_0/gprmc/latitude_loc", root).value().bool_data());
     sensors.mutable_gps_0()->mutable_gprmc()->set_longitude_loc(\
-            GetNode("/gps_0/gprmc/longitude_loc", root).value().int_data());
+            GetNode("/gps_0/gprmc/longitude_loc", root).value().bool_data());
     sensors.mutable_gps_0()->mutable_gprmc()->set_ground_speed(\
             GetNode("/gps_0/gprmc/ground_speed", root).value().int_data());
     sensors.mutable_gps_0()->mutable_gprmc()->set_track_made_good(\
@@ -164,7 +164,7 @@ NetworkTable::Sensors NetworkTable::RootToSensors(NetworkTable::Node *root) {
     sensors.mutable_gps_0()->mutable_gprmc()->set_magnetic_variation(\
             GetNode("/gps_0/gprmc/magnetic_variation", root).value().int_data());
     sensors.mutable_gps_0()->mutable_gprmc()->set_magnetic_variation_sense(\
-            GetNode("/gps_0/gprmc/magnetic_variation_sense", root).value().int_data());
+            GetNode("/gps_0/gprmc/magnetic_variation_sense", root).value().bool_data());
     sensors.mutable_gps_0()->mutable_gpgga()->set_quality_indicator(\
             GetNode("/gps_0/gpgga/quality_indicator", root).value().int_data());
     sensors.mutable_gps_0()->mutable_gpgga()->set_hdop(\
@@ -181,9 +181,9 @@ NetworkTable::Sensors NetworkTable::RootToSensors(NetworkTable::Node *root) {
     sensors.mutable_gps_1()->mutable_gprmc()->set_longitude(\
             GetNode("/gps_1/gprmc/longitude", root).value().int_data());
     sensors.mutable_gps_1()->mutable_gprmc()->set_latitude_loc(\
-            GetNode("/gps_1/gprmc/latitude_loc", root).value().int_data());
+            GetNode("/gps_1/gprmc/latitude_loc", root).value().bool_data());
     sensors.mutable_gps_1()->mutable_gprmc()->set_longitude_loc(\
-            GetNode("/gps_1/gprmc/longitude_loc", root).value().int_data());
+            GetNode("/gps_1/gprmc/longitude_loc", root).value().bool_data());
     sensors.mutable_gps_1()->mutable_gprmc()->set_ground_speed(\
             GetNode("/gps_1/gprmc/ground_speed", root).value().int_data());
     sensors.mutable_gps_1()->mutable_gprmc()->set_track_made_good(\
@@ -191,7 +191,7 @@ NetworkTable::Sensors NetworkTable::RootToSensors(NetworkTable::Node *root) {
     sensors.mutable_gps_1()->mutable_gprmc()->set_magnetic_variation(\
             GetNode("/gps_1/gprmc/magnetic_variation", root).value().int_data());
     sensors.mutable_gps_1()->mutable_gprmc()->set_magnetic_variation_sense(\
-            GetNode("/gps_1/gprmc/magnetic_variation_sense", root).value().int_data());
+            GetNode("/gps_1/gprmc/magnetic_variation_sense", root).value().bool_data());
     sensors.mutable_gps_1()->mutable_gpgga()->set_quality_indicator(\
             GetNode("/gps_1/gpgga/quality_indicator", root).value().int_data());
     sensors.mutable_gps_1()->mutable_gpgga()->set_hdop(\
@@ -312,11 +312,11 @@ NetworkTable::Node NetworkTable::SensorsToRoot(const NetworkTable::Sensors &sens
     val.set_type(NetworkTable::Value::FLOAT);
     val.set_float_data(sensors.gps_0().gprmc().longitude());
     SetNode("/gps_0/gprmc/longitude", val, &root);
-    val.set_type(NetworkTable::Value::INT);
-    val.set_int_data(sensors.gps_0().gprmc().latitude_loc());
+    val.set_type(NetworkTable::Value::BOOL);
+    val.set_bool_data(sensors.gps_0().gprmc().latitude_loc());
     SetNode("/gps_0/gprmc/latitude_loc", val, &root);
-    val.set_type(NetworkTable::Value::INT);
-    val.set_int_data(sensors.gps_0().gprmc().longitude_loc());
+    val.set_type(NetworkTable::Value::BOOL);
+    val.set_bool_data(sensors.gps_0().gprmc().longitude_loc());
     SetNode("/gps_0/gprmc/longitude_loc", val, &root);
     val.set_type(NetworkTable::Value::INT);
     val.set_int_data(sensors.gps_0().gprmc().ground_speed());
@@ -327,8 +327,8 @@ NetworkTable::Node NetworkTable::SensorsToRoot(const NetworkTable::Sensors &sens
     val.set_type(NetworkTable::Value::INT);
     val.set_int_data(sensors.gps_0().gprmc().magnetic_variation());
     SetNode("/gps_0/gprmc/magnetic_variation", val, &root);
-    val.set_type(NetworkTable::Value::INT);
-    val.set_int_data(sensors.gps_0().gprmc().magnetic_variation_sense());
+    val.set_type(NetworkTable::Value::BOOL);
+    val.set_bool_data(sensors.gps_0().gprmc().magnetic_variation_sense());
     SetNode("/gps_0/gprmc/magnetic_variation_sense", val, &root);
     val.set_type(NetworkTable::Value::INT);
     val.set_int_data(sensors.gps_0().gpgga().quality_indicator());
@@ -352,11 +352,11 @@ NetworkTable::Node NetworkTable::SensorsToRoot(const NetworkTable::Sensors &sens
     val.set_type(NetworkTable::Value::INT);
     val.set_int_data(sensors.gps_1().gprmc().longitude());
     SetNode("/gps_1/gprmc/longitude", val, &root);
-    val.set_type(NetworkTable::Value::INT);
-    val.set_int_data(sensors.gps_1().gprmc().latitude_loc());
+    val.set_type(NetworkTable::Value::BOOL);
+    val.set_bool_data(sensors.gps_1().gprmc().latitude_loc());
     SetNode("/gps_1/gprmc/latitude_loc", val, &root);
-    val.set_type(NetworkTable::Value::INT);
-    val.set_int_data(sensors.gps_1().gprmc().longitude_loc());
+    val.set_type(NetworkTable::Value::BOOL);
+    val.set_bool_data(sensors.gps_1().gprmc().longitude_loc());
     SetNode("/gps_1/gprmc/longitude_loc", val, &root);
     val.set_type(NetworkTable::Value::INT);
     val.set_int_data(sensors.gps_1().gprmc().ground_speed());
@@ -367,8 +367,8 @@ NetworkTable::Node NetworkTable::SensorsToRoot(const NetworkTable::Sensors &sens
     val.set_type(NetworkTable::Value::INT);
     val.set_int_data(sensors.gps_1().gprmc().magnetic_variation());
     SetNode("/gps_1/gprmc/magnetic_variation", val, &root);
-    val.set_type(NetworkTable::Value::INT);
-    val.set_int_data(sensors.gps_1().gprmc().magnetic_variation_sense());
+    val.set_type(NetworkTable::Value::BOOL);
+    val.set_bool_data(sensors.gps_1().gprmc().magnetic_variation_sense());
     SetNode("/gps_1/gprmc/magnetic_variation_sense", val, &root);
     val.set_type(NetworkTable::Value::INT);
     val.set_int_data(sensors.gps_1().gpgga().quality_indicator());
