@@ -1,5 +1,5 @@
 # Set a variable for commands below
-set(PROJECT_NAME read-wind-sensor-canbus)
+set(PROJECT_NAME sensors-CANBUS)
 
 # Define your project and language
 project(${PROJECT_NAME} CXX)

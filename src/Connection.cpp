@@ -50,6 +50,7 @@ void NetworkTable::Connection::Disconnect() {
     zmq::message_t request(request_body.size()+1);
     memcpy(request.data(), request_body.c_str(), request_body.size()+1);
     if (!mst_socket_.send(request)) {
+        std::cout << "Disconnect timeout exception about to be thrown" << std::endl;
         throw TimeoutException(const_cast<char*>("timed out"));
     }
 
@@ -81,6 +82,7 @@ void NetworkTable::Connection::SetValues(const std::map<std::string, NetworkTabl
     request.set_allocated_setvalues_request(setvalues_request);
 
     if (!Send(request, &mst_socket_)) {
+        std::cout << "Set value timeout exception" << std::endl;
         throw TimeoutException(const_cast<char*>("timed out"));
     }
 
@@ -129,11 +131,13 @@ std::map<std::string, NetworkTable::Node> NetworkTable::Connection::GetNodes(con
     request.set_allocated_getnodes_request(getnodes_request);
 
     if (!Send(request, &mst_socket_)) {
+        std::cout << "send timeout exception" << std::endl;
         throw TimeoutException(const_cast<char*>("timed out"));
     }
 
     NetworkTable::Reply reply;
     if (!Receive(&reply, &mst_socket_)) {
+        std::cout << "receive timeout exception" << std::endl;
         throw TimeoutException(const_cast<char*>("timed out"));
     }
 
@@ -165,6 +169,7 @@ void NetworkTable::Connection::Subscribe(std::string uri, \
     request.set_allocated_subscribe_request(subscribe_request);
 
     if (!Send(request, &mst_socket_)) {
+        std::cout << "subscribe timout exception" << std::endl;
         throw TimeoutException(const_cast<char*>("timed out"));
     }
 
@@ -184,6 +189,7 @@ void NetworkTable::Connection::Unsubscribe(std::string uri) {
     request.set_allocated_unsubscribe_request(unsubscribe_request);
 
     if (!Send(request, &mst_socket_)) {
+        std::cout << "Unsubscribe timeout exception" << std::endl;
         throw TimeoutException(const_cast<char*>("timed out"));
     }
 
@@ -254,6 +260,7 @@ void NetworkTable::Connection::CheckForError(const NetworkTable::Reply &reply) {
 void NetworkTable::Connection::WaitForAck() {
     NetworkTable::Reply reply;
     if (!Receive(&reply, &mst_socket_)) {
+        std::cout << "wait for acknowledgement timeout exception" << std::endl;
         throw TimeoutException(const_cast<char*>("timed out"));
     }
     if (reply.type() != NetworkTable::Reply::ACK) {

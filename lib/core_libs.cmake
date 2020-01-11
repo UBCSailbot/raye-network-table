@@ -6,15 +6,15 @@
 find_package(Boost COMPONENTS system filesystem serialization REQUIRED)
 include_directories(${Boost_INCLUDE_DIR})
 
-find_package(catkin REQUIRED COMPONENTS
-  roscpp
-  std_msgs
-  message_generation
-)
-
-catkin_package(
-  CATKIN_DEPENDS message_runtime
-)
+#find_package(catkin REQUIRED COMPONENTS
+#  roscpp
+#  std_msgs
+#  message_generation
+#)
+#
+#catkin_package(
+#  CATKIN_DEPENDS message_runtime
+#)
 
 include_directories(${catkin_INCLUDE_DIRS})
 
