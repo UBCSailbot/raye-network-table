@@ -8,6 +8,7 @@
 #include <zmq.hpp>
 #include <map>
 #include <string>
+#include <iostream>
 
 zmq::context_t context(1);
 zmq::socket_t eth_socket(context, ZMQ_PAIR);

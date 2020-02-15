@@ -4,6 +4,7 @@
 
 #include "Connection.h"
 #include "Value.pb.h"
+#include <iostream>
 
 /*
  * This program fakes 
