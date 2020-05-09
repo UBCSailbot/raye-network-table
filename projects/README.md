@@ -19,9 +19,10 @@ Simply updates a single value in the network table forever
 Reads data about various sensors on the canbus network
 and places it into the network table.
 
-## Simulator
-Publishes data about the sensors as a ROS message.
-This is meant to run on the NUC.
+## NUC to BBB
+Sends simulator outputs to the BBB.
+To build this, make sure the cmake variable ENABLE_ROS
+is set to ON, in the top level CMakeLists.txt
 
 ## Dummy Satellite
 Synchronize two network tables

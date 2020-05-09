@@ -1,5 +1,5 @@
 # Set a variable for commands below
-set(PROJECT_NAME simulator)
+set(PROJECT_NAME nuc_to_bbb)
 
 # Define your project and language
 project(${PROJECT_NAME} CXX)
@@ -9,7 +9,7 @@ set(${PROJECT_NAME}_SRCS main.cpp)
 
 add_message_files(
   FILES
-  Sensors.msg
+  actuation_angle.msg
 )
 generate_messages()
 

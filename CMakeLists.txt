@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 2.8.3)
 
 set(CMAKE_C_COMPILER "clang")
 set(CMAKE_CXX_COMPILER "clang++")
+# If you set this to ON, make sure you
+# have installed ROS and catkin is in your path.
+set(ENABLE_ROS OFF)
 
 project(network-table CXX)
 
