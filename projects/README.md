@@ -15,14 +15,13 @@ Prints out all the values in the network table
 ## Light Client
 Simply updates a single value in the network table forever
 
-## Read Wind Sensor Canbus
-When the beaglebone is connected to the canbus, this uses 
-[socketCAN](https://en.wikipedia.org/wiki/SocketCAN) to read
-the wind sensor data off the can network, and put it in the network
-table.
+## Sensors Canbus
+Reads data about various sensors on the canbus network
+and places it into the network table.
 
 ## Simulator
-Publish data on a ROS node about the sensors.
+Publishes data about the sensors as a ROS message.
+This is meant to run on the NUC.
 
 ## Dummy Satellite
 Synchronize two network tables
