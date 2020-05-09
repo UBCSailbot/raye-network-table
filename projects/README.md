@@ -19,27 +19,18 @@ Simply updates a single value in the network table forever
 Reads data about various sensors on the canbus network
 and places it into the network table.
 
-## NUC to BBB
+## NUC Eth Listener
 Sends simulator outputs to the BBB.
+Receives sensor data from BBB and publishes.
+It uses the ROS custom message types defined in the
+sailbot-msg repo.
 To build this, make sure the cmake variable ENABLE_ROS
 is set to ON, in the top level CMakeLists.txt
 
-## Dummy Satellite
-Synchronize two network tables
-on either end of an ethernet cable.
-
-One side must act as a server. When running on this side,
-find the ip address of your ethernet port (ie with 'ifconfig'),
-and run   
-'''./dummy-satellite server <ip_address>'''
-
-On the other side, you must connect to the _same_ ip address,
-but as a client. Use the following command:  
-'''./dummy-satellite client <ip_address>'''
-
-Note that the code is 99% the same on the client and server side.
-It's just the zmq has to call bind on the server side,
-and connect on the client side in order to work.
+## BBB Eth Listener
+Receives changes to actuation angle from simulator running on NUC,
+and places them in network table.
+Sends changes to sensor data in the network table to the NUC.
 
 ## Rockblock
 WIP. Sends/receives data over satellite via a serial connection to Rockblock+.

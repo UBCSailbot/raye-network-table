@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+package NetworkTable;
+
+message ActuationAngle {
+    double rudder_angle = 1;
+    double winch_angle = 2;
+}

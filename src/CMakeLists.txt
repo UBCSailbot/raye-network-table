@@ -15,6 +15,7 @@ set(LIB_HDRS
         )
 
 protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS
+    protofiles/ActuationAngle.proto
     protofiles/Node.proto
     protofiles/Reply.proto
     protofiles/Request.proto

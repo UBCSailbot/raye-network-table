@@ -12,13 +12,11 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   message_generation
 )
-
-catkin_package(
-  CATKIN_DEPENDS message_runtime
-)
+# I don't know the proper way to include the header files for
+# the built ROS custom messages, this probably
+# isn't it.
+include_directories(src ${CMAKE_BINARY_DIR}/devel/include)
 endif()
-
-include_directories(${catkin_INCLUDE_DIRS})
 
 include(FindPkgConfig)
 pkg_search_module(ZMQ REQUIRED libzmq)

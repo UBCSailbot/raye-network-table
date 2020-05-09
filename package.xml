@@ -15,6 +15,9 @@
   <!--   BSD, MIT, Boost Software License, GPLv2, GPLv3, LGPLv2.1, LGPLv3 -->
   <license>TODO</license>
 
+  <!-- Use custom message types from https://github.com/UBCSailbot/sailbot-msg -->
+  <build_depend>sailbot_msg</build_depend>
+  <exec_depend>sailbot_msg</exec_depend>
 
   <!-- Url tags are optional, but multiple are allowed, one per tag -->
   <!-- Optional attribute type can be: website, bugtracker, or repository -->
@@ -37,7 +40,7 @@
   <!--   <build_depend>roscpp</build_depend> -->
   <!--   <exec_depend>roscpp</exec_depend> -->
   <!-- Use build_depend for packages you need at compile time: -->
-  <build_depend>message_generation</build_depend>
+  <!-- <build_depend>message_generation</build_depend> -->
   <!-- Use build_export_depend for packages you need in order to build against this package: -->
   <!--   <build_export_depend>message_generation</build_export_depend> -->
   <!-- Use buildtool_depend for build tool packages: -->

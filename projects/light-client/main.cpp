@@ -20,16 +20,20 @@ int main() {
         return 0;
     }
 
-    int val = 0;
+    int val = 4;
     while (true) {
         NetworkTable::Value value;
         value.set_type(NetworkTable::Value::INT);
         value.set_int_data(val++);
 
-        connection.SetValue("/solar_panel/charge", value);
+        connection.SetValue("/wind_sensor_0/iimwv/wind_speed", value);
 
-        std::cout << "Set /solar_panel/charge to " << val << std::endl;
+        std::cout << "Set /wind_sensor_0/iimwv/wind_speed to " << val << std::endl;
         sleep(1);
+
+        if (val > 10) {
+            val = 4;
+        }
     }
     
     connection.Disconnect();

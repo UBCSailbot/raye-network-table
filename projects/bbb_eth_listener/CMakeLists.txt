@@ -1,5 +1,5 @@
 # Set a variable for commands below
-set(PROJECT_NAME dummy-satellite)
+set(PROJECT_NAME bbb_eth_listener)
 
 # Define your project and language
 project(${PROJECT_NAME} CXX)
