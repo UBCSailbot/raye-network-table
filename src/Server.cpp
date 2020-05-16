@@ -18,6 +18,7 @@
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
 #include <iostream>
+#include <fstream>
 
 NetworkTable::Server::Server()
     : context_(1), welcome_socket_(context_, ZMQ_REP) {
