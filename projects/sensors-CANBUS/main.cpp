@@ -17,7 +17,7 @@
 #include "frame_parser.h"
 #include "Connection.h"
 #include "Value.pb.h"
-
+int s;
 NetworkTable::Connection connection;
 
 /*
@@ -42,6 +42,21 @@ void SetWindSensorData(int angle, int speed, std::string id) {
     connection.SetValues(values);
 }
 
+void MotorCallback(NetworkTable::Node node, \
+        std::map<std::string, NetworkTable::Value> diffs, \
+        bool is_self_reply) {
+    struct can_frame frame;
+    auto angle = static_cast<uint8_t>(node.value().int_data());
+    frame.can_id = 0x10;
+    frame.can_dlc = 8;
+    std::cout << "Sending angle:" << angle << std::endl;
+    frame.data[0] = angle;
+    if (write(s, &frame, sizeof(struct can_frame)) != sizeof(struct can_frame)) {
+        perror("Write");
+        return;        
+    }
+}
+
 int
 main(void)
 {
@@ -57,7 +72,6 @@ main(void)
     // Connect to the canbus network.
     // It should show up as a network interface.
     // You should see it with the ifconfig command.
-	int s;
 	int nbytes;
 	struct sockaddr_can addr;
 	struct can_frame frame;
@@ -80,7 +94,17 @@ main(void)
         std::cout << "Error in socket bind";
 		return -2;
 	}
+    // NAV-18 Sending commands to motors
+    // idk where to put this code in the program so i'm putting it here - Bruno
+    // maybe might create a separate thread idk yet
+        
+    // subscribe to network-table
 
+    try {
+        connection.Subscribe("rudder_motor_control_0/actuation_angle/", &MotorCallback);
+    } catch (NetworkTable::TimeoutException) {}
+
+         
     // Keep on reading the wind sensor data off canbus, and
     // placing the latest data in the network table.
     while (true){
