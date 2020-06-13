@@ -73,9 +73,11 @@ NetworkTable::Node NetworkTable::GetNode(std::string uri, NetworkTable::Node *ro
 }
 
 void NetworkTable::SetNode(std::string uri, NetworkTable::Value value, NetworkTable::Node *root) {
-    // Get each "slice" of the uri. eg "/gps/lat"
+    // Get each "slice" of the uri. eg "/gps/lat/"
     // becomes {"gps", "lat"}:
+    // Note: trailing left and right uris are removed
     boost::trim_left_if(uri, boost::is_any_of("/"));
+    boost::trim_right_if(uri, boost::is_any_of("/"));
     std::vector<std::string> slices;
     boost::split(slices, uri, boost::is_any_of("/"));
 
