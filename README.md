@@ -1,25 +1,38 @@
 # Network Table
-A communication hub that runs on central controller on Ada 2.0.  
+A communication hub (basically database) that runs on central controller on Ada 2.0.  
 Receives updates on sensor data (from GPS, wind sensors, etc), allows other modules to connect
 to the network table using pub/sub or request/reply.
 
 [Network Table Communication Protocol](https://confluence.ubcsailbot.org/display/ADA2/Network+Table+Communication+Protocol)
 
 ## Install Dependencies
-Install the dependencies.
+Clone all submodules:  
+```git submodule update --init --recursive```  
 
-#### Debian Linux (Ubuntu)
-```bash
-./install_deps/install_deps_linux.sh
-```
+Install these dependencies (all should be available via apt-get):  
+```build-essential cppcheck cmake clang libzmq3-dev libboost-all-dev pkg-config```
 
-#### macOS
-```bash
-./install_deps/install_deps_osx.sh`
-```
+The following dependencies are needed to build protobuf.
+They're pretty common anyways, you probably have a lot of them:  
+```autoconf automake libtool curl make g++ unzip```
 
-## Building
-In the root directory of the repository:
+Run this script to compile protobuf. Protobuf
+will be installed locally in the lib folder.
+WARNING, this script takes about 1 hour to run. Compiling protobuf
+takes a long time.
+```./scripts/install_protobuf.sh```
+
+### ROS (Robot Operating System)
+If ENABLE_ROS is set to ON in the top
+level CMakeLists.txt, this builds an
+extra executable which is ran on the
+Intel NUC. Obviously you will need to have
+ROS and catkin installed. Refer to the ROS
+website to find out how to install it on your
+computer.
+
+## Compiling
+In the root directory of the repository run these commands:
 ```bash
 mkdir build
 cd build
@@ -63,26 +76,3 @@ The directories `src` and `test/basic_tests` should mirror each other. That is, 
 -   **src/** - Source code.
 -   **test/** - Unit tests.
 -   **projects/** - Target specific code. For more details, check out the README file in this directory.
-
-
-## If you have problems
- - Check that you've initiated the git submodules.
- - Check that all dependencies are met.
- - Re-run `cmake ..`
- - If all else fails, delete your build directory and try again.
-
-## Contributing
-#### How to contribute
-If your changes are significant then make a new branch that is named after the JIRA issue, in the format SOFT-XXX-brief-description
-
-e.g. SOFT-753-boxes2headings
-
-##### Making Changes
-* Create a feature branch from where you want to base your work.
-  * This is usually the master branch.
-  * To quickly create a feature branch based on master; `git checkout -b
-    feature/my_contribution master`.
-  * **Do not work directly on the `master` branch.**
-* Make commits of logical units.
-* Check for unnecessary whitespace with `git diff --check` before committing.
-* Make sure your commit messages are accurate and coherent.

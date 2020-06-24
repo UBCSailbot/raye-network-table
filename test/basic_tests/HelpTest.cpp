@@ -19,7 +19,7 @@ TEST_F(HelpTest, GetSetTest) {
 
     // Try getting the trees root, and make sure it has the correct node(s)
     NetworkTable::Node node = NetworkTable::GetNode("/", &root);
-    EXPECT_EQ(root.children().at("wind").children().at("speed").value().int_data(), \
+    EXPECT_EQ(node.children().at("wind").children().at("speed").value().int_data(), \
              windspeed.int_data());
 
     // Try getting a child of the root and make sure it has the correct node

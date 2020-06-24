@@ -286,7 +286,7 @@ main(void)
 
                 std::map<std::string, NetworkTable::Value> values;
                 NetworkTable::Value bms_volt_data;
-                short volt_data = GET_BMS_VOLT_DATA(frame.data);
+                uint16_t volt_data = GET_BMS_VOLT_DATA(frame.data);
                 bms_volt_data.set_type(NetworkTable::Value::INT);
                 bms_volt_data.set_int_data(volt_data);
                 values.insert(std::pair<std::string, NetworkTable::Value>\
@@ -294,7 +294,7 @@ main(void)
 
                 std::cout << "volt_data:" << volt_data << std::endl;
                 NetworkTable::Value bms_curr_data;
-                short curr_data = GET_BMS_CURR_DATA(frame.data);
+                uint16_t curr_data = GET_BMS_CURR_DATA(frame.data);
                 bms_curr_data.set_type(NetworkTable::Value::INT);
                 bms_curr_data.set_int_data(curr_data);
                 values.insert(std::pair<std::string, NetworkTable::Value>\
@@ -302,7 +302,7 @@ main(void)
                 std::cout << "curr_data:" << curr_data << std::endl;
                 
                 NetworkTable::Value bms_maxcell_data;
-                short maxcell_data = GET_BMS_MAXCELL_DATA(frame.data);
+                uint16_t maxcell_data = GET_BMS_MAXCELL_DATA(frame.data);
                 bms_maxcell_data.set_type(NetworkTable::Value::INT);
                 bms_maxcell_data.set_int_data(maxcell_data);
                 values.insert(std::pair<std::string, NetworkTable::Value>\
@@ -310,7 +310,7 @@ main(void)
                 std::cout << "maxcell_data:" << maxcell_data << std::endl;
                 
                 NetworkTable::Value bms_mincell_data;
-                short mincell_data = GET_BMS_MINCELL_DATA(frame.data);
+                uint16_t mincell_data = GET_BMS_MINCELL_DATA(frame.data);
                 bms_mincell_data.set_type(NetworkTable::Value::INT);
                 bms_mincell_data.set_int_data(mincell_data);
                 values.insert(std::pair<std::string, NetworkTable::Value>\

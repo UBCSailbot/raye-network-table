@@ -15,7 +15,7 @@ Prints out all the values in the network table
 ## Light Client
 Simply updates a single value in the network table forever
 
-## Sensors Canbus
+## BBB Canbus Listener
 Reads data about various sensors on the canbus network
 and places it into the network table.
 
@@ -32,5 +32,6 @@ Receives changes to actuation angle from simulator running on NUC,
 and places them in network table.
 Sends changes to sensor data in the network table to the NUC.
 
-## Rockblock
-WIP. Sends/receives data over satellite via a serial connection to Rockblock+.
+## BBB Rockblock Listener
+WIP. Sends/receives data over iridium satellite network
+via a serial connection to Rockblock+.

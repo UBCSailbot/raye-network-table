@@ -1,5 +1,5 @@
 # Set a variable for commands below
-set(PROJECT_NAME light-client)
+set(PROJECT_NAME light_client)
 
 # Define your project and language
 project(${PROJECT_NAME} CXX)

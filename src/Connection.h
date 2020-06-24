@@ -137,9 +137,9 @@ class Connection {
                                   // and read by the main thread.
 
     std::map<std::string, \
-        void (*)(NetworkTable::Node, \
-                std::map<std::string, NetworkTable::Value>, \
-                bool)> callbacks_;
+        void(*)(NetworkTable::Node, \
+               std::map<std::string, NetworkTable::Value>, \
+               bool)> callbacks_;
     int timeout_;  // How long to wait before throwing an exception when
                    // communicating with server. This is in milliseconds.
 };

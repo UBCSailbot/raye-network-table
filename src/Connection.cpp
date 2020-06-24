@@ -303,12 +303,14 @@ void NetworkTable::Connection::ManageSocket() {
         }
         init_socket.connect("ipc:///tmp/sailbot/NetworkTable");
 
-        // The request body must be "connect"
-        // in order for the server to reply.
-        std::string request_body = "connect";
-        zmq::message_t request(request_body.size()+1);
-        memcpy(request.data(), request_body.c_str(), request_body.size()+1);
-        init_socket.send(request);
+        {
+            // The request body must be "connect"
+            // in order for the server to reply.
+            std::string request_body = "connect";
+            zmq::message_t request(request_body.size()+1);
+            memcpy(request.data(), request_body.c_str(), request_body.size()+1);
+            init_socket.send(request);
+        }
 
         // The server replies with a location to connect to.
         // after this, this ZMQ_REQ socket is no longer needed.
