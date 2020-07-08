@@ -11,3 +11,6 @@
 [submodule "projects/bbb_canbus_listener/uccm-sensors"]
 	path = projects/bbb_canbus_listener/uccm-sensors
 	url = git@github.com:UBCSailbot/uccm-sensors.git
+[submodule "projects/bbb_ais_listener/ais"]
+	path = projects/bbb_ais_listener/ais
+	url = git@github.com:UBCSailbot/ais.git

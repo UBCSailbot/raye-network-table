@@ -9,6 +9,7 @@ message Value {
     int32 int_data = 4;
     string string_data = 5;
     bytes bytes_data = 6;
+    repeated Boat boats = 7;
 
     enum Type {
          FLOAT = 0;
@@ -16,5 +17,30 @@ message Value {
          INT = 2;
          STRING = 3;
          BYTES = 4;
+         BOATS = 5;
+    }
+
+    message Boat {
+        int32 m_mmsi = 1;
+        int32 m_navigationStatus = 2;
+        float m_rateOfTurn = 3;   //degress per minute
+        bool m_highAccuracy = 4;
+        double m_latitude = 5;  //degrees
+        double m_longitude = 6; //degrees
+        float m_sog = 7;  //knots
+        float m_cog = 8;  //degrees
+        int32 m_trueHeading = 9;  //degrees
+        int32 m_timeStamp = 10;    //particular second in unspecificed minute. DO NOT USE.
+        int32 m_maneuverIndicator = 11;
+        int64 m_timeReceived = 12;
+
+        //need a flag for some members for validity
+        bool m_rateOfTurnValid = 13;
+        bool m_sogValid = 14;
+        bool m_cogValid = 15;
+        bool m_trueHeadingValid = 16;
+        bool m_positionValid = 17;
+        bool m_timeStampValid = 18;
+        int32 m_transcieverClass = 19;
     }
 }
