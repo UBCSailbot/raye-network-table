@@ -1,6 +1,7 @@
 add_subdirectory(bbb_canbus_listener)
 add_subdirectory(bbb_eth_listener)
 add_subdirectory(bbb_rockblock_listener)
+add_subdirectory(bbb_ais_listener)
 add_subdirectory(client)
 add_subdirectory(light_client)
 add_subdirectory(server)
