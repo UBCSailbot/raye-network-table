@@ -9,6 +9,7 @@
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
+#include <iostream>
 #include "Exceptions.h"
 #include "GetNodesRequest.pb.h"
 #include "SetValuesRequest.pb.h"
