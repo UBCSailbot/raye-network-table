@@ -10,3 +10,5 @@ set(${PROJECT_NAME}_SRCS main.cpp)
 # Define the executable
 add_executable(${PROJECT_NAME} ${${PROJECT_NAME}_SRCS})
 target_link_libraries(${PROJECT_NAME} ${ZMQ_LIBRARIES} ${PROTOBUF_LIBRARIES} src_core)
+
+include_directories(uccm-sensors) 
