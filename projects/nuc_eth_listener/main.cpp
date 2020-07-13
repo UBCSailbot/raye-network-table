@@ -1,5 +1,9 @@
-#include "ros/ros.h"
+// Copyright 2017 UBC Sailbot
 
+#include <zmq.hpp>
+#include <thread>
+
+#include "ros/ros.h"
 #include "Help.h"
 #include "ActuationAngle.pb.h"
 #include "Node.pb.h"
@@ -7,8 +11,6 @@
 #include "sailbot_msg/actuation_angle.h"
 #include "sailbot_msg/windSensor.h"
 #include "sailbot_msg/GPS.h"
-#include <zmq.hpp>
-#include <thread>
 
 /*
  * Needed for communication over ethernet
@@ -50,14 +52,13 @@ void ActuationCallBack(const sailbot_msg::actuation_angle ros_actuation_angle) {
             << " winch angle: " << nt_actuation_angle.winch_angle() << std::endl;
 
         send(serialized_nt_actuation_angle);
-    }
-    else {
+    } else {
         std::cout << "Failed to receive actuation angle" << std::endl;
     }
 }
 
 void PublishSensorData() {
-    while(true) {
+    while (true) {
         /*
          * Receive updated sensor data and publish it to a ROS topic
          */
@@ -90,7 +91,7 @@ void PublishSensorData() {
             wind_sensor_2.measuredDirectionDegrees = proto_sensors.wind_sensor_2().iimwv().wind_direction();
             wind_sensor_2.measuredSpeedKmph = proto_sensors.wind_sensor_2().iimwv().wind_speed();
 
-            // TODO: still need accelerometer and boom angle sensor
+            // TODO(anyone): still need accelerometer and boom angle sensor
 
             std::cout << "Publishing sensor data. ex: wind_sensor_0 speed: " \
                 << wind_sensor_0.measuredSpeedKmph << std::endl;

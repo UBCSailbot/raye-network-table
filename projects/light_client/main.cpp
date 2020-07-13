@@ -7,7 +7,7 @@
 #include <iostream>
 
 /*
- * This program fakes 
+ * This program fakes
  * a connected client.
  */
 int main() {
@@ -35,7 +35,7 @@ int main() {
             val = 4;
         }
     }
-    
+
     connection.Disconnect();
 }
 

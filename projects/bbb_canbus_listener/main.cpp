@@ -1,3 +1,5 @@
+// Copyright 2017 UBC Sailbot
+
 #include <stdio.h>
 #include <map>
 #include <stdlib.h>
@@ -14,7 +16,7 @@
 #include <linux/can/raw.h>
 
 #include <stdint.h>
-#include "frame_parser.h"
+#include "uccm-sensors/frame_parser.h"
 #include "Connection.h"
 #include "Value.pb.h"
 int s;
@@ -23,22 +25,23 @@ NetworkTable::Connection connection;
 /*
  * Set wind sensor with given id. id should be 0, 1, or 2
  */
-void SetWindSensorData(int angle, int speed, std::string id) {
-    NetworkTable::Value angle_nt ;
+void SetWindSensorData(int angle, int speed, const std::string &id) {
+    NetworkTable::Value angle_nt;
     angle_nt.set_type(NetworkTable::Value::INT);
     angle_nt.set_int_data(static_cast<int>(angle));
-   
-    std::cout << "id: "<< id << " got wind sensor angle and speed:" << std::to_string(angle) << " " << std::to_string(speed) << std::endl; 
-    NetworkTable::Value speed_nt ;
+
+    std::cout << "id: "<< id << " got wind sensor angle and speed:" << std::to_string(angle) \
+        << " " << std::to_string(speed) << std::endl;
+    NetworkTable::Value speed_nt;
     speed_nt.set_type(NetworkTable::Value::INT);
     speed_nt.set_int_data(static_cast<int>(speed));
-    
+
     std::map<std::string, NetworkTable::Value> values;
-    values.insert((std::pair<std::string, NetworkTable::Value>\
-                ("wind_sensor_"+id+"/iimwv/wind_direction",angle_nt)));
-    values.insert((std::pair<std::string, NetworkTable::Value>\
-                ("wind_sensor_"+id+"/iimwv/wind_speed",speed_nt)));
-    
+    values.insert((std::pair<std::string, NetworkTable::Value> \
+                ("wind_sensor_"+id+"/iimwv/wind_direction", angle_nt)));
+    values.insert((std::pair<std::string, NetworkTable::Value> \
+                ("wind_sensor_"+id+"/iimwv/wind_speed", speed_nt)));
+
     connection.SetValues(values);
 }
 
@@ -53,13 +56,11 @@ void MotorCallback(NetworkTable::Node node, \
     frame.data[0] = angle;
     if (write(s, &frame, sizeof(struct can_frame)) != sizeof(struct can_frame)) {
         perror("Write");
-        return;        
+        return;
     }
 }
 
-int
-main(void)
-{
+int main() {
     // Connect to the network table
     connection.SetTimeout(-1);
     try {
@@ -72,43 +73,42 @@ main(void)
     // Connect to the canbus network.
     // It should show up as a network interface.
     // You should see it with the ifconfig command.
-	int nbytes;
-	struct sockaddr_can addr;
-	struct can_frame frame;
-	struct ifreq ifr;
+    struct sockaddr_can addr;
+    struct can_frame frame;
+    struct ifreq ifr;
 
-	const char *ifname = "can0";
+    const char *ifname = "can0";
 
-	if((s = socket(PF_CAN, SOCK_RAW, CAN_RAW)) < 0) {
+    if ((s = socket(PF_CAN, SOCK_RAW, CAN_RAW)) < 0) {
         std::cout << "Error while opening socket";
-		return -1;
-	}
+        return -1;
+    }
 
-	strcpy(ifr.ifr_name, ifname);
-	ioctl(s, SIOCGIFINDEX, &ifr);
-	
-	addr.can_family  = AF_CAN;
-	addr.can_ifindex = ifr.ifr_ifindex;
-	
-    if(bind(s, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
+    snprintf(ifr.ifr_name, strlen(ifname), "%s", ifname);
+    ioctl(s, SIOCGIFINDEX, &ifr);
+
+    addr.can_family  = AF_CAN;
+    addr.can_ifindex = ifr.ifr_ifindex;
+
+    if (bind(s, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
         std::cout << "Error in socket bind";
-		return -2;
-	}
+        return -2;
+    }
     // NAV-18 Sending commands to motors
     // idk where to put this code in the program so i'm putting it here - Bruno
     // maybe might create a separate thread idk yet
-        
+
     // subscribe to network-table
 
     try {
         connection.Subscribe("rudder_motor_control_0/actuation_angle/", &MotorCallback);
     } catch (NetworkTable::TimeoutException) {}
 
-         
+
     // Keep on reading the wind sensor data off canbus, and
     // placing the latest data in the network table.
-    while (true){
-        nbytes = read(s, &frame, sizeof(struct can_frame));
+    while (true) {
+        int nbytes = read(s, &frame, sizeof(struct can_frame));
         std::cout << "Can ID = " << std::hex << frame.can_id << std::endl << std::dec;
         switch (frame.can_id) {
             case WIND_SENS0_FRAME_ID : {
@@ -160,7 +160,7 @@ main(void)
             }
             case GPS_LAT_FRAME_ID : {
                 std::cout << "Received GPS Lat Frame" << std::endl;
-                
+
                 std::map<std::string, NetworkTable::Value> values;
                 NetworkTable::Value gps_latitude;
                 double latitude = GET_GPS_LAT(frame.data);
@@ -184,8 +184,8 @@ main(void)
                 values.insert(std::pair<std::string, NetworkTable::Value>\
                         ("gps/gprmc/gndSpeed", gps_gndSpeed));
                 std::cout << "gnd speed = " << gndSpeed << " " << std::endl;
-               
-                NetworkTable::Value gps_magVar; 
+
+                NetworkTable::Value gps_magVar;
                 float magVar = GET_GPS_MAG_VAR(frame.data);
                 gps_magVar.set_type(NetworkTable::Value::INT);
                 gps_magVar.set_int_data(static_cast<int>(magVar));
@@ -193,7 +193,7 @@ main(void)
                         ("gps/gprmc/magVar", gps_magVar)));
                 std::cout << "mag var =  " << magVar << " " << std::endl;
 
-                NetworkTable::Value gps_TMG; 
+                NetworkTable::Value gps_TMG;
                 float gpsTMG = GET_GPS_TMG(frame.data);
                 gps_TMG.set_type(NetworkTable::Value::INT);
                 gps_TMG.set_int_data(static_cast<int>(gpsTMG));
@@ -206,14 +206,14 @@ main(void)
             }
             case GPS_DATE_FRAME_ID : {
                 std::cout << "Received GPS Date Frame" << std::endl;
-                
+
                 std::map<std::string, NetworkTable::Value> values;
                 NetworkTable::Value gps_date_hour;
                 int hour = GET_HOUR(frame.data);
                 gps_date_hour.set_type(NetworkTable::Value::INT);
                 gps_date_hour.set_int_data(hour);
                 values.insert(std::pair<std::string, NetworkTable::Value>\
-                        ("gps/gps_date/hour",gps_date_hour));
+                        ("gps/gps_date/hour", gps_date_hour));
 
                 NetworkTable::Value gps_date_minute;
                 int minute = GET_MINUTE(frame.data);
@@ -282,7 +282,7 @@ main(void)
                 break;
             }
             case BMS_FRAME_ID_1: {
-                std::cout << "bms 1:" << std::endl; 
+                std::cout << "bms 1:" << std::endl;
 
                 std::map<std::string, NetworkTable::Value> values;
                 NetworkTable::Value bms_volt_data;
@@ -290,7 +290,7 @@ main(void)
                 bms_volt_data.set_type(NetworkTable::Value::INT);
                 bms_volt_data.set_int_data(volt_data);
                 values.insert(std::pair<std::string, NetworkTable::Value>\
-                        ("bms/uccm/voltage",bms_volt_data));
+                        ("bms/uccm/voltage", bms_volt_data));
 
                 std::cout << "volt_data:" << volt_data << std::endl;
                 NetworkTable::Value bms_curr_data;
@@ -298,23 +298,23 @@ main(void)
                 bms_curr_data.set_type(NetworkTable::Value::INT);
                 bms_curr_data.set_int_data(curr_data);
                 values.insert(std::pair<std::string, NetworkTable::Value>\
-                        ("bms/uccm/current",bms_curr_data));
+                        ("bms/uccm/current", bms_curr_data));
                 std::cout << "curr_data:" << curr_data << std::endl;
-                
+
                 NetworkTable::Value bms_maxcell_data;
                 uint16_t maxcell_data = GET_BMS_MAXCELL_DATA(frame.data);
                 bms_maxcell_data.set_type(NetworkTable::Value::INT);
                 bms_maxcell_data.set_int_data(maxcell_data);
                 values.insert(std::pair<std::string, NetworkTable::Value>\
-                        ("bms/uccm/maxcell",bms_maxcell_data));
+                        ("bms/uccm/maxcell", bms_maxcell_data));
                 std::cout << "maxcell_data:" << maxcell_data << std::endl;
-                
+
                 NetworkTable::Value bms_mincell_data;
                 uint16_t mincell_data = GET_BMS_MINCELL_DATA(frame.data);
                 bms_mincell_data.set_type(NetworkTable::Value::INT);
                 bms_mincell_data.set_int_data(mincell_data);
                 values.insert(std::pair<std::string, NetworkTable::Value>\
-                        ("bms/uccm/mincell",bms_mincell_data));
+                        ("bms/uccm/mincell", bms_mincell_data));
                 std::cout << "mincell_data:" << mincell_data << std::endl;
 
                 connection.SetValues(values);
@@ -352,5 +352,5 @@ main(void)
         }
     }
 
-	return 0;
+    return 0;
 }

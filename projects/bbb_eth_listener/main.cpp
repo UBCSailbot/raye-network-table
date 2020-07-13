@@ -89,7 +89,8 @@ int main(int argc, char *argv[]) {
         int rc = eth_socket.recv(&message);
 
         if (rc > 0) {
-            std::string message_serialized(static_cast<char*>(message.data()),message.size());
+            std::string message_serialized( \
+                static_cast<char*>(message.data()), message.size());
             NetworkTable::ActuationAngle actuation_angle;
             actuation_angle.ParseFromString(message_serialized);
 

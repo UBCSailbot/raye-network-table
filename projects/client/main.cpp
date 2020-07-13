@@ -14,7 +14,7 @@
 #include <map>
 #include <string>
 
-std::atomic_bool gps_quality_callback_called(false); // It would be better to
+std::atomic_bool gps_quality_callback_called(false);  // It would be better to
                                                       // check that it was called
                                                       // the correct number of times
                                                       // but this depends on what other
@@ -55,14 +55,14 @@ void RootCallback(NetworkTable::Node node, \
  */
 int main() {
     int any_test_failed = 0;
-    int num_queries = 5; // How many times the set of tests is run.
-    const double precision = .01; // Precision to use when comparing doubles.
+    int num_queries = 5;  // How many times the set of tests is run.
+    const double precision = .01;  // Precision to use when comparing doubles.
 
     NetworkTable::Connection connection;
-    connection.SetTimeout(5000); // This will occasionally timeout
-                                 // if the integration test uses 100
-                                 // clients, which is good! We should
-                                 // be testing the timeout functionality.
+    connection.SetTimeout(5000);  // This will occasionally timeout
+                                  // if the integration test uses 100
+                                  // clients, which is good! We should
+                                  // be testing the timeout functionality.
     try {
         connection.Connect();
     } catch (NetworkTable::TimeoutException) {
@@ -80,7 +80,7 @@ int main() {
     try {
         connection.Subscribe("/", &RootCallback);
     } catch (NetworkTable::TimeoutException) {}
- 
+
     std::this_thread::sleep_for(std::chrono::milliseconds(rand()%2000));
 
     // SET gps (this must be first or the callbacks will fail with
@@ -493,7 +493,7 @@ int main() {
     std::this_thread::sleep_for(std::chrono::milliseconds(rand()%250));
 
     for (int i = 0; i < num_queries; i++) {
-       // GET 
+       // GET
        try {
            NetworkTable::Value value = connection.GetValue("gps_0/gpgga/quality_indicator");
            if (value.int_data() != 3) {
@@ -542,7 +542,7 @@ int main() {
            std::set<std::string> keys;
            keys.insert("boom_angle_sensor/uccm/voltage");
            keys.insert("boom_angle_sensor/uccm/current");
-           
+
            auto values = connection.GetValues(keys);
            if (!(std::abs(values["boom_angle_sensor/uccm/voltage"].int_data()\
                            - boom_angle_sensor_uccm_voltage.int_data()) < precision)) {
