@@ -33,12 +33,14 @@ ${SRC_DIRECTORY} &>> ${CPPCHECK_FILE}
 # Common projects dir
 PROJECTS_DIRECTORY=${WORKSPACE_DIRECTORY}/projects
 
-# Run CPP check on server
-VIEWER_DIRECTORY=${PROJECTS_DIRECTORY}/server
-
-cppcheck ${CPPCHECK_ARGS} \
--I ${VIEWER_DIRECTORY} \
-${VIEWER_DIRECTORY} &>> ${CPPCHECK_FILE}
+# run cppcheck on every project
+for PROJECT in $(ls -d ${PROJECTS_DIRECTORY}/*/); do
+    VIEWER_DIRECTORY=${PROJECT}
+    cppcheck ${CPPCHECK_ARGS} \
+    -I ${VIEWER_DIRECTORY} \
+    $(find ${VIEWER_DIRECTORY} -maxdepth 1 -name \*.h -or -name \*.cpp) \
+    &>> ${CPPCHECK_FILE}
+done
 
 # Common test
 TEST_DIRECTORY=${WORKSPACE_DIRECTORY}/test

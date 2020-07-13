@@ -25,13 +25,16 @@ $( find ${SRC_DIRECTORY} -name \*.h -or -name \*.cpp ) \
 # Common projects dir
 PROJECTS_DIRECTORY=${WORKSPACE_DIRECTORY}/projects
 
-# Run cpplint on network-table
-EXAMPLE_DIRECTORY=${PROJECTS_DIRECTORY}/server
-${CPP_LINT} \
---linelength=120 --counting=detailed \
---root="projects/server" \
-$( find ${EXAMPLE_DIRECTORY} -name \*.h -or -name \*.cpp ) \
-&>> ${CPPLINT_FILE}
+# run cpplint on every project
+for PROJECT in $(ls -d ${PROJECTS_DIRECTORY}/*/); do
+    EXAMPLE_DIRECTORY=${PROJECT}
+
+    ${CPP_LINT} \
+    --linelength=120 --counting=detailed \
+    --root="projects/$(basename "$PROJECT")" \
+    $( find ${EXAMPLE_DIRECTORY} -maxdepth 1 -name \*.h -or -name \*.cpp ) \
+    &>> ${CPPLINT_FILE}
+done
 
 # Common test dir
 TEST_DIRECTORY=${WORKSPACE_DIRECTORY}/test
