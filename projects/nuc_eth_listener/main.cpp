@@ -142,7 +142,7 @@ int main(int argc, char** argv) {
     wind_sensor_1_pub = n.advertise<sailbot_msg::windSensor>("wind_sensor_1", 100);
     wind_sensor_2_pub = n.advertise<sailbot_msg::windSensor>("wind_sensor_2", 100);
 
-    nt_sub = n.subscribe("/actuation_angle", 100, ActuationCallBack);
+    nt_sub = n.subscribe("/actuation_angles", 100, ActuationCallBack);
     ros::spin();
 
     publish_sensor_data.join();
