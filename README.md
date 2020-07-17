@@ -3,7 +3,7 @@ A communication hub (basically database) that runs on central controller on Ada 
 Receives updates on sensor data (from GPS, wind sensors, etc), allows other modules to connect
 to the network table using pub/sub or request/reply.
 
-[Network Table Communication Protocol](https://confluence.ubcsailbot.org/display/ADA2/Network+Table+Communication+Protocol)
+[Network Table Communication Protocol](https://ubcsailbot.atlassian.net/wiki/spaces/ADA2/pages/1235622/Network+Table+Communication+Protocol)
 
 ## Install Dependencies
 Clone all submodules:  
