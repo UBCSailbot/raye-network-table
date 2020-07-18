@@ -10,8 +10,8 @@ import sys
 import argparse
 
 
-def send_sensor_data(device, SID):
-    bus = can.interface.Bus(bustype='socketcan', channel='vcan0', bitrate=250000)
+def send_sensor_data(device, SID, channel):
+    bus = can.interface.Bus(bustype='socketcan', channel=channel, bitrate=250000)
     print("Sending CAN messages on {}".format(bus.channel_info))
     print("device = {} \nRTR: 0b0\nDLC: 8\n".format(device))
     if device == 'bms':
@@ -72,6 +72,13 @@ def send_sensor_data(device, SID):
                     print("Error Sending on CAN bus")
                     pass
 def main():
+    if len(sys.argv) != 2:
+        print("Please provide the name of the canbus interface")
+        print("Example usage: 'python3 mock_sensors.py vcan0'")
+        sys.exit() 
+    
+    channel = sys.argv[1]
+
     # SID is taken from frame_parser.h data relating to the CAN ID of each device
     SID = {'bms': [0x08], 
            'gps': [0x11, 0x100,0x101,0x110],
@@ -86,7 +93,7 @@ def main():
     args = parser.parse_args()
 
     if args.device_id in SID:
-        send_sensor_data(args.device_id, SID)
+        send_sensor_data(args.device_id, SID, channel)
     else:
         print("device not found. Exiting...")
 
