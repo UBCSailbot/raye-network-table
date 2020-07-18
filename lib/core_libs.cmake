@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   message_generation
 )
+include_directories(${catkin_INCLUDE_DIRS})
 # I don't know the proper way to include the header files for
 # the built ROS custom messages, this probably
 # isn't it.
