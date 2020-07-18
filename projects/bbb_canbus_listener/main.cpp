@@ -60,7 +60,15 @@ void MotorCallback(NetworkTable::Node node, \
     }
 }
 
-int main() {
+int main(int argc, char **argv) {
+    if (argc != 2) {
+        printf("Please provide the name of the canbus interface. \n");
+        printf("Example usage: './bbb_canbus_listener vcan0' \n");
+        return 0;
+    }
+
+    char *ifname = argv[1];
+
     // Connect to the network table
     connection.SetTimeout(-1);
     try {
@@ -76,8 +84,6 @@ int main() {
     struct sockaddr_can addr;
     struct can_frame frame;
     struct ifreq ifr;
-
-    const char *ifname = "can0";
 
     if ((s = socket(PF_CAN, SOCK_RAW, CAN_RAW)) < 0) {
         std::cout << "Error while opening socket";
