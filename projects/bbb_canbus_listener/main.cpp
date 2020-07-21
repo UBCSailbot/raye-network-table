@@ -46,7 +46,7 @@ void SetWindSensorData(int angle, int speed, const std::string &id) {
 }
 
 void MotorCallback(NetworkTable::Node node, \
-        std::map<std::string, NetworkTable::Value> diffs, \
+        const std::map<std::string, NetworkTable::Value> &diffs, \
         bool is_self_reply) {
     struct can_frame frame;
     auto angle = static_cast<uint8_t>(node.value().int_data());

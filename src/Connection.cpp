@@ -156,7 +156,7 @@ std::map<std::string, NetworkTable::Node> NetworkTable::Connection::GetNodes(con
 
 void NetworkTable::Connection::Subscribe(std::string uri, \
         void (*callback)(NetworkTable::Node node, \
-            std::map<std::string, NetworkTable::Value> diffs, \
+            const std::map<std::string, NetworkTable::Value> &diffs, \
             bool is_self_reply)) {
     assert(connected_);
 

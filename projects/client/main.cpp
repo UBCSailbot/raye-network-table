@@ -21,7 +21,7 @@ std::atomic_bool gps_quality_callback_called(false);  // It would be better to
                                                       // clients are doing.
 std::atomic_bool wrong_gps_quality_data_received(false);
 void GpsQualityCallback(NetworkTable::Node node, \
-        std::map<std::string, NetworkTable::Value> diffs, \
+        const std::map<std::string, NetworkTable::Value> &diffs, \
         bool is_self_reply) {
     gps_quality_callback_called = true;
     auto data = node.value().int_data();
@@ -35,7 +35,7 @@ void GpsQualityCallback(NetworkTable::Node node, \
 std::atomic_bool root_callback_called(false);
 std::atomic_bool wrong_root_data_received(false);
 void RootCallback(NetworkTable::Node node, \
-        std::map<std::string, NetworkTable::Value> diffs, \
+        const std::map<std::string, NetworkTable::Value> &diffs, \
         bool is_self_reply) {
     root_callback_called = true;
     auto data = node.children().at("gps_0").children().at("gpgga")\
@@ -81,7 +81,8 @@ int main() {
         connection.Subscribe("/", &RootCallback);
     } catch (NetworkTable::TimeoutException) {}
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(rand()%2000));
+    std::this_thread::sleep_for(\
+            std::chrono::milliseconds(rand()%2000));  // NOLINT(runtime/threadsafe_fn)
 
     // SET gps (this must be first or the callbacks will fail with
     // key not found error)
@@ -198,7 +199,8 @@ int main() {
         std::cout << "Error setting gps" << std::endl;
         any_test_failed = 1;
     }
-    std::this_thread::sleep_for(std::chrono::milliseconds(rand()%250));
+    std::this_thread::sleep_for(\
+            std::chrono::milliseconds(rand()%250));  // NOLINT(runtime/threadsafe_fn)
 
 
     // SET boom angle sensor
@@ -242,7 +244,8 @@ int main() {
         std::cout << "Error setting boom_angle_sensor" << std::endl;
         any_test_failed = 1;
     }
-    std::this_thread::sleep_for(std::chrono::milliseconds(rand()%250));
+    std::this_thread::sleep_for(\
+            std::chrono::milliseconds(rand()%250));  // NOLINT(runtime/threadsafe_fn)
 
     // SET rudder motor control
     try {
@@ -280,7 +283,8 @@ int main() {
         std::cout << "Error setting rudder_motor_control" << std::endl;
         any_test_failed = 1;
     }
-    std::this_thread::sleep_for(std::chrono::milliseconds(rand()%250));
+    std::this_thread::sleep_for(\
+            std::chrono::milliseconds(rand()%250));  // NOLINT(runtime/threadsafe_fn)
 
     // SET winch motor control
     try {
@@ -318,7 +322,8 @@ int main() {
         std::cout << "Error setting winch_motor_control" << std::endl;
         any_test_failed = 1;
     }
-    std::this_thread::sleep_for(std::chrono::milliseconds(rand()%250));
+    std::this_thread::sleep_for(\
+            std::chrono::milliseconds(rand()%250));  // NOLINT(runtime/threadsafe_fn)
 
     // SET wind sensor
     try {
@@ -380,7 +385,8 @@ int main() {
         std::cout << "Error setting wind_sensor" << std::endl;
         any_test_failed = 1;
     }
-    std::this_thread::sleep_for(std::chrono::milliseconds(rand()%250));
+    std::this_thread::sleep_for(\
+            std::chrono::milliseconds(rand()%250));  // NOLINT(runtime/threadsafe_fn)
 
     // SET bms
     try {
@@ -436,7 +442,8 @@ int main() {
         std::cout << "Error setting bms" << std::endl;
         any_test_failed = 1;
     }
-    std::this_thread::sleep_for(std::chrono::milliseconds(rand()%250));
+    std::this_thread::sleep_for(\
+            std::chrono::milliseconds(rand()%250));  // NOLINT(runtime/threadsafe_fn)
 
     // SET accelerometer
     try {
@@ -490,7 +497,8 @@ int main() {
         std::cout << "Error setting accelerometer" << std::endl;
         any_test_failed = 1;
     }
-    std::this_thread::sleep_for(std::chrono::milliseconds(rand()%250));
+    std::this_thread::sleep_for(\
+            std::chrono::milliseconds(rand()%250));  // NOLINT(runtime/threadsafe_fn)
 
     for (int i = 0; i < num_queries; i++) {
        // GET

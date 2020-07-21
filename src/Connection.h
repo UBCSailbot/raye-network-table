@@ -89,7 +89,7 @@ class Connection {
      */
     void Subscribe(std::string uri, \
             void (*callback)(NetworkTable::Node node,
-                std::map<std::string, NetworkTable::Value> diffs,
+                const std::map<std::string, NetworkTable::Value> &diffs,
                 bool is_self_reply));
 
     /*
@@ -138,7 +138,7 @@ class Connection {
 
     std::map<std::string, \
         void(*)(NetworkTable::Node, \
-               std::map<std::string, NetworkTable::Value>, \
+               const std::map<std::string, NetworkTable::Value> &, \
                bool)> callbacks_;
     int timeout_;  // How long to wait before throwing an exception when
                    // communicating with server. This is in milliseconds.

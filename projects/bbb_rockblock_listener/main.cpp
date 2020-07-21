@@ -16,8 +16,8 @@
 #include "Uccms.pb.h"
 
 // Stores serialized sensor and uccm data to send to rockblock
-std::string most_recent_sensorData_string;
-std::string most_recent_uccmData_string;
+std::string most_recent_sensorData_string;  // NOLINT(runtime/string)
+std::string most_recent_uccmData_string;  // NOLINT(runtime/string)
 
 // How often to send sensor and uccm data
 uint16_t sendSensors_freq;
@@ -27,7 +27,12 @@ std::mutex serialPort_lck;
 boost::asio::io_service io;
 boost::asio::serial_port serial(io);
 
-std::string readLine(boost::asio::serial_port &p) {
+/*
+ * boost::asio::read uses a non const reference,
+ * so this function dues the same.
+ * cpplint doesnt like this.
+ */
+std::string readLine(boost::asio::serial_port &p) {  // NOLINT(runtime/references)
     // Reading data char by char, code is optimized for simplicity, not speed
     char c;
     std::string result;
@@ -122,7 +127,7 @@ void receive() {
 
 /* Callback function called when network table updated */
 void RootCallback(NetworkTable::Node node, \
-    std::map<std::string, NetworkTable::Value> diffs, \
+    const std::map<std::string, NetworkTable::Value> &diffs, \
     bool is_self_reply) {
 
     // Store updated network table data
