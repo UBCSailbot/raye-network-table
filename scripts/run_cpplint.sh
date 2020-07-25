@@ -27,13 +27,15 @@ PROJECTS_DIRECTORY=${WORKSPACE_DIRECTORY}/projects
 
 # run cpplint on every project
 for PROJECT in $(ls -d ${PROJECTS_DIRECTORY}/*/); do
-    EXAMPLE_DIRECTORY=${PROJECT}
-
-    ${CPP_LINT} \
-    --linelength=120 --counting=detailed \
-    --root="projects/$(basename "$PROJECT")" \
-    $( find ${EXAMPLE_DIRECTORY} -maxdepth 1 -name \*.h -or -name \*.cpp ) \
-    &>> ${CPPLINT_FILE}
+    LINTABLE_FILES=$(find ${PROJECT} -maxdepth 1 -name \*.h -or -name \*.cpp)
+    if [[ ${LINTABLE_FILES} ]]
+    then
+        ${CPP_LINT} \
+        --linelength=120 --counting=detailed \
+        --root="projects/$(basename "$PROJECT")" \
+        ${LINTABLE_FILES} \
+        &>> ${CPPLINT_FILE}
+    fi
 done
 
 # Common test dir
