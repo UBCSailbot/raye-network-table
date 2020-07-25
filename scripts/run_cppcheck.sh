@@ -35,11 +35,15 @@ PROJECTS_DIRECTORY=${WORKSPACE_DIRECTORY}/projects
 
 # run cppcheck on every project
 for PROJECT in $(ls -d ${PROJECTS_DIRECTORY}/*/); do
-    VIEWER_DIRECTORY=${PROJECT}
-    cppcheck ${CPPCHECK_ARGS} \
-    -I ${VIEWER_DIRECTORY} \
-    $(find ${VIEWER_DIRECTORY} -maxdepth 1 -name \*.h -or -name \*.cpp) \
-    &>> ${CPPCHECK_FILE}
+    LINTABLE_FILES=$(find ${PROJECT} -maxdepth 1 -name \*.h -or -name \*.cpp)
+
+    if [[ ${LINTABLE_FILES} ]]
+    then
+        cppcheck ${CPPCHECK_ARGS} \
+        -I ${PROJECT} \
+        ${LINTABLE_FILES} \
+        &>> ${CPPCHECK_FILE}
+    fi
 done
 
 # Common test
