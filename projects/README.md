@@ -35,3 +35,7 @@ Sends changes to sensor data in the network table to the NUC.
 ## BBB Rockblock Listener
 WIP. Sends/receives data over iridium satellite network
 via a serial connection to Rockblock+.
+
+## Land Satellite Listener
+Runs a simple http server that receives and decodes sensor/uccm 
+data sent via HTTP POST requests. 
