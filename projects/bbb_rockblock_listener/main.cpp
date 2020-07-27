@@ -14,10 +14,11 @@
 #include "Help.h"
 #include "Sensors.pb.h"
 #include "Uccms.pb.h"
+#include "Satellite.pb.h"
 
 // Stores serialized sensor and uccm data to send to rockblock
-std::string most_recent_sensorData_string;  // NOLINT(runtime/string)
-std::string most_recent_uccmData_string;  // NOLINT(runtime/string)
+std::string latest_sensors_satellite_string;  // NOLINT(runtime/string)
+std::string latest_uccms_satellite_string;  // NOLINT(runtime/string)
 
 // How often to send sensor and uccm data
 uint16_t sendSensors_freq;
@@ -131,23 +132,34 @@ void RootCallback(NetworkTable::Node node, \
     bool is_self_reply) {
 
     // Store updated network table data
-    NetworkTable::Sensors most_recent_sensorData;
-    NetworkTable::Uccms most_recent_uccmData;
+    NetworkTable::Satellite sensors_satellite;
+    NetworkTable::Satellite uccms_satellite;
+    sensors_satellite.set_type(NetworkTable::Satellite::SENSORS);
+    uccms_satellite.set_type(NetworkTable::Satellite::UCCMS);
 
-    most_recent_sensorData = NetworkTable::RootToSensors(&node);
-    most_recent_uccmData = NetworkTable::RootToUccms(&node);
-    most_recent_sensorData.SerializeToString(&most_recent_sensorData_string);
-    most_recent_uccmData.SerializeToString(&most_recent_uccmData_string);
+    NetworkTable::Sensors sensors = NetworkTable::RootToSensors(&node);
+    NetworkTable::Uccms uccms = NetworkTable::RootToUccms(&node);
+
+    // TODO(alex): I don't think this is a memory leak,
+    // but should test with valgrind
+    // This creates an extra object (one on the stack and one on the heap)
+    // but it shouldnt matter much. The stack one is going to get deallocated
+    // pretty soon
+    sensors_satellite.set_allocated_sensors(new NetworkTable::Sensors(sensors));
+    uccms_satellite.set_allocated_uccms(new NetworkTable::Uccms(uccms));
+
+    sensors_satellite.SerializeToString(&latest_sensors_satellite_string);
+    uccms_satellite.SerializeToString(&latest_uccms_satellite_string);
 }
 
 /* Thread to send sensor data */
 void sendSensorData() {
     std::cout << "started sensor thread" << std::endl;
     while (true) {
-        if (most_recent_sensorData_string.size() != 0) {
+        if (latest_sensors_satellite_string.size() != 0) {
             std::cout << "sending sensor data" << std::endl;
             serialPort_lck.lock();
-            send(most_recent_sensorData_string);
+            send(latest_sensors_satellite_string);
             serialPort_lck.unlock();
             sleep(sendSensors_freq);
         }
@@ -157,10 +169,10 @@ void sendSensorData() {
 /* Thread to send uccm data*/
 void sendUccmData() {
     while (true) {
-        if (most_recent_uccmData_string.size() != 0) {
+        if (latest_uccms_satellite_string.size() != 0) {
             std::cout << "sending uccm data" << std::endl;
             serialPort_lck.lock();
-            send(most_recent_uccmData_string);
+            send(latest_uccms_satellite_string);
             serialPort_lck.unlock();
             sleep(sendUccm_freq);
         }
@@ -190,8 +202,8 @@ int main(int argc, char **argv) {
         return 0;
     }
 
-    most_recent_sensorData_string = "";
-    most_recent_uccmData_string = "";
+    latest_sensors_satellite_string = "";
+    latest_uccms_satellite_string = "";
 
     connection.Subscribe("/", &RootCallback);
 

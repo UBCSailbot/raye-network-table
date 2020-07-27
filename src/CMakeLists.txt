@@ -22,6 +22,7 @@ protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS
     protofiles/SetValuesRequest.proto
     protofiles/GetNodesReply.proto
     protofiles/GetNodesRequest.proto
+    protofiles/Satellite.proto
     protofiles/Sensors.proto
     protofiles/SubscribeRequest.proto
     protofiles/SubscribeReply.proto
