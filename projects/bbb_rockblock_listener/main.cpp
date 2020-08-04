@@ -24,7 +24,7 @@ std::string latest_uccms_satellite_string;  // NOLINT(runtime/string)
 uint16_t sendSensors_freq;
 uint16_t sendUccm_freq;
 
-std::mutex serialPort_lck;
+std::mutex serialPort_mtx;
 boost::asio::io_service io;
 boost::asio::serial_port serial(io);
 
@@ -152,15 +152,25 @@ void RootCallback(NetworkTable::Node node, \
     uccms_satellite.SerializeToString(&latest_uccms_satellite_string);
 }
 
+/* Send most recent sensor data */
+void sendRecentSensors() {
+    std::lock_guard<std::mutex> lck {serialPort_mtx};
+    send(latest_sensors_satellite_string);
+}
+
+/* Send most recent uccm data */
+void sendRecentUccms() {
+    std::lock_guard<std::mutex> lck {serialPort_mtx};
+    send(latest_uccms_satellite_string);
+}
+
 /* Thread to send sensor data */
 void sendSensorData() {
     std::cout << "started sensor thread" << std::endl;
     while (true) {
         if (latest_sensors_satellite_string.size() != 0) {
             std::cout << "sending sensor data" << std::endl;
-            serialPort_lck.lock();
-            send(latest_sensors_satellite_string);
-            serialPort_lck.unlock();
+            sendRecentSensors();
             sleep(sendSensors_freq);
         }
     }
@@ -171,9 +181,7 @@ void sendUccmData() {
     while (true) {
         if (latest_uccms_satellite_string.size() != 0) {
             std::cout << "sending uccm data" << std::endl;
-            serialPort_lck.lock();
-            send(latest_uccms_satellite_string);
-            serialPort_lck.unlock();
+	        sendRecentUccms();
             sleep(sendUccm_freq);
         }
     }
