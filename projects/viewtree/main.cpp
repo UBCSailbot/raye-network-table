@@ -18,11 +18,18 @@ int main() {
     }
 
     NetworkTable::Node root = connection.GetNode("/");
-    std::cout << "sizeof serialized sensors: " << \
-        NetworkTable::RootToSensors(&root).SerializeAsString().size() << std::endl;
+    try {
+        std::cout << "sizeof serialized sensors: " << \
+            NetworkTable::RootToSensors(&root).SerializeAsString().size() << std::endl;
 
-    std::cout << "sizeof serialized uccms: " << \
-        NetworkTable::RootToUccms(&root).SerializeAsString().size() << std::endl;
+        std::cout << "sizeof serialized uccms: " << \
+            NetworkTable::RootToUccms(&root).SerializeAsString().size() << std::endl;
+    } catch (...) {
+        // The calls to RootToSensors/RootToUccms fail really easily.
+        // This needs to be fixed in the future but for now it can
+        // basically be ignored.
+        std::cout << "Failed to get sizes of Sensors.proto and/or Uccms.proto" << std::endl;
+    }
 
     NetworkTable::PrintNode(root);
 
