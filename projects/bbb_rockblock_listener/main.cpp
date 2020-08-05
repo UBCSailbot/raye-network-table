@@ -189,7 +189,7 @@ void sendUccmData() {
 
 int main(int argc, char **argv) {
     if (argc != 4) {
-        std::cout << "usage: ./rockblock <sensors send "\
+        std::cout << "usage: ./bbb_rockblock_listener <sensors send "\
             << "frequency (seconds)> <uccm send frequency (seconds)> "\
             << "<path to serial port>" << std::endl;
         return 0;
