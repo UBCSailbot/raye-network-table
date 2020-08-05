@@ -325,7 +325,7 @@ int main(int argc, char **argv) {
             case ACCEL_FRAME_ID: {
                 NetworkTable::Value accel_x_pos;
                 std::map<std::string, NetworkTable::Value> values;
-                int x_pos = GET_ACCEL_X_DATA(frame.data);
+                int16_t x_pos = GET_ACCEL_X_DATA(frame.data);
                 accel_x_pos.set_type(NetworkTable::Value::INT);
                 accel_x_pos.set_int_data(static_cast<int>(x_pos));
                 values.insert(std::pair<std::string, NetworkTable::Value>\
@@ -333,7 +333,7 @@ int main(int argc, char **argv) {
                 std::cout << "x_pos " << x_pos << std::endl;
 
                 NetworkTable::Value accel_y_pos;
-                int y_pos = GET_ACCEL_Y_DATA(frame.data);
+                int16_t y_pos = GET_ACCEL_Y_DATA(frame.data);
                 accel_y_pos.set_type(NetworkTable::Value::INT);
                 accel_y_pos.set_int_data(static_cast<int>(y_pos));
                 values.insert(std::pair<std::string, NetworkTable::Value>\
@@ -341,11 +341,11 @@ int main(int argc, char **argv) {
                 std::cout << "y_pos " << y_pos << std::endl;
 
                 NetworkTable::Value accel_z_pos;
-                int z_pos = GET_ACCEL_Z_DATA(frame.data);
+                int16_t z_pos = GET_ACCEL_Z_DATA(frame.data);
                 accel_z_pos.set_type(NetworkTable::Value::INT);
                 accel_z_pos.set_int_data(static_cast<int>(z_pos));
                 values.insert(std::pair<std::string, NetworkTable::Value>\
-                        ("accelerometer/boat_orientation_data/z__axis_acceleration", accel_z_pos));
+                        ("accelerometer/boat_orientation_data/z_axis_acceleration", accel_z_pos));
                 std::cout << "z_pos " << z_pos << std::endl;
 
                 connection.SetValues(values);
