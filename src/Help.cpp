@@ -23,17 +23,28 @@ void PrintTree(NetworkTable::Node root, int depth) {
     // If root is a leaf, just print out the data.
     if (children.size() == 0) {
         std::cout << '\t';
-        switch (root.value().type()) {
-            case NetworkTable::Value::INT : std::cout << root.value().int_data();
+        NetworkTable::Value value = root.value();
+        switch (value.type()) {
+            case NetworkTable::Value::INT : std::cout << value.int_data();
                                             break;
-            case NetworkTable::Value::BOOL : std::cout << root.value().bool_data();
+            case NetworkTable::Value::BOOL : std::cout << value.bool_data();
                                             break;
-            case NetworkTable::Value::FLOAT : std::cout << root.value().float_data();
+            case NetworkTable::Value::FLOAT : std::cout << value.float_data();
                                             break;
-            case NetworkTable::Value::STRING : std::cout << root.value().string_data();
+            case NetworkTable::Value::STRING : std::cout << value.string_data();
                                             break;
-            case NetworkTable::Value::BYTES : std::cout << root.value().bytes_data();
+            case NetworkTable::Value::BYTES : std::cout << value.bytes_data();
                                             break;
+            case NetworkTable::Value::BOATS :
+                for (int i = 0; i < value.boats_size(); i++) {
+                    auto boat = value.boats(i);
+                    std::cout << " mmsi: " << boat.m_mmsi();
+                    std::cout << " latitude: " << boat.m_latitude();
+                    std::cout << " longitude: " << boat.m_longitude();
+                    std::cout << " | ";
+                }
+                break;
+
             default: std::cout << "Unknown type\n";
         }
     } else {
