@@ -67,8 +67,6 @@ int main(int argc, char **argv) {
         return 0;
     }
 
-    char *ifname = argv[1];
-
     // Connect to the network table
     connection.SetTimeout(-1);
     try {
@@ -85,12 +83,14 @@ int main(int argc, char **argv) {
     struct can_frame frame;
     struct ifreq ifr;
 
+    char *ifname = argv[1];
+
     if ((s = socket(PF_CAN, SOCK_RAW, CAN_RAW)) < 0) {
         std::cout << "Error while opening socket";
         return -1;
     }
 
-    snprintf(ifr.ifr_name, strlen(ifname), "%s", ifname);
+    strcpy(ifr.ifr_name, ifname);  // NOLINT(runtime/printf)
     ioctl(s, SIOCGIFINDEX, &ifr);
 
     addr.can_family  = AF_CAN;
@@ -100,12 +100,8 @@ int main(int argc, char **argv) {
         std::cout << "Error in socket bind";
         return -2;
     }
-    // NAV-18 Sending commands to motors
-    // idk where to put this code in the program so i'm putting it here - Bruno
-    // maybe might create a separate thread idk yet
 
     // subscribe to network-table
-
     try {
         connection.Subscribe("rudder_motor_control_0/actuation_angle/", &MotorCallback);
     } catch (NetworkTable::TimeoutException) {}
@@ -114,7 +110,7 @@ int main(int argc, char **argv) {
     // Keep on reading the wind sensor data off canbus, and
     // placing the latest data in the network table.
     while (true) {
-        int nbytes = read(s, &frame, sizeof(struct can_frame));
+        read(s, &frame, sizeof(struct can_frame));
         std::cout << "Can ID = " << std::hex << frame.can_id << std::endl << std::dec;
         switch (frame.can_id) {
             case WIND_SENS0_FRAME_ID : {
