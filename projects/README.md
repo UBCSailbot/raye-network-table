@@ -1,8 +1,9 @@
 # Projects
-> Build targets and target-specific code.
+Build targets and target-specific code.  
+See project readmes for more information.
 
 ## Server
-Runs the network table server
+Runs the network table server.
 
 ## Client
 An example client of the Network Table.
@@ -10,10 +11,10 @@ This is also used to test the functionality of
 the NetworkTable.
 
 ## Viewtree
-Prints out all the values in the network table
+Prints out contents of the network table.
 
 ## Light Client
-Simply updates a single value in the network table forever
+Updates a single value in the network table forever.
 
 ## BBB Canbus Listener
 Reads data about various sensors on the canbus network
@@ -33,7 +34,7 @@ and places them in network table.
 Sends changes to sensor data in the network table to the NUC.
 
 ## BBB Rockblock Listener
-WIP. Sends/receives data over iridium satellite network
+Sends/receives data over iridium satellite network
 via a serial connection to Rockblock+.
 
 ## Land Satellite Listener

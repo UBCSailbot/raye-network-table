@@ -1,9 +1,12 @@
 # Network Table
-A communication hub (basically database) that runs on central controller on Ada 2.0.  
-Receives updates on sensor data (from GPS, wind sensors, etc), allows other modules to connect
+A communication hub that runs on central controller on Ada 2.0.  
+Receives updates on sensor data (from GPS, wind sensors, etc), allows other programs to connect
 to the network table using pub/sub or request/reply.
 
 [Network Table Communication Protocol](https://ubcsailbot.atlassian.net/wiki/spaces/ADA2/pages/1235622/Network+Table+Communication+Protocol)
+
+This repository also contains source code for programs which are used to transfer
+data between various other programs. These are located in the `projects` folder.
 
 ## Install Dependencies
 Clone all submodules:  
@@ -16,10 +19,9 @@ The following dependencies are needed to build protobuf.
 They're pretty common anyways, you probably have a lot of them:  
 ```autoconf automake libtool curl make g++ unzip```
 
-Run this script to compile protobuf. Protobuf
-will be installed locally in the lib folder.
-WARNING, this script takes about 1 hour to run. Compiling protobuf
-takes a long time.
+Run this script to compile and install protobuf
+ locally in the lib folder. **warning**, 
+this script takes about 1 hour to run.  
 ```./scripts/install_protobuf.sh```
 
 ### ROS (Robot Operating System)
@@ -27,9 +29,8 @@ If ENABLE_ROS is set to ON in the top
 level CMakeLists.txt, this builds an
 extra executable which is ran on the
 Intel NUC. Obviously you will need to have
-ROS and catkin installed. Refer to the ROS
-website to find out how to install it on your
-computer.
+ROS and catkin installed. Refer to the [ROS website](https://www.ros.org/install/)
+to find out how to install it on your computer.
 
 ## Compiling
 In the root directory of the repository run these commands:
@@ -73,6 +74,7 @@ It will notify you if tests pass or fail.
 ## Structure of the code
 The directories `src` and `test/basic_tests` should mirror each other. That is, any unit testing code for the file `src/a/b.cpp` should be in `test/basic_tests/a/bTest.cpp`.
 
--   **src/** - Source code.
--   **test/** - Unit tests.
+-   **src/** - Source code of the network-table.
+-   **scripts/** - Scripts used for various purposes. These can just be directly ran and do not require compiling.
+-   **test/** - Unit tests. These test specific functionality of the network-table.
 -   **projects/** - Target specific code. For more details, check out the README file in this directory.
