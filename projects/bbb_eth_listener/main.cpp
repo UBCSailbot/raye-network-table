@@ -78,6 +78,10 @@ int main(int argc, char *argv[]) {
         std::cout << e.what() << std::endl;
         PrintUsage();
         return 0;
+    } catch (std::runtime_error &e) {
+        std::cout << e.what() << std::endl;
+        PrintUsage();
+        return 0;
     }
 
     connection.Subscribe("/", &RootCallback);
