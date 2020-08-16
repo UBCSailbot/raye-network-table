@@ -41,6 +41,7 @@ void RootCallback(NetworkTable::Node node, \
          * so it *should* be better to do
          * it on the NUC side .
          */
+        std::cout << "Sending sensor data to the NUC" << std::endl;
         send(serialized_root);
     }
 }
@@ -64,7 +65,7 @@ int main(int argc, char *argv[]) {
     }
 
     NetworkTable::Connection connection;
-    connection.SetTimeout(1000);
+    connection.SetTimeout(-1);
     try {
         connection.Connect();
     } catch (NetworkTable::TimeoutException) {
