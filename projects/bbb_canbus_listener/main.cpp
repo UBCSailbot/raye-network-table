@@ -49,11 +49,18 @@ void MotorCallback(NetworkTable::Node node, \
         const std::map<std::string, NetworkTable::Value> &diffs, \
         bool is_self_reply) {
     struct can_frame frame;
-    auto angle = static_cast<uint8_t>(node.value().int_data());
+    float angle = static_cast<float>(node.value().float_data());
     frame.can_id = 0x10;
     frame.can_dlc = 8;
+
+    // Manually put split the float into bytes, and
+    // put each byte into the frame.data array
+    uint8_t const *angle_array = reinterpret_cast<uint8_t *>(&angle);
+    frame.data[0] = angle_array[0];
+    frame.data[1] = angle_array[1];
+    frame.data[2] = angle_array[2];
+    frame.data[3] = angle_array[3];
     std::cout << "Sending angle:" << angle << std::endl;
-    frame.data[0] = angle;
     if (write(s, &frame, sizeof(struct can_frame)) != sizeof(struct can_frame)) {
         perror("Write");
         return;
