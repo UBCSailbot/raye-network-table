@@ -1,9 +1,9 @@
 #!/usr/bin/python3
 # Script to mock UCCM sensor data on a virtual CAN bus on vcan0
 # Sends garbage data but you specify the SID
-# --> needs virtual can set up first -> ./setup_vcan.shi
+# --> needs virtual can set up first -> ./setup_vcan.sh
 # needs server ->  in build/bin -> ./server &
-# You should run this as a background job -> python3 mock_sensors.py &
+# You should run this as a background job -> python3 mock_sensors.py -c vcan0 &
 import time
 import can
 import sys
@@ -12,7 +12,7 @@ import argparse
 
 def send_sensor_data(device, SID, channel):
     bus = can.interface.Bus(bustype='socketcan', channel=channel, bitrate=250000)
-    print("Sending CAN messages on {}".format(bus.channel_info))
+    print("Sending CAN messages on {}".format(bus.channel))
     print("device = {} \nRTR: 0b0\nDLC: 8\n".format(device))
     if device == 'bms':
         while True:
@@ -72,13 +72,6 @@ def send_sensor_data(device, SID, channel):
                     print("Error Sending on CAN bus")
                     pass
 def main():
-    if len(sys.argv) != 2:
-        print("Please provide the name of the canbus interface")
-        print("Example usage: 'python3 mock_sensors.py vcan0'")
-        sys.exit() 
-    
-    channel = sys.argv[1]
-
     # SID is taken from frame_parser.h data relating to the CAN ID of each device
     SID = {'bms': [0x08], 
            'gps': [0x11, 0x100,0x101,0x110],
@@ -88,9 +81,16 @@ def main():
            'all': [0x08, 0x11, 0x100, 0x101, 
                    0x110, 0x0F, 0x0, 0x10, 
                    0x111, 0xAC]}
-    parser = argparse.ArgumentParser(description="Sensor mocking")
+    parser = argparse.ArgumentParser(description="Sensor mocking") 
     parser.add_argument("-d", "--device_id", help="device to simulate. Options: gps, bms, wind, acc", default='all')
+    parser.add_argument("-c", "--channel", help="Input the channel you want to use", default=None)  
     args = parser.parse_args()
+    channel = args.channel
+    
+    if channel == None:
+        print("Error: channel not specified")
+        print("Example usage: 'python3 mock_sensors.py -c vcan0'")
+        return 
 
     if args.device_id in SID:
         send_sensor_data(args.device_id, SID, channel)
