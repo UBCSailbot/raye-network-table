@@ -10,6 +10,7 @@ message Value {
     string string_data = 5;
     bytes bytes_data = 6;
     repeated Boat boats = 7;
+    repeated Waypoint waypoints = 8;
 
     enum Type {
          FLOAT = 0;
@@ -18,6 +19,7 @@ message Value {
          STRING = 3;
          BYTES = 4;
          BOATS = 5;
+         WAYPOINTS = 6;
     }
 
     message Boat {
@@ -42,5 +44,10 @@ message Value {
         bool m_positionValid = 17;
         bool m_timeStampValid = 18;
         int32 m_transcieverClass = 19;
+    }
+    
+    message Waypoint {
+        double latitude = 1;
+        double longitude = 2;
     }
 }
