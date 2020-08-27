@@ -4,6 +4,7 @@ package NetworkTable;
 
 import "Sensors.proto";
 import "Uccms.proto";
+import "Value.proto";
 
 /*
  * This is sent across the satellite
@@ -14,9 +15,11 @@ message Satellite {
 
     Sensors sensors = 2;
     Uccms uccms = 3;
+    Value value = 4;
 
     enum Type {
         SENSORS = 0;
         UCCMS = 1;
+        VALUE = 2;
     }
 }

@@ -14,3 +14,6 @@
 [submodule "projects/bbb_ais_listener/ais"]
 	path = projects/bbb_ais_listener/ais
 	url = https://github.com/UBCSailbot/ais.git
+[submodule "projects/virtual_iridium"]
+	path = projects/virtual_iridium
+	url = https://github.com/UBCSailbot/virtual_iridium.git

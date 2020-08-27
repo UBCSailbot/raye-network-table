@@ -15,6 +15,7 @@
 #include "Sensors.pb.h"
 #include "Uccms.pb.h"
 #include "Satellite.pb.h"
+#include "Value.pb.h"
 
 // Stores serialized sensor and uccm data to send to rockblock
 std::string latest_sensors_satellite_string;  // NOLINT(runtime/string)
@@ -27,6 +28,9 @@ uint16_t sendUccm_freq;
 std::mutex serialPort_mtx;
 boost::asio::io_service io;
 boost::asio::serial_port serial(io);
+
+uint16_t receive_size;
+uint16_t receive_freq;
 
 /*
  * boost::asio::read uses a non const reference,
@@ -81,6 +85,7 @@ void send(const std::string &data) {
     std::cout << readLine(serial) << std::endl;
     std::cout << readLine(serial) << std::endl;
 
+    // Check mailbox
     std::string send_command = "AT+SBDIX\r";
 
     boost::asio::write(serial, \
@@ -89,41 +94,106 @@ void send(const std::string &data) {
     std::cout << readLine(serial) << std::endl;
     std::cout << readLine(serial) << std::endl;
     std::cout << readLine(serial) << std::endl;
-}
-
-void receive_message(std::string* response, const std::string &status) {
-    if (status == "1") {
-        readLine(serial);
-        *response = readLine(serial);
-    }
-    if (status == "2") {
-        *response = "Error checking mailbox";
-    }
-    if (status == "0") {
-        *response = "Mailbox empty";
-    }
-}
-
-void receive() {
-    std::string sbdInit("AT+SBDIX\r");
-    boost::asio::write(serial, \
-        boost::asio::buffer(sbdInit.c_str(), sbdInit.size()));
 
     std::cout << readLine(serial) << std::endl;
-    std::string response(readLine(serial));
+    std::cout << readLine(serial) << std::endl;
+}
 
+/* Deserialize google protobuf message */
+std::string decodeMessage(boost::asio::serial_port &p)
+{
+    NetworkTable::Sensors sensorData;
+    NetworkTable::Uccms uccmData;
+    NetworkTable::Satellite satellite;
+    NetworkTable::Value value;
+
+    std::string data;
+    char c;
+
+    for(unsigned int i = 0; i < receive_size; i++) {
+        boost::asio::read(p,boost::asio::buffer(&c,1));
+        data += c;
+    }
+
+    satellite.ParseFromString(data);
+
+    if (satellite.type() == NetworkTable::Satellite::SENSORS) {
+        std::cout << "SENSOR DATA" << std::endl;
+        return satellite.DebugString();
+    }
+    else if (satellite.type() == NetworkTable::Satellite::UCCMS) {
+        std::cout << "UCCM DATA" << std::endl;
+        return satellite.DebugString();
+    }
+    else if (satellite.type() == NetworkTable::Satellite::VALUE) {
+        std::cout << "WAYPOINT DATA" << std::endl;
+		return satellite.DebugString();
+    }
+}
+
+void receive_message(std::string& response, std::string status){
+    if (status == "1") {
+        // Command to receive binary MT message 
+        std::string msg = "AT+SBDRB\r";
+        boost::asio::write(serial,boost::asio::buffer(msg.c_str(),msg.size()));
+        std::cout << readLine(serial) << std::endl;
+        std::cout << readLine(serial) << std::endl;
+		
+        response = decodeMessage(serial);
+        std::cout << readLine(serial) << std::endl;
+        std::cout << readLine(serial) << std::endl;
+        std::cout << readLine(serial) << std::endl;
+    }
+    else if (status == "2") {
+        response = "Error checking mailbox";
+    }
+    else if (status == "0") {
+        std::string null_msg = "Mailbox empty";
+        response = null_msg;
+    }
+    else {
+        response = "Non-valid status";
+    }
+}
+
+/* Check for and receive MT messages in queue */
+void receive(){
+    std::lock_guard<std::mutex> lck (serialPort_mtx);
+    std::cout << "Receiving Data" << std::endl;
+    
+    // Mailbox check (checks for messages in the queue)  
+    std::string sbdInit("AT+SBDIX\r");
+    boost::asio::write(serial,boost::asio::buffer(sbdInit.c_str(),sbdInit.size()));
+
+    std::cout << readLine(serial)<<std::endl;
+    std::string response(readLine(serial));
+    std::cout << response << std::endl;
+
+    // Break up Mailbox check response 
     std::vector<std::string> response_split;
-    boost::split(response_split, response, boost::is_any_of(","));
+    boost::split(response_split,response,boost::is_any_of(","));
 
     for (unsigned int i = 0; i < response_split.size(); i++) {
         boost::algorithm::trim(response_split[i]);
     }
 
+    receive_size = std::stoul(response_split[4],NULL,0);
     std::string status(response_split[2]);
+    int queueSize = std::stoi(response_split[5],NULL,0);
+
+    std::cout << readLine(serial) << std::endl;
+    std::cout << readLine(serial) << std::endl;
 
     std::string received_message;
-    receive_message(&received_message, status);
+    receive_message(received_message, status);
     std::cout << received_message <<std::endl;
+    queueSize--;
+
+    // If the queue is empty, wait before polling again 
+    if (queueSize < 0) {
+        std::cout << "waiting" << std::endl;
+    }
+
 }
 
 /* Callback function called when network table updated */
@@ -154,19 +224,18 @@ void RootCallback(NetworkTable::Node node, \
 
 /* Send most recent sensor data */
 void sendRecentSensors() {
-    std::lock_guard<std::mutex> lck {serialPort_mtx};
+    std::lock_guard<std::mutex> lck (serialPort_mtx);
     send(latest_sensors_satellite_string);
 }
 
 /* Send most recent uccm data */
 void sendRecentUccms() {
-    std::lock_guard<std::mutex> lck {serialPort_mtx};
+    std::lock_guard<std::mutex> lck (serialPort_mtx);
     send(latest_uccms_satellite_string);
 }
 
 /* Thread to send sensor data */
 void sendSensorData() {
-    std::cout << "started sensor thread" << std::endl;
     while (true) {
         if (latest_sensors_satellite_string.size() != 0) {
             std::cout << "sending sensor data" << std::endl;
@@ -187,19 +256,30 @@ void sendUccmData() {
     }
 }
 
+void receiveData() {
+    while (true) {
+        receive();
+        sleep(receive_freq);
+    }
+}
+
 int main(int argc, char **argv) {
-    if (argc != 4) {
+    if (argc != 5) {
         std::cout << "usage: ./bbb_rockblock_listener <sensors send "\
             << "frequency (seconds)> <uccm send frequency (seconds)> "\
+            << "<waypt receive frequency (seconds)> "\
             << "<path to serial port>" << std::endl;
         return 0;
     }
 
     sendSensors_freq = std::stoi(argv[1]);
     sendUccm_freq = std::stoi(argv[2]);
+    receive_freq = std::stoi(argv[3]);
 
-    std::string serialPort = argv[3];
+    std::string serialPort = argv[4];
     serial.open(serialPort);
+ 
+    receive_size = 0;
 
     NetworkTable::Connection connection;
     connection.SetTimeout(100);
@@ -226,7 +306,9 @@ int main(int argc, char **argv) {
 
     std::thread sensorThread(sendSensorData);
     std::thread uccmThread(sendUccmData);
+    std::thread receiveThread(receiveData);
 
     sensorThread.join();
-    uccmThread.join();
+	uccmThread.join();
+    receiveThread.join();
 }

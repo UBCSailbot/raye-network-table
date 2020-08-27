@@ -8,10 +8,24 @@ satellite network. Decodes and prints the received
 data to the console. In the future, this script will 
 be modified to update the land-side database. 
 
-To run the script:  
-```python3 land_satellite_listener.py <SERVER_PORT_NUMBER>```
+This script also sends global pathfinding waypoints
+to the Iridium satellite network via HTTP POST request. 
 
-## Testing
+Install protobuf for python3:  
+```pip3 install protobuf```
+
+To run the script:  
+```python3 land_satellite_listener.py <SERVER_PORT_NUMBER> <HTTP_POST_ENDPOINT>```
+
+For example:
+```
+python3 land_satellite_listener.py 8000 https://rockblock.rock7.com/rockblock/MT
+```
+
+## Full-Scale Testing 
+Refer to bbb_rockblock_listener README for full-scale testing with the virtual rockblock.
+
+## Small-Scale Testing
 `sensorBinaryData.txt` contains serialized dummy sensor
 data from the network table that can be sent as test 
 data to the http server via post request. 
