@@ -9,21 +9,23 @@ import sys
 import csv 
 import can 
 import time
-import binascii
+import datetime 
 
 def record_sensor_data(input_channel, verbose=False):
      bus = can.interface.Bus(bustype='socketcan', channel=input_channel, bitrate=250000)
      print("Receiving CAN messages on {}".format(bus.channel))
      timestamp = time.strftime('%H:%M:%S', time.localtime())
+     start = time.time()
      with open('canbus_{}.csv'.format(timestamp), mode='w') as file: 
          writer = csv.writer(file)
-         writer.writerow(["Timestamp","ID","Data"])
+         writer.writerow(["Timestamp(ms)","ID","Data"])
          while True:
             msg = bus.recv()
             if verbose:
                 print(msg)
             try:
-                writer.writerow([timestamp, str(msg.arbitration_id), binascii.hexlify(msg.data).decode('utf-8')])
+                time_elapsed = (time.time() - start)*1000
+                writer.writerow(["{:.0f}".format(time_elapsed), str(msg.arbitration_id), bytes(msg.data).hex()])
             except can.CanError:
                 print("Error Recording data to csv")
                 pass
