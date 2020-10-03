@@ -51,6 +51,25 @@ void PrintUsage() {
         "./bbb_eth_listener 10.0.0.8 5555" << std::endl;
 }
 
+/*Check if the connevtion to the server is active
+*and try to connect otherwise*/
+void connectionStatement() {
+    while (true) {
+        if (connection.ConnectionStatement()) {
+        }
+        else {
+            try {
+                connection.Connect();
+            }
+            catch (NetworkTable::TimeoutException) {
+                std::cout << "Failed to connect to server" << std::endl;
+            }
+            sleep(1);
+        }
+
+    }
+}
+
 /*
  * Subscribe to receive any changes in the entire
  * network table. When a change occurs, send
@@ -69,7 +88,9 @@ int main(int argc, char *argv[]) {
     try {
         connection.Connect();
     } catch (NetworkTable::TimeoutException) {
-        std::cout << "Failed to connect to network table." << std::endl;
+        std::cout << "Failed to connect" << std::endl;
+    } catch (NetworkTable::Exception e) {
+        std::cout << "Failed to connect" << std::endl;
         return 0;
     }
 
@@ -85,7 +106,15 @@ int main(int argc, char *argv[]) {
         return 0;
     }
 
-    connection.Subscribe("/", &RootCallback);
+    try {
+        connection.Subscribe("/", &RootCallback);
+    } catch (NetworkTable::TimeoutException) {
+        std::cout << "Failed to connect" << std::endl;
+    } catch (NetworkTable::Exception e) {
+        std::cout << "Failed to connect" << std::endl;
+        return 0;
+    }
+    
     while (true) {
         /*
          * Receive actuation angle and put it into network table
@@ -116,7 +145,15 @@ int main(int argc, char *argv[]) {
 
             std::cout << "received rudder angle: " << actuation_angle.rudder_angle() \
                 << " winch angle: " << actuation_angle.winch_angle() << std::endl;
-            connection.SetValues(values);
+
+            try {
+                connection.SetValues(values);
+            } catch (NetworkTable::TimeoutException) {
+                std::cout << "Failed to connect" << std::endl;
+            } catch (NetworkTable::Exception e) {
+                std::cout << "Failed to connect" << std::endl;
+                return 0;
+            }
         }
     }
 }

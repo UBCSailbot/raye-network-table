@@ -62,6 +62,25 @@ void ConvertToProto(Boat boat, NetworkTable::Value::Boat* proto_boat) {
     proto_boat->set_m_transcieverclass(boat.m_transcieverClass);
 }
 
+/*Check if the connevtion to the server is active
+*and try to connect otherwise*/
+void connectionStatement() {
+    while (true) {
+        if (connection.ConnectionStatement()) {
+        }
+        else {
+            try {
+                connection.Connect();
+            }
+            catch (NetworkTable::TimeoutException) {
+                std::cout << "Failed to connect to server" << std::endl;
+            }
+            sleep(1);
+        }
+
+    }
+}
+
 
 int main(int argc, char** argv) {
     // Attempt connection to network table
@@ -70,7 +89,9 @@ int main(int argc, char** argv) {
     try {
         connection.Connect();
     } catch (NetworkTable::TimeoutException) {
-        std::cout << "Failed to connect to server" << std::endl;
+        std::cout << "Failed to connect" << std::endl;
+    } catch (NetworkTable::Exception e) {
+        std::cout << "Failed to connect" << std::endl;
         return 0;
     }
 
@@ -112,7 +133,14 @@ int main(int argc, char** argv) {
         // Write proto_boats to network table
         std::map<std::string, NetworkTable::Value> values;
         values.insert(std::pair<std::string, NetworkTable::Value>("ais/boats", proto_boats));
-        connection.SetValues(values);
+        try {
+            connection.SetValues(values);
+        } catch (NetworkTable::TimeoutException) {
+            std::cout << "Failed to connect" << std::endl;
+        } catch (NetworkTable::Exception e) {
+            std::cout << "Failed to connect" << std::endl;
+            return 0;
+        }
 
         sleep(sleep_time);  // Sleep so we don't query too often
     }

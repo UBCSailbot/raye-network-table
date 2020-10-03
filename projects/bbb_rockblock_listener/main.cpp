@@ -187,6 +187,25 @@ void sendUccmData() {
     }
 }
 
+/*Check if the connevtion to the server is active
+*and try to connect otherwise*/
+void connectionStatement() {
+    while (true) {
+        if (connection.ConnectionStatement()) {
+        }
+        else {
+            try {
+                connection.Connect();
+            }
+            catch (NetworkTable::TimeoutException) {
+                std::cout << "Failed to connect to server" << std::endl;
+            }
+            sleep(1);
+        }
+
+    }
+}
+
 int main(int argc, char **argv) {
     if (argc != 4) {
         std::cout << "usage: ./bbb_rockblock_listener <sensors send "\
@@ -207,13 +226,22 @@ int main(int argc, char **argv) {
         connection.Connect();
     } catch (NetworkTable::TimeoutException) {
         std::cout << "Failed to connect" << std::endl;
+    } catch (NetworkTable::Exception e) {
+        std::cout << "Failed to connect" << std::endl;
         return 0;
     }
 
     latest_sensors_satellite_string = "";
     latest_uccms_satellite_string = "";
 
-    connection.Subscribe("/", &RootCallback);
+    try {
+        connection.Subscribe("/", &RootCallback);
+    } catch (NetworkTable::TimeoutException) {
+        std::cout << "Failed to connect" << std::endl;
+    } catch (NetworkTable::Exception e) {
+        std::cout << "Failed to connect" << std::endl;
+        return 0;
+    }
 
     serial.set_option(boost::asio::serial_port_base::baud_rate(19200));
     boost::asio::write(serial, boost::asio::buffer("AT\r", 3));

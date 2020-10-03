@@ -30,6 +30,8 @@ class Connection {
 
     void Disconnect();
 
+    bool ConnectionStatement();
+
     /*
      * Set value in the network table, or create
      * it if it doesn't exist.

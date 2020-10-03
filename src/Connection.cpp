@@ -58,6 +58,10 @@ void NetworkTable::Connection::Disconnect() {
     socket_thread_.join();
 }
 
+bool NetworkTable::Connection::ConnectionStatement() {
+    return connected_;
+}
+
 ////////////////////// PUBLIC //////////////////////
 
 void NetworkTable::Connection::SetValue(const std::string &uri, const NetworkTable::Value &value) {
