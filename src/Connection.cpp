@@ -20,9 +20,11 @@ NetworkTable::Connection::Connection() : context_(1),
                                          mst_socket_(context_, ZMQ_PAIR),
                                          connected_(false),
                                          timeout_(-1) {
+
 }
 
 void NetworkTable::Connection::Connect() {
+    Hello my name is alex
     assert(!connected_);
 
     mst_socket_.bind("inproc://#1");
