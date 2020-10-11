@@ -129,12 +129,11 @@ NetworkTable::Sensors NetworkTable::RootToSensors(NetworkTable::Node *root) {
      * Use copy/paste and search/replace
      */
     NetworkTable::Sensors sensors;
-    
+
     try {
         sensors.mutable_boom_angle_sensor()->mutable_sensor_data()->set_angle(\
                 GetNode("/boom_angle_sensor/sensor_data/angle", root).value().int_data());
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "boom_angle_sensor node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
@@ -146,8 +145,7 @@ NetworkTable::Sensors NetworkTable::RootToSensors(NetworkTable::Node *root) {
                 GetNode("/wind_sensor_0/iimwv/wind_reference", root).value().int_data());
         sensors.mutable_wind_sensor_0()->mutable_wixdir()->set_wind_temperature(\
                 GetNode("/wind_sensor_0/wixdir/wind_temperature", root).value().int_data());
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "wind_sensor_0 node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
@@ -159,8 +157,7 @@ NetworkTable::Sensors NetworkTable::RootToSensors(NetworkTable::Node *root) {
                 GetNode("/wind_sensor_1/iimwv/wind_reference", root).value().int_data());
         sensors.mutable_wind_sensor_1()->mutable_wixdir()->set_wind_temperature(\
                 GetNode("/wind_sensor_1/wixdir/wind_temperature", root).value().int_data());
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "wind_sensor_1 node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
@@ -172,8 +169,7 @@ NetworkTable::Sensors NetworkTable::RootToSensors(NetworkTable::Node *root) {
                 GetNode("/wind_sensor_2/iimwv/wind_reference", root).value().int_data());
         sensors.mutable_wind_sensor_2()->mutable_wixdir()->set_wind_temperature(\
                 GetNode("/wind_sensor_2/wixdir/wind_temperature", root).value().int_data());
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "wind_sensor_2 node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
@@ -203,8 +199,7 @@ NetworkTable::Sensors NetworkTable::RootToSensors(NetworkTable::Node *root) {
                 GetNode("/gps_0/gpgga/antenna_altitude", root).value().int_data());
         sensors.mutable_gps_0()->mutable_gpgga()->set_geoidal_separation(\
                 GetNode("/gps_0/gpgga/geoidal_separation", root).value().int_data());
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "gps_0 node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
@@ -234,8 +229,7 @@ NetworkTable::Sensors NetworkTable::RootToSensors(NetworkTable::Node *root) {
                 GetNode("/gps_1/gpgga/antenna_altitude", root).value().int_data());
         sensors.mutable_gps_1()->mutable_gpgga()->set_geoidal_separation(\
                 GetNode("/gps_1/gpgga/geoidal_separation", root).value().int_data());
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "gps_1 node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
@@ -245,8 +239,7 @@ NetworkTable::Sensors NetworkTable::RootToSensors(NetworkTable::Node *root) {
                 GetNode("/bms_0/battery_pack_data/total_voltage", root).value().int_data());
         sensors.mutable_bms_0()->mutable_battery_pack_data()->set_temperature(\
                 GetNode("/bms_0/battery_pack_data/temperature", root).value().int_data());
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "bms_0 node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
@@ -256,8 +249,7 @@ NetworkTable::Sensors NetworkTable::RootToSensors(NetworkTable::Node *root) {
                 GetNode("/bms_1/battery_pack_data/total_voltage", root).value().int_data());
         sensors.mutable_bms_1()->mutable_battery_pack_data()->set_temperature(\
                 GetNode("/bms_1/battery_pack_data/temperature", root).value().int_data());
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "bms_1 node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
@@ -267,8 +259,7 @@ NetworkTable::Sensors NetworkTable::RootToSensors(NetworkTable::Node *root) {
                 GetNode("/bms_2/battery_pack_data/total_voltage", root).value().int_data());
         sensors.mutable_bms_2()->mutable_battery_pack_data()->set_temperature(\
                 GetNode("/bms_2/battery_pack_data/temperature", root).value().int_data());
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "bms_2 node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
@@ -278,8 +269,7 @@ NetworkTable::Sensors NetworkTable::RootToSensors(NetworkTable::Node *root) {
                 GetNode("/bms_3/battery_pack_data/total_voltage", root).value().int_data());
         sensors.mutable_bms_3()->mutable_battery_pack_data()->set_temperature(\
                 GetNode("/bms_3/battery_pack_data/temperature", root).value().int_data());
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "bms_3 node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
@@ -289,8 +279,7 @@ NetworkTable::Sensors NetworkTable::RootToSensors(NetworkTable::Node *root) {
                 GetNode("/bms_4/battery_pack_data/total_voltage", root).value().int_data());
         sensors.mutable_bms_4()->mutable_battery_pack_data()->set_temperature(\
                 GetNode("/bms_4/battery_pack_data/temperature", root).value().int_data());
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "bms_4 node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
@@ -300,8 +289,7 @@ NetworkTable::Sensors NetworkTable::RootToSensors(NetworkTable::Node *root) {
                 GetNode("/bms_5/battery_pack_data/total_voltage", root).value().int_data());
         sensors.mutable_bms_5()->mutable_battery_pack_data()->set_temperature(\
                 GetNode("/bms_5/battery_pack_data/temperature", root).value().int_data());
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "bms_5 node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
@@ -311,8 +299,7 @@ NetworkTable::Sensors NetworkTable::RootToSensors(NetworkTable::Node *root) {
                 GetNode("/accelerometer/boat_orientation_data/y_axis_acceleration", root).value().int_data());
         sensors.mutable_accelerometer()->mutable_boat_orientation_data()->set_z_axis_acceleration(\
                 GetNode("/accelerometer/boat_orientation_data/z_axis_acceleration", root).value().int_data());
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "accelerometer node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     return sensors;
@@ -330,8 +317,7 @@ NetworkTable::Node NetworkTable::SensorsToRoot(const NetworkTable::Sensors &sens
         val.set_type(NetworkTable::Value::INT);
         val.set_int_data(sensors.boom_angle_sensor().sensor_data().angle());
         SetNode("/boom_angle_sensor/boom_angle_sensor/angle", val, &root);
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "boom_angle_sensor node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
@@ -347,8 +333,7 @@ NetworkTable::Node NetworkTable::SensorsToRoot(const NetworkTable::Sensors &sens
         val.set_type(NetworkTable::Value::INT);
         val.set_int_data(sensors.wind_sensor_0().wixdir().wind_temperature());
         SetNode("/wind_sensor_0/wixdir/wind_temperature", val, &root);
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "wind_sensor_0 node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
@@ -364,8 +349,7 @@ NetworkTable::Node NetworkTable::SensorsToRoot(const NetworkTable::Sensors &sens
         val.set_type(NetworkTable::Value::INT);
         val.set_int_data(sensors.wind_sensor_1().wixdir().wind_temperature());
         SetNode("/wind_sensor_1/wixdir/wind_temperature", val, &root);
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "wind_sensor_1 node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
@@ -381,8 +365,7 @@ NetworkTable::Node NetworkTable::SensorsToRoot(const NetworkTable::Sensors &sens
         val.set_type(NetworkTable::Value::INT);
         val.set_int_data(sensors.wind_sensor_2().wixdir().wind_temperature());
         SetNode("/wind_sensor_2/wixdir/wind_temperature", val, &root);
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "wind_sensor_2 node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
@@ -425,8 +408,7 @@ NetworkTable::Node NetworkTable::SensorsToRoot(const NetworkTable::Sensors &sens
         val.set_type(NetworkTable::Value::INT);
         val.set_int_data(sensors.gps_0().gpgga().geoidal_separation());
         SetNode("/gps_0/gpgga/geoidal_separation", val, &root);
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "gps_0 node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
@@ -469,8 +451,7 @@ NetworkTable::Node NetworkTable::SensorsToRoot(const NetworkTable::Sensors &sens
         val.set_type(NetworkTable::Value::INT);
         val.set_int_data(sensors.gps_1().gpgga().geoidal_separation());
         SetNode("/gps_1/gpgga/geoidal_separation", val, &root);
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "gps_1 node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
@@ -483,8 +464,7 @@ NetworkTable::Node NetworkTable::SensorsToRoot(const NetworkTable::Sensors &sens
         val.set_type(NetworkTable::Value::INT);
         val.set_int_data(sensors.bms_0().battery_pack_data().temperature());
         SetNode("/bms_0/battery_pack_data/temperature", val, &root);
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "bms_0 node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
@@ -497,8 +477,7 @@ NetworkTable::Node NetworkTable::SensorsToRoot(const NetworkTable::Sensors &sens
         val.set_type(NetworkTable::Value::INT);
         val.set_int_data(sensors.bms_1().battery_pack_data().temperature());
         SetNode("/bms_1/battery_pack_data/temperature", val, &root);
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "bms_1 node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
@@ -511,8 +490,7 @@ NetworkTable::Node NetworkTable::SensorsToRoot(const NetworkTable::Sensors &sens
         val.set_type(NetworkTable::Value::INT);
         val.set_int_data(sensors.bms_2().battery_pack_data().temperature());
         SetNode("/bms_2/battery_pack_data/temperature", val, &root);
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "bms_2 node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
@@ -525,8 +503,7 @@ NetworkTable::Node NetworkTable::SensorsToRoot(const NetworkTable::Sensors &sens
         val.set_type(NetworkTable::Value::INT);
         val.set_int_data(sensors.bms_3().battery_pack_data().temperature());
         SetNode("/bms_3/battery_pack_data/temperature", val, &root);
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "bms_3 node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
@@ -539,8 +516,7 @@ NetworkTable::Node NetworkTable::SensorsToRoot(const NetworkTable::Sensors &sens
         val.set_type(NetworkTable::Value::INT);
         val.set_int_data(sensors.bms_4().battery_pack_data().temperature());
         SetNode("/bms_4/battery_pack_data/temperature", val, &root);
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "bms_4 node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
@@ -553,8 +529,7 @@ NetworkTable::Node NetworkTable::SensorsToRoot(const NetworkTable::Sensors &sens
         val.set_type(NetworkTable::Value::INT);
         val.set_int_data(sensors.bms_5().battery_pack_data().temperature());
         SetNode("/bms_5/battery_pack_data/temperature", val, &root);
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "bms_5 node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
@@ -567,8 +542,7 @@ NetworkTable::Node NetworkTable::SensorsToRoot(const NetworkTable::Sensors &sens
         val.set_type(NetworkTable::Value::INT);
         val.set_int_data(sensors.accelerometer().boat_orientation_data().z_axis_acceleration());
         SetNode("/accelerometer/boat_orientation_data/z_axis_acceleration", val, &root);
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "accelerometer node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     return root;
@@ -586,8 +560,7 @@ NetworkTable::Uccms NetworkTable::RootToUccms(NetworkTable::Node *root) {
                 GetNode("/boom_angle_sensor/uccm/temperature", root).value().int_data());
         uccms.mutable_boom_angle_sensor()->set_status(\
                 GetNode("/boom_angle_sensor/uccm/status", root).value().string_data());
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "boom_angle_sensor node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
@@ -599,8 +572,7 @@ NetworkTable::Uccms NetworkTable::RootToUccms(NetworkTable::Node *root) {
                 GetNode("/rudder_motor_control_0/uccm/temperature", root).value().int_data());
         uccms.mutable_rudder_motor_control_0()->set_status(\
                 GetNode("/rudder_motor_control_0/uccm/status", root).value().string_data());
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "rudder_motor_control_0 node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
@@ -612,8 +584,7 @@ NetworkTable::Uccms NetworkTable::RootToUccms(NetworkTable::Node *root) {
                 GetNode("/rudder_motor_control_1/uccm/temperature", root).value().int_data());
         uccms.mutable_rudder_motor_control_1()->set_status(\
                 GetNode("/rudder_motor_control_1/uccm/status", root).value().string_data());
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "rudder_motor_control_1 node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
@@ -625,8 +596,7 @@ NetworkTable::Uccms NetworkTable::RootToUccms(NetworkTable::Node *root) {
                 GetNode("/winch_motor_control_0/uccm/temperature", root).value().int_data());
         uccms.mutable_winch_motor_control_0()->set_status(\
                 GetNode("/winch_motor_control_0/uccm/status", root).value().string_data());
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "winch_motor_control_0 node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
@@ -638,8 +608,7 @@ NetworkTable::Uccms NetworkTable::RootToUccms(NetworkTable::Node *root) {
                 GetNode("/winch_motor_control_1/uccm/temperature", root).value().int_data());
         uccms.mutable_winch_motor_control_1()->set_status(\
                 GetNode("/winch_motor_control_1/uccm/status", root).value().string_data());
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "winch_motor_control_1 node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
@@ -651,8 +620,7 @@ NetworkTable::Uccms NetworkTable::RootToUccms(NetworkTable::Node *root) {
                 GetNode("/wind_sensor_0/uccm/temperature", root).value().int_data());
         uccms.mutable_wind_sensor_0()->set_status(\
                 GetNode("/wind_sensor_0/uccm/status", root).value().string_data());
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "wind_sensor_0 node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
@@ -664,8 +632,7 @@ NetworkTable::Uccms NetworkTable::RootToUccms(NetworkTable::Node *root) {
                 GetNode("/wind_sensor_1/uccm/temperature", root).value().int_data());
         uccms.mutable_wind_sensor_1()->set_status(\
                 GetNode("/wind_sensor_1/uccm/status", root).value().string_data());
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "wind_sensor_1 node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
@@ -677,8 +644,7 @@ NetworkTable::Uccms NetworkTable::RootToUccms(NetworkTable::Node *root) {
                 GetNode("/wind_sensor_2/uccm/temperature", root).value().int_data());
         uccms.mutable_wind_sensor_2()->set_status(\
                 GetNode("/wind_sensor_2/uccm/status", root).value().string_data());
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "wind_sensor_2 node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
@@ -690,8 +656,7 @@ NetworkTable::Uccms NetworkTable::RootToUccms(NetworkTable::Node *root) {
                 GetNode("/gps_0/uccm/temperature", root).value().int_data());
         uccms.mutable_gps_0()->set_status(\
                 GetNode("/gps_0/uccm/status", root).value().string_data());
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "gps_0 node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
@@ -703,8 +668,7 @@ NetworkTable::Uccms NetworkTable::RootToUccms(NetworkTable::Node *root) {
                 GetNode("/gps_1/uccm/temperature", root).value().int_data());
         uccms.mutable_gps_1()->set_status(\
                 GetNode("/gps_1/uccm/status", root).value().string_data());
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "gps_1 node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
@@ -716,8 +680,7 @@ NetworkTable::Uccms NetworkTable::RootToUccms(NetworkTable::Node *root) {
                 GetNode("/bms_0/uccm/temperature", root).value().int_data());
         uccms.mutable_bms_0()->set_status(\
                 GetNode("/bms_0/uccm/status", root).value().string_data());
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "bms_0 node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
@@ -729,8 +692,7 @@ NetworkTable::Uccms NetworkTable::RootToUccms(NetworkTable::Node *root) {
                 GetNode("/bms_1/uccm/temperature", root).value().int_data());
         uccms.mutable_bms_1()->set_status(\
                 GetNode("/bms_1/uccm/status", root).value().string_data());
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "bms_1 node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
@@ -742,8 +704,7 @@ NetworkTable::Uccms NetworkTable::RootToUccms(NetworkTable::Node *root) {
                 GetNode("/bms_2/uccm/temperature", root).value().int_data());
         uccms.mutable_bms_2()->set_status(\
                 GetNode("/bms_2/uccm/status", root).value().string_data());
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "bms_2 node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
@@ -755,8 +716,7 @@ NetworkTable::Uccms NetworkTable::RootToUccms(NetworkTable::Node *root) {
                 GetNode("/bms_3/uccm/temperature", root).value().int_data());
         uccms.mutable_bms_3()->set_status(\
                 GetNode("/bms_3/uccm/status", root).value().string_data());
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "bms_3 node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
@@ -768,8 +728,7 @@ NetworkTable::Uccms NetworkTable::RootToUccms(NetworkTable::Node *root) {
                 GetNode("/bms_4/uccm/temperature", root).value().int_data());
         uccms.mutable_bms_4()->set_status(\
                 GetNode("/bms_4/uccm/status", root).value().string_data());
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "bms_4 node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
@@ -781,8 +740,7 @@ NetworkTable::Uccms NetworkTable::RootToUccms(NetworkTable::Node *root) {
                 GetNode("/bms_5/uccm/temperature", root).value().int_data());
         uccms.mutable_bms_5()->set_status(\
                 GetNode("/bms_5/uccm/status", root).value().string_data());
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "bms_5 node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
@@ -794,8 +752,7 @@ NetworkTable::Uccms NetworkTable::RootToUccms(NetworkTable::Node *root) {
                 GetNode("/accelerometer/uccm/temperature", root).value().int_data());
         uccms.mutable_accelerometer()->set_status(\
                 GetNode("/accelerometer/uccm/status", root).value().string_data());
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "accelerometer node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     return uccms;
@@ -822,8 +779,7 @@ NetworkTable::Node NetworkTable::UccmsToRoot(const NetworkTable::Uccms &uccms) {
         val.set_type(NetworkTable::Value::STRING);
         val.set_string_data(uccms.boom_angle_sensor().status());
         SetNode("/boom_angle_sensor/uccm/status", val, &root);
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "boom_angle_sensor node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
@@ -839,10 +795,9 @@ NetworkTable::Node NetworkTable::UccmsToRoot(const NetworkTable::Uccms &uccms) {
         val.set_type(NetworkTable::Value::STRING);
         val.set_string_data(uccms.rudder_motor_control_0().status());
         SetNode("/rudder_motor_control_0/uccm/status", val, &root);
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "rudder_motor_control_0 node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
-    
+
     try {
         val.set_type(NetworkTable::Value::INT);
         val.set_int_data(uccms.rudder_motor_control_1().current());
@@ -856,8 +811,7 @@ NetworkTable::Node NetworkTable::UccmsToRoot(const NetworkTable::Uccms &uccms) {
         val.set_type(NetworkTable::Value::STRING);
         val.set_string_data(uccms.rudder_motor_control_1().status());
         SetNode("/rudder_motor_control_1/uccm/status", val, &root);
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "rudder_motor_control_1 node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
@@ -873,8 +827,7 @@ NetworkTable::Node NetworkTable::UccmsToRoot(const NetworkTable::Uccms &uccms) {
         val.set_type(NetworkTable::Value::STRING);
         val.set_string_data(uccms.winch_motor_control_0().status());
         SetNode("/winch_motor_control_0/uccm/status", val, &root);
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "winch_motor_control_0 node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
@@ -890,8 +843,7 @@ NetworkTable::Node NetworkTable::UccmsToRoot(const NetworkTable::Uccms &uccms) {
         val.set_type(NetworkTable::Value::STRING);
         val.set_string_data(uccms.winch_motor_control_1().status());
         SetNode("/winch_motor_control_1/uccm/status", val, &root);
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "winch_motor_control_1 node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
@@ -907,8 +859,7 @@ NetworkTable::Node NetworkTable::UccmsToRoot(const NetworkTable::Uccms &uccms) {
         val.set_type(NetworkTable::Value::STRING);
         val.set_string_data(uccms.wind_sensor_0().status());
         SetNode("/wind_sensor_0/uccm/status", val, &root);
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "wind_sensor_0 node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
@@ -924,8 +875,7 @@ NetworkTable::Node NetworkTable::UccmsToRoot(const NetworkTable::Uccms &uccms) {
         val.set_type(NetworkTable::Value::STRING);
         val.set_string_data(uccms.wind_sensor_1().status());
         SetNode("/wind_sensor_1/uccm/status", val, &root);
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "wind_sensor_1 node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
@@ -941,8 +891,7 @@ NetworkTable::Node NetworkTable::UccmsToRoot(const NetworkTable::Uccms &uccms) {
         val.set_type(NetworkTable::Value::STRING);
         val.set_string_data(uccms.wind_sensor_2().status());
         SetNode("/wind_sensor_2/uccm/status", val, &root);
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "wind_sensor_2 node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
@@ -958,8 +907,7 @@ NetworkTable::Node NetworkTable::UccmsToRoot(const NetworkTable::Uccms &uccms) {
         val.set_type(NetworkTable::Value::STRING);
         val.set_string_data(uccms.gps_0().status());
         SetNode("/gps_0/uccm/status", val, &root);
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "gps_0 node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
@@ -975,8 +923,7 @@ NetworkTable::Node NetworkTable::UccmsToRoot(const NetworkTable::Uccms &uccms) {
         val.set_type(NetworkTable::Value::STRING);
         val.set_string_data(uccms.gps_1().status());
         SetNode("/gps_1/uccm/status", val, &root);
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "gps_1 node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
@@ -992,8 +939,7 @@ NetworkTable::Node NetworkTable::UccmsToRoot(const NetworkTable::Uccms &uccms) {
         val.set_type(NetworkTable::Value::STRING);
         val.set_string_data(uccms.bms_0().status());
         SetNode("/bms_0/uccm/status", val, &root);
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "bms_0 node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
@@ -1009,8 +955,7 @@ NetworkTable::Node NetworkTable::UccmsToRoot(const NetworkTable::Uccms &uccms) {
         val.set_type(NetworkTable::Value::STRING);
         val.set_string_data(uccms.bms_1().status());
         SetNode("/bms_1/uccm/status", val, &root);
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "bms_1 node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
@@ -1026,8 +971,7 @@ NetworkTable::Node NetworkTable::UccmsToRoot(const NetworkTable::Uccms &uccms) {
         val.set_type(NetworkTable::Value::STRING);
         val.set_string_data(uccms.bms_2().status());
         SetNode("/bms_2/uccm/status", val, &root);
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "bms_2 node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
@@ -1043,8 +987,7 @@ NetworkTable::Node NetworkTable::UccmsToRoot(const NetworkTable::Uccms &uccms) {
         val.set_type(NetworkTable::Value::STRING);
         val.set_string_data(uccms.bms_3().status());
         SetNode("/bms_3/uccm/status", val, &root);
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "bms_3 node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
@@ -1060,8 +1003,7 @@ NetworkTable::Node NetworkTable::UccmsToRoot(const NetworkTable::Uccms &uccms) {
         val.set_type(NetworkTable::Value::STRING);
         val.set_string_data(uccms.bms_4().status());
         SetNode("/bms_4/uccm/status", val, &root);
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "bms_4 node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
@@ -1077,8 +1019,7 @@ NetworkTable::Node NetworkTable::UccmsToRoot(const NetworkTable::Uccms &uccms) {
         val.set_type(NetworkTable::Value::STRING);
         val.set_string_data(uccms.bms_5().status());
         SetNode("/bms_5/uccm/status", val, &root);
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "bms_5 node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
@@ -1094,8 +1035,7 @@ NetworkTable::Node NetworkTable::UccmsToRoot(const NetworkTable::Uccms &uccms) {
         val.set_type(NetworkTable::Value::STRING);
         val.set_string_data(uccms.accelerometer().status());
         SetNode("/accelerometer/uccm/status", val, &root);
-    } catch (NetworkTable::NodeNotFoundException e) {
-        //std::cout << "accelerometer node not found, continuing" << std::endl;
+    } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     return root;
