@@ -9,6 +9,7 @@
 #include <iomanip>
 #include <boost/algorithm/string.hpp>
 #include <mutex>
+#include <stdexcept>
 
 #include "Connection.h"
 #include "Help.h"
@@ -100,8 +101,7 @@ void send(const std::string &data) {
 }
 
 /* Deserialize google protobuf message */
-std::string decodeMessage(boost::asio::serial_port &p)
-{
+std::string decodeMessage(boost::asio::serial_port &p /* NOLINT(runtime/references) */) {
     NetworkTable::Sensors sensorData;
     NetworkTable::Uccms uccmData;
     NetworkTable::Satellite satellite;
@@ -110,8 +110,8 @@ std::string decodeMessage(boost::asio::serial_port &p)
     std::string data;
     char c;
 
-    for(unsigned int i = 0; i < receive_size; i++) {
-        boost::asio::read(p,boost::asio::buffer(&c,1));
+    for (unsigned int i = 0; i < receive_size; i++) {
+        boost::asio::read(p, boost::asio::buffer(&c, 1));
         data += c;
     }
 
@@ -120,80 +120,77 @@ std::string decodeMessage(boost::asio::serial_port &p)
     if (satellite.type() == NetworkTable::Satellite::SENSORS) {
         std::cout << "SENSOR DATA" << std::endl;
         return satellite.DebugString();
-    }
-    else if (satellite.type() == NetworkTable::Satellite::UCCMS) {
+    } else if (satellite.type() == NetworkTable::Satellite::UCCMS) {
         std::cout << "UCCM DATA" << std::endl;
         return satellite.DebugString();
-    }
-    else if (satellite.type() == NetworkTable::Satellite::VALUE) {
+    } else if (satellite.type() == NetworkTable::Satellite::VALUE) {
         std::cout << "WAYPOINT DATA" << std::endl;
-		return satellite.DebugString();
+        return satellite.DebugString();
+    } else {
+        throw std::runtime_error("Failed to decode satellite data");
     }
 }
 
-void receive_message(std::string& response, std::string status){
+std::string receive_message(const std::string &status) {
+    std::string response;
     if (status == "1") {
-        // Command to receive binary MT message 
+        // Command to receive binary MT message
         std::string msg = "AT+SBDRB\r";
-        boost::asio::write(serial,boost::asio::buffer(msg.c_str(),msg.size()));
+        boost::asio::write(serial, boost::asio::buffer(msg.c_str(), msg.size()));
         std::cout << readLine(serial) << std::endl;
         std::cout << readLine(serial) << std::endl;
-		
+
         response = decodeMessage(serial);
         std::cout << readLine(serial) << std::endl;
         std::cout << readLine(serial) << std::endl;
         std::cout << readLine(serial) << std::endl;
-    }
-    else if (status == "2") {
+    } else if (status == "2") {
         response = "Error checking mailbox";
-    }
-    else if (status == "0") {
+    } else if (status == "0") {
         std::string null_msg = "Mailbox empty";
         response = null_msg;
-    }
-    else {
+    } else {
         response = "Non-valid status";
     }
+    return response;
 }
 
 /* Check for and receive MT messages in queue */
-void receive(){
-    std::lock_guard<std::mutex> lck (serialPort_mtx);
+void receive() {
+    std::lock_guard<std::mutex> lck(serialPort_mtx);
     std::cout << "Receiving Data" << std::endl;
-    
-    // Mailbox check (checks for messages in the queue)  
-    std::string sbdInit("AT+SBDIX\r");
-    boost::asio::write(serial,boost::asio::buffer(sbdInit.c_str(),sbdInit.size()));
 
-    std::cout << readLine(serial)<<std::endl;
+    // Mailbox check (checks for messages in the queue)
+    std::string sbdInit("AT+SBDIX\r");
+    boost::asio::write(serial, boost::asio::buffer(sbdInit.c_str(), sbdInit.size()));
+
+    std::cout << readLine(serial) << std::endl;
     std::string response(readLine(serial));
     std::cout << response << std::endl;
 
-    // Break up Mailbox check response 
+    // Break up Mailbox check response
     std::vector<std::string> response_split;
-    boost::split(response_split,response,boost::is_any_of(","));
+    boost::split(response_split, response, boost::is_any_of(","));
 
     for (unsigned int i = 0; i < response_split.size(); i++) {
         boost::algorithm::trim(response_split[i]);
     }
 
-    receive_size = std::stoul(response_split[4],NULL,0);
+    receive_size = std::stoul(response_split[4], NULL, 0);
     std::string status(response_split[2]);
-    int queueSize = std::stoi(response_split[5],NULL,0);
+    int queueSize = std::stoi(response_split[5], NULL, 0);
 
     std::cout << readLine(serial) << std::endl;
     std::cout << readLine(serial) << std::endl;
 
-    std::string received_message;
-    receive_message(received_message, status);
+    std::string received_message = receive_message(status);
     std::cout << received_message <<std::endl;
     queueSize--;
 
-    // If the queue is empty, wait before polling again 
+    // If the queue is empty, wait before polling again
     if (queueSize < 0) {
         std::cout << "waiting" << std::endl;
     }
-
 }
 
 /* Callback function called when network table updated */
@@ -224,13 +221,13 @@ void RootCallback(NetworkTable::Node node, \
 
 /* Send most recent sensor data */
 void sendRecentSensors() {
-    std::lock_guard<std::mutex> lck (serialPort_mtx);
+    std::lock_guard<std::mutex> lck(serialPort_mtx);
     send(latest_sensors_satellite_string);
 }
 
 /* Send most recent uccm data */
 void sendRecentUccms() {
-    std::lock_guard<std::mutex> lck (serialPort_mtx);
+    std::lock_guard<std::mutex> lck(serialPort_mtx);
     send(latest_uccms_satellite_string);
 }
 
@@ -278,7 +275,7 @@ int main(int argc, char **argv) {
 
     std::string serialPort = argv[4];
     serial.open(serialPort);
- 
+
     receive_size = 0;
 
     NetworkTable::Connection connection;
@@ -309,6 +306,6 @@ int main(int argc, char **argv) {
     std::thread receiveThread(receiveData);
 
     sensorThread.join();
-	uccmThread.join();
+    uccmThread.join();
     receiveThread.join();
 }
