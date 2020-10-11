@@ -22,6 +22,7 @@ NetworkTable::Connection::Connection() : context_(1),
                                          timeout_(-1) {
 }
 
+// dummy comment
 void NetworkTable::Connection::Connect() {
     assert(!connected_);
 
