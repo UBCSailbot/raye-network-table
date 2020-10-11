@@ -1,15 +1,12 @@
-import Value_pb2
-import Satellite_pb2
-import Uccms_pb2
-import Sensors_pb2
+from nt_connection.Connection import Connection
+import generated_python.Value_pb2
+import generated_python.Satellite_pb2
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import http.server
-import sys
 import requests
-import _thread
 import threading
 import time
-sys.path.append('generated_python/')
+import sys
 
 
 class HTTPRequestHandler(BaseHTTPRequestHandler):
@@ -74,6 +71,10 @@ else:
     print("serving at port", sys.argv[1])
     port = int(sys.argv[1])
     ENDPOINT = sys.argv[2]
+
+    print("Connecting to network table")
+    nt_connection = Connection()
+    nt_connection.Connect()
 
     server = runServer(port)
     client = runClient()

@@ -24,6 +24,9 @@ Run this script to compile and install protobuf
 this script takes about 1 hour to run.  
 ```./scripts/utility/install_protobuf.sh```
 
+Python scripts require zmq and protobuf  
+```pip3 install pyzmq protobuf```
+
 ### ROS (Robot Operating System)
 You can enable ROS when running cmake by running:  
 ```cmake .. -DENABLE_ROS:BOOL=ON```  
