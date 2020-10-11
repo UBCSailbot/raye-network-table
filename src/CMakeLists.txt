@@ -34,3 +34,5 @@ protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS
 
 # Define the src_core library target
 add_library(src_core STATIC ${LIB_SRCS} ${LIB_HDRS} ${PROTO_SRCS} ${PROTO_HDRS})
+
+add_subdirectory(python)
