@@ -1,0 +1,114 @@
+pipeline {
+    agent none
+    stages {
+        stage('Compile BBB') {
+            agent {
+                label 'bbb'
+            }
+            steps {
+                // Make sure canbus is enabled
+                sh '/home/debian/config_pins.sh'
+                dir("/home/debian/network-table/build") {
+                    sh '''
+                        cmake ..
+                        make
+                    '''
+                }
+            }
+        }
+
+        stage('Compile NUC') {
+            agent {
+                label 'nuc'
+            }
+            steps {
+                // compile network table.
+                // specifically we want nuc_eth_listener
+                dir('/home/raye/sailbot/network-table/build') {
+                    sh '''
+                        set +x
+                        source /opt/ros/melodic/setup.bash
+                        cmake .. -DENABLE_ROS:BOOL=ON
+                        make
+                    '''
+                }
+
+                // compile bruces controller code.
+                // TODO: This is not handled by git/jenkins at all. Changes
+                // to this code will not appear here.
+                dir('/home/raye/catkin_ws') {
+                    sh '''
+                        set +x
+                        source /opt/ros/melodic/setup.bash
+                        catkin_make
+                    '''
+                }
+            }
+        }
+
+        stage('Run BBB') {
+            agent {
+                label 'bbb'
+            }
+            steps {
+                sh '/usr/sbin/daemonize -E JENKINS_NODE_COOKIE=server /home/debian/network-table/build/bin/server'
+                sh '/usr/sbin/daemonize -E JENKINS_NODE_COOKIE=bbb_eth_listener /home/debian/network-table/build/bin/bbb_eth_listener 192.168.1.82 5555'
+                sh '/usr/sbin/daemonize -E JENKINS_NODE_COOKIE=bbb_canbus_listener /home/debian/network-table/build/bin/bbb_canbus_listener can0'
+            }
+        }
+
+        stage('Run NUC') {
+            agent {
+                label 'nuc'
+            }
+            steps {
+                sh '''
+                    set +x
+                    source /opt/ros/melodic/setup.bash
+                    daemonize -E JENKINS_NODE_COOKIE=roscore_jenkins /opt/ros/melodic/bin/roscore
+                '''
+                sh '''
+                    set +x
+                    source /opt/ros/melodic/setup.bash
+                    daemonize -E JENKINS_NODE_COOKIE=nuc_eth_listener_jenkins /home/raye/sailbot/network-table/build/bin/nuc_eth_listener 192.168.1.82 5555
+                '''
+                sh '''
+                    set +x
+                    source /opt/ros/melodic/setup.bash
+                    source /home/raye/catkin_ws/devel/setup.sh
+                    daemonize -E JENKINS_NODE_COOKIE=ros_communication_node /opt/ros/melodic/bin/rosrun raye_communication raye_communication_node
+                '''
+            }
+        }
+
+        stage ('Run BBB tests') {
+            agent {
+                label 'bbb'
+            }
+            steps {
+                sh '/home/debian/network-table/scripts/canbus_data_checker.py'
+            }
+        }
+    }
+
+    post {
+        always {
+            // Cleanup processes on BBB
+            node('bbb') {
+                script {
+                    sh 'pkill server'
+                    sh 'pkill bbb_eth_listene'
+                    sh 'pkill bbb_canbus_list'
+                }
+            }
+            // Cleanup processes on NUC
+            node('nuc') {
+                script {
+                    sh 'pkill roscore'
+                    sh 'pkill nuc_eth_listene'
+                    sh 'pkill raye_communicat'
+                }
+            }
+        }
+    }
+}
