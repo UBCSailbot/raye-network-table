@@ -23,6 +23,7 @@ NetworkTable::Connection::Connection() : context_(1),
 }
 
 // dummy comment
+// dummy comment
 void NetworkTable::Connection::Connect() {
     assert(!connected_);
 
