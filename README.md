@@ -25,6 +25,12 @@ this script takes about 1 hour to run.
 ```./scripts/install_protobuf.sh```
 
 ### ROS (Robot Operating System)
+You can enable ROS when running cmake by running:  
+```cmake .. -DENABLE_ROS:BOOL=ON```
+From then on, ROS will be enabled, even if you run cmake again.
+To turn it off, run:  
+```cmake .. -DENABLE_ROS:BOOL=OFF```
+
 If ENABLE_ROS is set to ON in the top
 level CMakeLists.txt, this builds an
 extra executable which is ran on the
