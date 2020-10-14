@@ -19,6 +19,7 @@
 #include <boost/archive/text_oarchive.hpp>
 #include <iostream>
 #include <fstream>
+#include <cstdio>
 
 NetworkTable::Server::Server()
     : context_(1), welcome_socket_(context_, ZMQ_REP) {
@@ -32,6 +33,20 @@ NetworkTable::Server::Server()
     ReconnectAbandonedSockets();
 
     LoadSubscriptionTable();
+
+
+    /*
+     * If the swap file exists,
+     * and the original file is deleted,
+     * it means that the swap file
+     * is not corrupted.
+     * See the code in Help.cpp, NetworkTable::Write.
+     */
+    std::string swapfile(kRootFilePath_ + ".swp");
+    if (!boost::filesystem::exists(kRootFilePath_)
+            && boost::filesystem::exists(kRootFilePath_ + ".swp")) {
+        std::rename(swapfile.c_str(), kRootFilePath_.c_str());
+    }
 
     if (boost::filesystem::exists(kRootFilePath_)) {
         root_ = NetworkTable::Load(kRootFilePath_);
@@ -320,8 +335,11 @@ void NetworkTable::Server::NotifySubscribers(const std::set<std::string> &uris, 
                 reply.set_allocated_subscribe_reply(subscribe_reply);
 
                 std::set<socket_ptr> subscription_sockets = subscriptions_table_[subscribed_uri];
+                // Do the serialization here, not in the for loop
+                std::string serialized_reply;
+                reply.SerializeToString(&serialized_reply);
                 for (const auto& socket : subscription_sockets) {
-                    SendReply(reply, socket);
+                    SendSerializedReply(serialized_reply, socket);
                 }
 
                 do_not_send.insert(subscribed_uri);
@@ -334,6 +352,10 @@ void NetworkTable::Server::SendReply(const NetworkTable::Reply &reply, socket_pt
     std::string serialized_reply;
     reply.SerializeToString(&serialized_reply);
 
+    SendSerializedReply(serialized_reply, socket);
+}
+
+void NetworkTable::Server::SendSerializedReply(const std::string &serialized_reply, socket_ptr socket) {
     zmq::message_t message(serialized_reply.length());
     memcpy(message.data(), serialized_reply.data(), serialized_reply.length());
     socket->send(message, ZMQ_DONTWAIT);

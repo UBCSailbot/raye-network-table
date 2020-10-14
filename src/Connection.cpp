@@ -9,7 +9,6 @@
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
-#include <iostream>
 #include "Exceptions.h"
 #include "GetNodesRequest.pb.h"
 #include "SetValuesRequest.pb.h"
@@ -51,8 +50,7 @@ void NetworkTable::Connection::Disconnect() {
     zmq::message_t request(request_body.size()+1);
     memcpy(request.data(), request_body.c_str(), request_body.size()+1);
     if (!mst_socket_.send(request)) {
-        std::cout << "Disconnect timeout exception about to be thrown" << std::endl;
-        throw TimeoutException(const_cast<char*>("timed out"));
+        throw TimeoutException(const_cast<char*>("disconnect timed out"));
     }
 
     socket_thread_.join();
@@ -83,8 +81,7 @@ void NetworkTable::Connection::SetValues(const std::map<std::string, NetworkTabl
     request.set_allocated_setvalues_request(setvalues_request);
 
     if (!Send(request, &mst_socket_)) {
-        std::cout << "Set value timeout exception" << std::endl;
-        throw TimeoutException(const_cast<char*>("timed out"));
+        throw TimeoutException(const_cast<char*>("set values timed out"));
     }
 
     WaitForAck();
@@ -132,14 +129,12 @@ std::map<std::string, NetworkTable::Node> NetworkTable::Connection::GetNodes(con
     request.set_allocated_getnodes_request(getnodes_request);
 
     if (!Send(request, &mst_socket_)) {
-        std::cout << "send timeout exception" << std::endl;
-        throw TimeoutException(const_cast<char*>("timed out"));
+        throw TimeoutException(const_cast<char*>("getnodes send timed out"));
     }
 
     NetworkTable::Reply reply;
     if (!Receive(&reply, &mst_socket_)) {
-        std::cout << "receive timeout exception" << std::endl;
-        throw TimeoutException(const_cast<char*>("timed out"));
+        throw TimeoutException(const_cast<char*>("getnodes reply timed out"));
     }
 
     CheckForError(reply);
@@ -170,8 +165,7 @@ void NetworkTable::Connection::Subscribe(std::string uri, \
     request.set_allocated_subscribe_request(subscribe_request);
 
     if (!Send(request, &mst_socket_)) {
-        std::cout << "subscribe timout exception" << std::endl;
-        throw TimeoutException(const_cast<char*>("timed out"));
+        throw TimeoutException(const_cast<char*>("subscribe send timed out"));
     }
 
     WaitForAck();
@@ -190,8 +184,7 @@ void NetworkTable::Connection::Unsubscribe(std::string uri) {
     request.set_allocated_unsubscribe_request(unsubscribe_request);
 
     if (!Send(request, &mst_socket_)) {
-        std::cout << "Unsubscribe timeout exception" << std::endl;
-        throw TimeoutException(const_cast<char*>("timed out"));
+        throw TimeoutException(const_cast<char*>("unsubscribe send timed out"));
     }
 
     WaitForAck();
@@ -261,11 +254,11 @@ void NetworkTable::Connection::CheckForError(const NetworkTable::Reply &reply) {
 void NetworkTable::Connection::WaitForAck() {
     NetworkTable::Reply reply;
     if (!Receive(&reply, &mst_socket_)) {
-        std::cout << "wait for acknowledgement timeout exception" << std::endl;
-        throw TimeoutException(const_cast<char*>("timed out"));
+        throw TimeoutException(const_cast<char*>("ack timed out"));
     }
     if (reply.type() != NetworkTable::Reply::ACK) {
-        throw std::runtime_error(const_cast<char*>("error receiving ack from server"));
+        throw std::runtime_error(const_cast<char*>(\
+                "received non-ack from server while expecting an ack"));
     }
 }
 

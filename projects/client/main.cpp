@@ -70,16 +70,22 @@ int main() {
         return 0;
     }
 
+try_subscribe_quality_indicator:
     try {
         connection.Subscribe("gps_0/gpgga/quality_indicator", &GpsQualityCallback);
-    } catch (NetworkTable::TimeoutException) {}
+    } catch (NetworkTable::TimeoutException) {
+            goto try_subscribe_quality_indicator;
+    }
 
     // Subscribe to root of tree.
     // Then, when something deep in the tree gets updated, we should
     // receive the update
+try_subscribe_root:
     try {
         connection.Subscribe("/", &RootCallback);
-    } catch (NetworkTable::TimeoutException) {}
+    } catch (NetworkTable::TimeoutException) {
+        goto try_subscribe_root;
+    }
 
     std::this_thread::sleep_for(\
             std::chrono::milliseconds(rand()%2000));  // NOLINT(runtime/threadsafe_fn)
@@ -526,54 +532,74 @@ int main() {
            any_test_failed = 1;
        }
        // SET
-       NetworkTable::Value boom_angle_sensor_uccm_voltage;
-       boom_angle_sensor_uccm_voltage.set_type(NetworkTable::Value::INT);
-       boom_angle_sensor_uccm_voltage.set_int_data(25);
-       NetworkTable::Value boom_angle_sensor_uccm_current;
-       boom_angle_sensor_uccm_current.set_type(NetworkTable::Value::INT);
-       boom_angle_sensor_uccm_current.set_int_data(4);
+       /*
+        * If we were the only people running, then
+        * our messages should arrive in order.
+        * So we just set the boom angle sensor uccm voltage to a value,
+        * and then check and see that its that same value when we get it back?
+        *
+        * Unfortunately, when running the stress test
+        * this is not the case because many other processes are running,
+        * and they may still be on the code farther above.
+        * They might overwrite our SetValues and instead set it to something else.
+        * So for this part of the test, we use completely new
+        * uris that are only ever set to a single value.
+        */
+       NetworkTable::Value dummy_sensor_uccm_voltage;
+       dummy_sensor_uccm_voltage.set_type(NetworkTable::Value::INT);
+       dummy_sensor_uccm_voltage.set_int_data(25);
+       NetworkTable::Value dummy_sensor_uccm_current;
+       dummy_sensor_uccm_current.set_type(NetworkTable::Value::INT);
+       dummy_sensor_uccm_current.set_int_data(4);
+
        try {
            std::map<std::string, NetworkTable::Value> values;
            values.insert(std::pair<std::string, NetworkTable::Value>(\
-                       "boom_angle_sensor/uccm/voltage", boom_angle_sensor_uccm_voltage));
+                       "dummy_sensor/uccm/voltage", dummy_sensor_uccm_voltage));
            values.insert(std::pair<std::string, NetworkTable::Value>(\
-                       "boom_angle_sensor/uccm/current", boom_angle_sensor_uccm_current));
+                       "dummy_sensor/uccm/current", dummy_sensor_uccm_current));
 
            connection.SetValues(values);
        } catch (NetworkTable::TimeoutException) {
        } catch (...) {
-           std::cout << "Error setting boom_angle_sensor/uccm" << std::endl;
+           std::cout << "Error setting dummy_sensor/uccm" << std::endl;
            any_test_failed = 1;
        }
        // GET
        try {
            std::set<std::string> keys;
-           keys.insert("boom_angle_sensor/uccm/voltage");
-           keys.insert("boom_angle_sensor/uccm/current");
+           keys.insert("dummy_sensor/uccm/voltage");
+           keys.insert("dummy_sensor/uccm/current");
 
            auto values = connection.GetValues(keys);
-           if (!(std::abs(values["boom_angle_sensor/uccm/voltage"].int_data()\
-                           - boom_angle_sensor_uccm_voltage.int_data()) < precision)) {
-               std::cout << "Error, wrong value for boom_angle_sensor/uccm/voltage" << std::endl;
+           if (values["dummy_sensor/uccm/voltage"].int_data()\
+                           != dummy_sensor_uccm_voltage.int_data()) {
+               std::cout << "Error, wrong value for dummy_sensor/uccm/voltage" << std::endl;
+               std::cout << " expected: " << dummy_sensor_uccm_voltage.int_data()\
+                         << " got: " << values["dummy_sensor/uccm/voltage"].int_data() << std::endl;
                any_test_failed = 1;
            }
-           if (!(std::abs(values["boom_angle_sensor/uccm/current"].int_data()\
-                           - boom_angle_sensor_uccm_current.int_data()) < precision)) {
-               std::cout << "Error, wrong value for boom_angle_sensor/uccm/current" << std::endl;
+           if (values["dummy_sensor/uccm/current"].int_data()\
+                           != dummy_sensor_uccm_current.int_data()) {
+               std::cout << "Error, wrong value for dummy_sensor/uccm/current" << std::endl;
+               std::cout << " expected: " << dummy_sensor_uccm_current.int_data()\
+                         << " got: " << values["dummy_sensor/uccm/current"].int_data() << std::endl;
                any_test_failed = 1;
            }
        } catch (NetworkTable::TimeoutException) {
        } catch (...) {
-           std::cout << "Error getting boom_angle_sensor/uccm" << std::endl;
+           std::cout << "Error getting dummy_sensor/uccm" << std::endl;
            any_test_failed = 1;
        }
        // GET the whole tree
        try {
            auto root = connection.GetNode("/");
-           if (!(std::abs(root.children().at("boom_angle_sensor").children().at("uccm")\
-                           .children().at("voltage").value().int_data()\
-                           - boom_angle_sensor_uccm_voltage.int_data()) < precision)) {
-               std::cout << "Error, boom_angle_sensor/uccm/voltage was wrong when getting whole tree" << std::endl;
+           int received_voltage = root.children().at("dummy_sensor").children().at("uccm")\
+                           .children().at("voltage").value().int_data();
+           if (received_voltage != dummy_sensor_uccm_voltage.int_data()) {
+               std::cout << "Error, dummy_sensor/uccm/voltage was wrong when getting whole tree" << std::endl;
+               std::cout << " expected: " << dummy_sensor_uccm_voltage.int_data()\
+                         << " got: " << received_voltage << std::endl;
                any_test_failed = 1;
            }
        } catch (NetworkTable::TimeoutException) {

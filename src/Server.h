@@ -108,6 +108,13 @@ const std::string kSubscriptionsTableFilePath_ = /* NOLINT(runtime/string) */\
     void SendReply(const NetworkTable::Reply &reply, socket_ptr socket);
 
     /*
+     * Sends an already serialized reply.
+     * If you are sending a single reply to many sockets, you can
+     * avoid unnecessary serialization.
+     */
+    void SendSerializedReply(const std::string &serialized_reply, socket_ptr socket);
+
+    /*
      * Sends an ack reply,
      * so the client knows its request was recieved.
      */

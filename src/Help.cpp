@@ -8,6 +8,7 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <cstdio>
 
 void PrintTree(NetworkTable::Node root, int depth);
 
@@ -104,9 +105,23 @@ void NetworkTable::SetNode(std::string uri, NetworkTable::Value value, NetworkTa
 }
 
 void NetworkTable::Write(std::string filepath, const NetworkTable::Node &root) {
-    std::ofstream output_filestream(filepath);
+    /*
+     * Instead of writing to the actual file,
+     * write to a swap file.
+     * After that, delete the old file,
+     * then rename the .swp file to the
+     * proper filename.
+     * This is to help preven corrupting the file
+     * in case of a crash.
+     */
+    std::string swapfile(filepath + ".swp");
+
+    std::ofstream output_filestream(swapfile);
     output_filestream << root.SerializeAsString();
     output_filestream.close();
+
+    std::remove(filepath.c_str());
+    std::rename(swapfile.c_str(), filepath.c_str());
 }
 
 NetworkTable::Node NetworkTable::Load(const std::string &filepath) {
