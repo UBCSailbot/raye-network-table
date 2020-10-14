@@ -1,6 +1,6 @@
-# This script will: 
+# This script will:
 # 1 Build the network table server
-#   and an example client program. 
+#   and an example client program.
 # 2 Run the network table server.
 # 3 Run multiple clients which will
 #   communicate with the network table.
@@ -19,12 +19,13 @@ from threading import Thread
 
 continue_server = True
 
+
 def run_server_and_fake_crashes():
     """Runs the network table server, but closes the server and restarts it every few seconds.
     This is to simulate the server crashing and restarting."""
     while continue_server:
         server = subprocess.Popen(['./bin/server'],
-                              preexec_fn=os.setsid)
+                                  preexec_fn=os.setsid)
         for i in range(1, 5):
             if not continue_server:
                 os.killpg(os.getpgid(server.pid), signal.SIGTERM)
@@ -35,6 +36,7 @@ def run_server_and_fake_crashes():
         # which more closely simulates a crash.
         os.killpg(os.getpgid(server.pid), signal.SIGTERM)
         sleep(.01)
+
 
 # Get the number of clients which will
 # be querying the network table.
@@ -65,7 +67,7 @@ server_thread.start()
 # one will be checked.
 clients = [subprocess.Popen(['./bin/client'],
                             preexec_fn=os.setsid)
-                   for i in range(num_clients)]
+           for i in range(num_clients)]
 
 errors_occured = 0
 for client in clients:
@@ -83,6 +85,6 @@ server_thread.join()
 for client in clients:
     try:
         os.killpg(os.getpgid(client.pid), signal.SIGTERM)
-    except:
+    except OSError:
         # The client should have exited normally.
         pass

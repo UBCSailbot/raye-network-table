@@ -13,7 +13,7 @@ Clone all submodules:
 ```git submodule update --init --recursive```  
 
 Install these dependencies (all should be available via apt-get):  
-```build-essential cppcheck cmake clang libzmq3-dev libboost-all-dev pkg-config```
+```build-essential cppcheck pep8 cmake clang libzmq3-dev libboost-all-dev pkg-config```
 
 The following dependencies are needed to build protobuf.
 They're pretty common anyways, you probably have a lot of them:  
@@ -51,7 +51,8 @@ make
 Executables can be found in `build/bin/`
 
 ## Style Guide, Linting, and Code Check
-We follow [Google's C++ Style Guide](https://google.github.io/styleguide/cppguide.html).
+For C++ follow [Google's C++ Style Guide](https://google.github.io/styleguide/cppguide.html).  
+For Python follow [pep8](https://www.python.org/dev/peps/pep-0008/).
 
 Run cpplint to check the code for style guideline violations.
 ```bash
@@ -61,6 +62,11 @@ Run cpplint to check the code for style guideline violations.
 Run cppcheck to check code for possible bugs.
 ```bash
 ./scripts/run_cppcheck.sh
+```
+
+Run the python linter to check code for style guideline violations.
+```bash
+./scripts/run_pythoncheck.sh
 ```
 
 ## Testing
