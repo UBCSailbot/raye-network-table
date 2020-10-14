@@ -4,7 +4,7 @@ set -e
 # Install protobuf locally
 # inside the folder lib/protobuf/cmake/build
 SCRIPTDIR="$(cd "$(dirname "$0")" && pwd)"
-pushd $SCRIPTDIR/../lib/protobuf
+pushd $SCRIPTDIR/../../lib/protobuf
 ./autogen.sh
 ./configure --prefix="$(pwd)/cmake/build"
 make

@@ -22,7 +22,7 @@ They're pretty common anyways, you probably have a lot of them:
 Run this script to compile and install protobuf
  locally in the lib folder. **warning**, 
 this script takes about 1 hour to run.  
-```./scripts/install_protobuf.sh```
+```./scripts/utility/install_protobuf.sh```
 
 ### ROS (Robot Operating System)
 You can enable ROS when running cmake by running:  
@@ -56,17 +56,17 @@ For Python follow [pep8](https://www.python.org/dev/peps/pep-0008/).
 
 Run cpplint to check the code for style guideline violations.
 ```bash
-./scripts/run_cpplint.sh
+./scripts/static_analysis/run_cpplint.sh
 ```
 
 Run cppcheck to check code for possible bugs.
 ```bash
-./scripts/run_cppcheck.sh
+./scripts/static_analysis/run_cppcheck.sh
 ```
 
 Run the python linter to check code for style guideline violations.
 ```bash
-./scripts/run_pythoncheck.sh
+./scripts/static_analysis/run_pythoncheck.sh
 ```
 
 ## Testing
@@ -87,6 +87,7 @@ It will notify you if tests pass or fail.
 The directories `src` and `test/basic_tests` should mirror each other. That is, any unit testing code for the file `src/a/b.cpp` should be in `test/basic_tests/a/bTest.cpp`.
 
 -   **src/** - Source code of the network-table.
--   **scripts/** - Scripts used for various purposes. These can just be directly ran and do not require compiling.
+-   **scripts/** - Scripts used for various purposes. View the comments at the top of the scripts to learn what they do.
 -   **test/** - Unit tests. These test specific functionality of the network-table.
--   **projects/** - Target specific code. For more details, check out the README file in this directory.
+-   **projects/** - Target specific code. For more details, check the README file in this directory.
+-   **Jenkins/** - Jenkins scripts for running automated tests.

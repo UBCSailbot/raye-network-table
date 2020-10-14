@@ -28,6 +28,8 @@ pipeline {
                         sh '/home/debian/config_pins.sh'
                         dir("/home/debian/network-table/") {
                             checkout scm
+                            // TODO: Should run make clean here, but the BBB
+                            // is soo slow
                             sh '''
                                 mkdir -p build
                                 cd build
@@ -53,6 +55,7 @@ pipeline {
                                 mkdir -p build
                                 cd build
                                 cmake .. -DENABLE_ROS:BOOL=ON
+                                make clean
                                 make
                             '''
                         }
@@ -64,6 +67,7 @@ pipeline {
                             sh '''
                                 set +x
                                 source /opt/ros/melodic/setup.bash
+                                catkin_make clean
                                 catkin_make
                             '''
                         }
@@ -75,7 +79,7 @@ pipeline {
                         label 'bbb'
                     }
                     steps {
-                        sh '/usr/sbin/daemonize -E JENKINS_NODE_COOKIE=server /home/debian/network-table/build/bin/server'
+                        sh '/usr/sbin/daemonize -E JENKINS_NODE_COOKIE=network_table_server /home/debian/network-table/build/bin/network_table_server'
                         sh '/usr/sbin/daemonize -E JENKINS_NODE_COOKIE=bbb_eth_listener /home/debian/network-table/build/bin/bbb_eth_listener 192.168.1.82 5555'
                         sh '/usr/sbin/daemonize -E JENKINS_NODE_COOKIE=bbb_canbus_listener /home/debian/network-table/build/bin/bbb_canbus_listener can0'
                     }
@@ -110,7 +114,7 @@ pipeline {
                         label 'bbb'
                     }
                     steps {
-                        sh '/home/debian/network-table/scripts/canbus_data_checker.py'
+                        sh '/home/debian/network-table/scripts/canbus_data_checker.py -c can0'
                     }
                 }
             }
@@ -129,7 +133,7 @@ pipeline {
             // Cleanup processes on BBB
             node('bbb') {
                 script {
-                    sh 'pkill server'
+                    sh 'pkill network_table_s'
                     sh 'pkill bbb_eth_listene'
                     sh 'pkill bbb_canbus_list'
                 }

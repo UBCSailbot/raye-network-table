@@ -1,8 +1,9 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
+
 # Script to mock UCCM sensor data on a virtual CAN bus on vcan0
 # Sends garbage data but you specify the SID
 # --> needs virtual can set up first -> ./setup_vcan.sh
-# needs server ->  in build/bin -> ./server &
+# needs server ->  in build/bin -> ./network_table_server &
 # You should run this as a background job -> python3 mock_sensors.py -c vcan0 &
 # -------------------------------------------------------------------------------------
 # Script also can playback sensor data recorded from a log file to a virtual CAN bus
@@ -126,6 +127,8 @@ def send_sensor_data(device, SID, channel):
 
 def main():
     # SID is taken from frame_parser.h data relating to the CAN ID of each device
+    # TODO: this is duplicated a bunch of times and should only exist in a single
+    # file somewhere
     SID = {'bms': [0x08],
            'gps': [0x11, 0x100, 0x101, 0x110],
            'sail': [0x0F],
@@ -141,7 +144,7 @@ def main():
     parser.add_argument("-c", "--channel",
                         help="Input the channel you want to use", default=None)
     parser.add_argument(
-        "-f", "--file_name", help="Input the sensor data file you wish to mock", default=None)
+        "-f", "--file_name", help="Input the csv sensor data file you wish to mock", default=None)
     parser.add_argument(
         "--loop", help="Continuously playback the sensor data in a loop", action='store_true')
     args = parser.parse_args()

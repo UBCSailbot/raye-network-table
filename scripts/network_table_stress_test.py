@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # This script will:
 # 1 Build the network table server
 #   and an example client program.
@@ -41,7 +43,7 @@ def run_server_and_fake_crashes():
 # Get the number of clients which will
 # be querying the network table.
 if len(sys.argv) != 2:
-    num_clients = 100
+    num_clients = 40
 else:
     num_clients = int(sys.argv[1])
 
@@ -54,11 +56,11 @@ os.chdir(build_location)
 try:
     make = subprocess.check_call('make')
 except subprocess.CalledProcessError:
-    print "could not compile project"
+    print("could not compile project")
     exit()
 
 # Start the server
-print "This test may take a few seconds."
+print("This test may take a few seconds.")
 server_thread = Thread(target=run_server_and_fake_crashes)
 server_thread.start()
 
@@ -75,9 +77,9 @@ for client in clients:
     errors_occured += client.returncode
 
 if errors_occured == 0:
-    print "No problems detected."
+    print("No problems detected.")
 else:
-    print "One or more clients failed."
+    print("One or more clients failed.")
 
 # Terminal any remaining processes
 continue_server = False

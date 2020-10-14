@@ -4,8 +4,9 @@ set -o nounset
 
 echo "===== Running CPP check ====="
 
-SCRIPTS_DIRECTORY=${BASH_SOURCE%/*}
-CPPCHECKOUTPUT_FILE=${SCRIPTS_DIRECTORY}/cppcheck.txt
+SCRIPTDIR="$(cd "$(dirname "$0")" && pwd)"
+ROOTDIR=${SCRIPTDIR}/../../
+CPPCHECKOUTPUT_FILE=${SCRIPTDIR}/cppcheck.txt
 
 CPPCHECK_ARGS="\
 --enable=all --std=c++14 --force --verbose --quiet \
@@ -18,7 +19,7 @@ filtered_output() {
 }
 
 # Run cpplint on every cpp file that is a part of this git project
-for CPP_FILE in $(git ls-files | grep .cpp$); do
+for CPP_FILE in $(git ls-files ${ROOTDIR} | grep .cpp$); do
     cppcheck ${CPPCHECK_ARGS} \
     ${CPP_FILE} \
     &>> ${CPPCHECKOUTPUT_FILE}

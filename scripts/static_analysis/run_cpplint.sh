@@ -4,16 +4,17 @@ set -o nounset
 
 echo "===== Running CPP lint ====="
 
-SCRIPTS_DIRECTORY=${BASH_SOURCE%/*}
-CPP_LINT=${SCRIPTS_DIRECTORY}/cpplint.py
-CPPLINTOUTPUT_FILE=${SCRIPTS_DIRECTORY}/cpplint.txt
+SCRIPTDIR="$(cd "$(dirname "$0")" && pwd)"
+CPP_LINT=${SCRIPTDIR}/cpplint.py
+ROOTDIR=${SCRIPTDIR}/../../
+CPPLINTOUTPUT_FILE=${SCRIPTDIR}/cpplint.txt
 
 filtered_output() {
     cat ${CPPLINTOUTPUT_FILE} | grep -v "Total errors found: 0"
 }
 
 # Run cpplint on every cpp file that is a part of this git project
-for CPP_FILE in $(git ls-files | grep .cpp$); do
+for CPP_FILE in $(git ls-files ${ROOTDIR} | grep .cpp$); do
     ${CPP_LINT} \
     --linelength=120 --counting=detailed \
     ${CPP_FILE} \

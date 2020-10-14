@@ -1,5 +1,5 @@
 # Set a variable for commands below
-set(PROJECT_NAME bbb_rockblock_listener)
+set(PROJECT_NAME bbb_satellite_listener)
 
 # Define your project and language
 project(${PROJECT_NAME} CXX)

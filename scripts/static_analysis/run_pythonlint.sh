@@ -4,16 +4,17 @@ set -o nounset
 
 echo "===== Running Python lint ====="
 
-SCRIPTS_DIRECTORY=${BASH_SOURCE%/*}
+SCRIPTDIR="$(cd "$(dirname "$0")" && pwd)"
 PYTHON_LINT=pep8
-PYTHONLINTOUTPUT_FILE=${SCRIPTS_DIRECTORY}/pythonlint.txt
+ROOTDIR=${SCRIPTDIR}/../../
+PYTHONLINTOUTPUT_FILE=${SCRIPTDIR}/pythonlint.txt
 
 filtered_output() {
     cat ${PYTHONLINTOUTPUT_FILE} | grep -v "Total errors found: 0"
 }
 
 # Run cpplint on every cpp file that is a part of this git project
-for PYTHON_FILE in $(git ls-files | grep .py$); do
+for PYTHON_FILE in $(git ls-files ${ROOTDIR} | grep .py$); do
     ${PYTHON_LINT} \
     --max-line-length=120 \
     ${PYTHON_FILE} \

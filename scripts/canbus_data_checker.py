@@ -1,8 +1,19 @@
 #!/usr/bin/env python3
+
+# Check to see if wind sensor data
+# is coming out of the canbus network.
+# If it is, check to see if motor outputs
+# are coming out of the canbus network.
+# If they are, return success code,
+# otherwise return error code.
+
+import argparse
 import can
 import time
 import sys
 
+# TODO: Get rid of this
+# its duplicated in idk how many places
 SID = {'bms': [0x08],
        'gps': [0x11, 0x100, 0x101, 0x110],
        'sail': [0x0F],
@@ -40,7 +51,17 @@ def motor_output_check(bus, timeout):
 
 
 if __name__ == "__main__":
-    if wind_sensor_check("can0"):
+    parser = argparse.ArgumentParser(description="CANbus data checker")
+    parser.add_argument(
+        "-c", "--channel", help="Enter the canbus channel you want to record", default=None)
+    args = parser.parse_args()
+
+    if args.channel is None:
+        print("Error: channel not specified")
+        print("Example usage: 'python3 canbus_data_checker.py -c vcan0'")
+        sys.exit(-1)
+
+    if wind_sensor_check(args.channel):
         print("Detected motor outputs. Passed!")
         sys.exit(0)
     else:

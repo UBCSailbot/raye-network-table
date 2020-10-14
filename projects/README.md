@@ -2,7 +2,7 @@
 Build targets and target-specific code.  
 See project readmes for more information.
 
-## Server
+## Network Table Server
 Runs the network table server.
 
 ## Client
@@ -33,7 +33,7 @@ Receives changes to actuation angle from simulator running on NUC,
 and places them in network table.
 Sends changes to sensor data in the network table to the NUC.
 
-## BBB Rockblock Listener
+## BBB Satellite Listener
 Sends/receives data over iridium satellite network
 via a serial connection to Rockblock+.
 

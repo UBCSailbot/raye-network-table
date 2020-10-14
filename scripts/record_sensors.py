@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
+
 # Record sensor data and write it on a .csv file
+# .csv file is timestamped so that they dont overwrite each other.
 # You specify the channel
 # To run the script---> python3 record_sensors.py -i [channel]
 # (OPTIONAL) Print the data to terminal---> python3 record_sensors.py -i [channel] -v True
@@ -26,8 +28,8 @@ def record_sensor_data(input_channel, verbose=False):
             if verbose:
                 print(msg)
             try:
-                time_elapsed = (time.time() - start)*1000
-                writer.writerow(["{:.0f}".format(time_elapsed), str(
+                elapsed_time = (time.time() - start)*1000
+                writer.writerow(["{:.0f}".format(elapsed_time), str(
                     msg.arbitration_id), bytes(msg.data).hex()])
             except can.CanError:
                 print("Error Recording data to csv")
@@ -37,12 +39,12 @@ def record_sensor_data(input_channel, verbose=False):
 def main():
     parser = argparse.ArgumentParser(description="Sensor recording")
     parser.add_argument(
-        "-i", "--input", help="Enter the canbus channel you want to record", default=None)
+        "-c", "--channel", help="Enter the canbus channel you want to record", default=None)
     parser.add_argument("-v", "--verbose",
                         help="Print out what you are recording", default=False)
     args = parser.parse_args()
 
-    input_channel = args.input
+    input_channel = args.channel
     verbose = args.verbose
 
     if input_channel is None:
