@@ -79,9 +79,11 @@ pipeline {
                         label 'bbb'
                     }
                     steps {
-                        sh '/usr/sbin/daemonize -E JENKINS_NODE_COOKIE=network_table_server /home/debian/network-table/build/bin/network_table_server'
-                        sh '/usr/sbin/daemonize -E JENKINS_NODE_COOKIE=bbb_eth_listener /home/debian/network-table/build/bin/bbb_eth_listener 192.168.1.82 5555'
-                        sh '/usr/sbin/daemonize -E JENKINS_NODE_COOKIE=bbb_canbus_listener /home/debian/network-table/build/bin/bbb_canbus_listener can0'
+                        catchError {
+                            sh '/usr/sbin/daemonize -E JENKINS_NODE_COOKIE=network_table_server /home/debian/network-table/build/bin/network_table_server'
+                            sh '/usr/sbin/daemonize -E JENKINS_NODE_COOKIE=bbb_eth_listener /home/debian/network-table/build/bin/bbb_eth_listener 192.168.1.82 5555'
+                            sh '/usr/sbin/daemonize -E JENKINS_NODE_COOKIE=bbb_canbus_listener /home/debian/network-table/build/bin/bbb_canbus_listener can0'
+                        }
                     }
                 }
 
@@ -90,22 +92,24 @@ pipeline {
                         label 'nuc'
                     }
                     steps {
-                        sh '''
-                            set +x
-                            source /opt/ros/melodic/setup.bash
-                            daemonize -E JENKINS_NODE_COOKIE=roscore_jenkins /opt/ros/melodic/bin/roscore
-                        '''
-                        sh '''
-                            set +x
-                            source /opt/ros/melodic/setup.bash
-                            daemonize -E JENKINS_NODE_COOKIE=nuc_eth_listener_jenkins /home/raye/network-table/build/bin/nuc_eth_listener 192.168.1.82 5555
-                        '''
-                        sh '''
-                            set +x
-                            source /opt/ros/melodic/setup.bash
-                            source /home/raye/catkin_ws/devel/setup.sh
-                            daemonize -E JENKINS_NODE_COOKIE=ros_communication_node /opt/ros/melodic/bin/rosrun raye_communication raye_communication_node
-                        '''
+                        catchError {
+                            sh '''
+                                set +x
+                                source /opt/ros/melodic/setup.bash
+                                daemonize -E JENKINS_NODE_COOKIE=roscore_jenkins /opt/ros/melodic/bin/roscore
+                            '''
+                            sh '''
+                                set +x
+                                source /opt/ros/melodic/setup.bash
+                                daemonize -E JENKINS_NODE_COOKIE=nuc_eth_listener_jenkins /home/raye/network-table/build/bin/nuc_eth_listener 192.168.1.82 5555
+                            '''
+                            sh '''
+                                set +x
+                                source /opt/ros/melodic/setup.bash
+                                source /home/raye/catkin_ws/devel/setup.sh
+                                daemonize -E JENKINS_NODE_COOKIE=ros_communication_node /opt/ros/melodic/bin/rosrun raye_communication raye_communication_node
+                            '''
+                        }
                     }
                 }
 
@@ -114,38 +118,36 @@ pipeline {
                         label 'bbb'
                     }
                     steps {
-                        sh '/home/debian/network-table/scripts/canbus_data_checker.py -c can0'
+                        catchError {
+                            sh '/home/debian/network-table/scripts/canbus_data_checker.py -c can0'
+                        }
+                    }
+                }
+                stage ('Cleanup') {
+                    steps {
+                        cleanup()
                     }
                 }
             }
         }
     }
+}
 
-    // The post step runs outside the lock,
-    // which is kind of sketchy.
-    // If for some reason it took a long time to run,
-    // it might pkill the next builds processes.
-    // However, in testing, I haven't seen that happen.
-    // The build has to run the compile steps first,
-    // so its unlikely for that to happen.
-    post {
-        always {
-            // Cleanup processes on BBB
-            node('bbb') {
-                script {
-                    sh 'pkill network_table_s'
-                    sh 'pkill bbb_eth_listene'
-                    sh 'pkill bbb_canbus_list'
-                }
-            }
-            // Cleanup processes on NUC
-            node('nuc') {
-                script {
-                    sh 'pkill roscore'
-                    sh 'pkill nuc_eth_listene'
-                    sh 'pkill raye_communicat'
-                }
-            }
+def cleanup() {
+    // Cleanup processes on BBB
+    node('bbb') {
+        script {
+            sh 'pkill network_table_s'
+            sh 'pkill bbb_eth_listene'
+            sh 'pkill bbb_canbus_list'
+        }
+    }
+    // Cleanup processes on NUC
+    node('nuc') {
+        script {
+            sh 'pkill roscore'
+            sh 'pkill nuc_eth_listene'
+            sh 'pkill raye_communicat'
         }
     }
 }
