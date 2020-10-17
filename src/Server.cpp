@@ -20,6 +20,7 @@
 #include <iostream>
 #include <fstream>
 #include <cstdio>
+#include <stdexcept>
 
 NetworkTable::Server::Server()
     : context_(1), welcome_socket_(context_, ZMQ_REP) {
@@ -384,9 +385,23 @@ void NetworkTable::Server::WriteSubscriptionTable() {
         }
     }
 
-    std::ofstream ofs(kSubscriptionsTableFilePath_);
+    /*
+     * Instead of writing to the actual file,
+     * write to a swap file.
+     * After that, delete the old file,
+     * then rename the .swp file to the
+     * proper filename.
+     * This is to help prevent corrupting the file
+     * in case of a crash.
+     */
+    std::string swapfile(kSubscriptionsTableFilePath_ + ".swp");
+    std::ofstream ofs(swapfile);
     boost::archive::text_oarchive oarch(ofs);
     oarch << simple_subscription_table;
+    ofs.close();
+
+    std::remove(kSubscriptionsTableFilePath_.c_str());
+    std::rename(swapfile.c_str(), kSubscriptionsTableFilePath_.c_str());
 }
 
 void NetworkTable::Server::LoadSubscriptionTable() {
@@ -394,11 +409,31 @@ void NetworkTable::Server::LoadSubscriptionTable() {
         return;
     }
 
+    /*
+     * If the swap file exists,
+     * and the original file is deleted,
+     * it means that the swap file
+     * is not corrupted.
+     */
+    std::string swapfile(kSubscriptionsTableFilePath_ + ".swp");
+    if (!boost::filesystem::exists(kSubscriptionsTableFilePath_)
+            && boost::filesystem::exists(kSubscriptionsTableFilePath_ + ".swp")) {
+        std::rename(swapfile.c_str(), kSubscriptionsTableFilePath_.c_str());
+    }
+
     std::map<std::string, std::set<std::string>> simple_subscription_table;
 
-    std::ifstream ifs(kSubscriptionsTableFilePath_);
-    boost::archive::text_iarchive iarch(ifs);
-    iarch >> simple_subscription_table;
+    try {
+        std::ifstream ifs(kSubscriptionsTableFilePath_);
+        boost::archive::text_iarchive iarch(ifs);
+        iarch >> simple_subscription_table;
+    } catch (const std::exception& e) {
+        std::cout << "failed to read from " << kSubscriptionsTableFilePath_ << std::endl;
+        std::cout << e.what() << std::endl;
+        std::remove(kSubscriptionsTableFilePath_.c_str());
+        std::cout << "continuing on, after deleting " << kSubscriptionsTableFilePath_ << std::endl;
+        return;
+    }
 
     for (auto const& entry : simple_subscription_table) {
         auto uri = entry.first;

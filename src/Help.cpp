@@ -111,14 +111,14 @@ void NetworkTable::Write(std::string filepath, const NetworkTable::Node &root) {
      * After that, delete the old file,
      * then rename the .swp file to the
      * proper filename.
-     * This is to help preven corrupting the file
+     * This is to help prevent corrupting the file
      * in case of a crash.
      */
     std::string swapfile(filepath + ".swp");
 
-    std::ofstream output_filestream(swapfile);
-    output_filestream << root.SerializeAsString();
-    output_filestream.close();
+    std::ofstream ofs(swapfile);
+    ofs << root.SerializeAsString();
+    ofs.close();
 
     std::remove(filepath.c_str());
     std::rename(swapfile.c_str(), filepath.c_str());
