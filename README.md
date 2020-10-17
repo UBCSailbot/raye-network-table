@@ -3,7 +3,7 @@ A communication hub that runs on central controller on Ada 2.0.
 Receives updates on sensor data (from GPS, wind sensors, etc), allows other programs to connect
 to the network table using pub/sub or request/reply.
 
-[Network Table Communication Protocol](https://ubcsailbot.atlassian.net/wiki/spaces/ADA2/pages/1235622/Network+Table+Communication+Protocol)
+[Network Table Communication Protocol](https://github.com/UBCSailbot/network-table/wiki/Network-Table-Communication)
 
 This repository also contains source code for programs which are used to transfer
 data between various other programs. These are located in the `projects` folder.
@@ -26,8 +26,8 @@ this script takes about 1 hour to run.
 
 ### ROS (Robot Operating System)
 You can enable ROS when running cmake by running:  
-```cmake .. -DENABLE_ROS:BOOL=ON```
-From then on, ROS will be enabled, even if you run cmake again.
+```cmake .. -DENABLE_ROS:BOOL=ON```  
+From then on, ROS will be enabled, even if you run cmake again.  
 To turn it off, run:  
 ```cmake .. -DENABLE_ROS:BOOL=OFF```
 
@@ -37,6 +37,10 @@ extra executable which is ran on the
 Intel NUC. Obviously you will need to have
 ROS and catkin installed. Refer to the [ROS website](https://www.ros.org/install/)
 to find out how to install it on your computer.
+
+To use the sailbot-msg datatypes (for example if you're running
+```rostopic echo /sensors```), you will have to run  
+```source ./build/devel/setup.bash```
 
 ## Compiling
 In the root directory of the repository run these commands:
