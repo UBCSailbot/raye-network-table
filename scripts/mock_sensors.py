@@ -17,6 +17,7 @@ import can
 import sys
 import argparse
 import csv
+import os
 
 
 def playback_sensor_data(input_file, channel, loop):
@@ -152,6 +153,8 @@ def main():
     logfile = args.file_name
     loop = args.loop
 
+    script_location = os.path.dirname(os.path.realpath(__file__))
+
     if channel is None:
         print("Error: channel not specified")
         print("Example usage: 'python3 mock_sensors.py -c vcan0'")
@@ -162,7 +165,8 @@ def main():
             print("Loop = ON")
         else:
             print("Loop = OFF")
-        playback_sensor_data(logfile, channel, loop)
+        logfile_fullpath = os.path.join(script_location, logfile)
+        playback_sensor_data(logfile_fullpath, channel, loop)
     else:
         send_sensor_data(args.device_id, SID, channel)
 

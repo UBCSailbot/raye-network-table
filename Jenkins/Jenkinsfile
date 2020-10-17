@@ -79,10 +79,10 @@ pipeline {
                         label 'bbb'
                     }
                     steps {
-                        catchError {
+                        catchError(stageResult: 'FAILURE') {
                             sh '/usr/sbin/daemonize -E JENKINS_NODE_COOKIE=network_table_server /home/debian/network-table/build/bin/network_table_server'
                             sh '/usr/sbin/daemonize -E JENKINS_NODE_COOKIE=bbb_eth_listener /home/debian/network-table/build/bin/bbb_eth_listener 192.168.1.82 5555'
-                            sh '/usr/sbin/daemonize -E JENKINS_NODE_COOKIE=bbb_canbus_listener /home/debian/network-table/build/bin/bbb_canbus_listener can0'
+                            sh '/usr/sbin/daemonize -E JENKINS_NODE_COOKIE=bbb_canbus_listener /home/debian/network-table/build/bin/bbb_canbus_listener vcan0'
                         }
                     }
                 }
@@ -92,7 +92,7 @@ pipeline {
                         label 'nuc'
                     }
                     steps {
-                        catchError {
+                        catchError(stageResult: 'FAILURE') {
                             sh '''
                                 set +x
                                 source /opt/ros/melodic/setup.bash
@@ -118,8 +118,9 @@ pipeline {
                         label 'bbb'
                     }
                     steps {
-                        catchError {
-                            sh '/home/debian/network-table/scripts/canbus_data_checker.py -c can0'
+                        catchError(stageResult: 'FAILURE') {
+                            sh '/usr/sbin/daemonize -E JENKINS_NODE_COOKIE=mock_sensors /home/debian/network-table/scripts/mock_sensors.py -c vcan0 -f recorded_data/mock_can_data.csv --loop'
+                            sh '/home/debian/network-table/scripts/canbus_data_checker.py -c vcan0'
                         }
                     }
                 }
@@ -137,17 +138,18 @@ def cleanup() {
     // Cleanup processes on BBB
     node('bbb') {
         script {
-            sh 'pkill network_table_s'
-            sh 'pkill bbb_eth_listene'
-            sh 'pkill bbb_canbus_list'
+            sh 'pkill -f network_table_server'
+            sh 'pkill -f bbb_eth_listener'
+            sh 'pkill -f bbb_canbus_listener'
+            sh 'pkill -f mock_sensors'
         }
     }
     // Cleanup processes on NUC
     node('nuc') {
         script {
-            sh 'pkill roscore'
-            sh 'pkill nuc_eth_listene'
-            sh 'pkill raye_communicat'
+            sh 'pkill -f roscore'
+            sh 'pkill -f nuc_eth_listener'
+            sh 'pkill -f raye_communication_node'
         }
     }
 }
