@@ -141,6 +141,7 @@ def cleanup() {
             sh 'pkill -f bbb_eth_listener'
             sh 'pkill -f bbb_canbus_listener'
             sh 'pkill -f mock_sensors'
+            sh 'rm -r /tmp/sailbot'
         }
     }
     // Cleanup processes on NUC
