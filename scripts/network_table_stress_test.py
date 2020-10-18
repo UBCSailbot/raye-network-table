@@ -63,10 +63,14 @@ if __name__ == "__main__":
     parser.add_argument(
         "--disable-fake-crashes", help="Stop the network table from crashing/restarting",
         action='store_true')
+    parser.add_argument(
+        "--clients-only", help="Only run the clients, no server",
+        action='store_true')
     args = parser.parse_args()
 
     num_clients = args.num_clients
     disable_fake_crashes = args.disable_fake_crashes
+    clients_only = args.clients_only
     build = args.compile  # variable name compile is not allowed
 
     # Go to the build directory
@@ -82,12 +86,13 @@ if __name__ == "__main__":
             sys.exit(-1)
 
     # Start the server
-    print("This test may take a few seconds.")
-    if disable_fake_crashes:
-        server_thread = Thread(target=run_server)
-    else:
-        server_thread = Thread(target=run_server_and_fake_crashes)
-    server_thread.start()
+    if not clients_only:
+        print("This test may take a few seconds.")
+        if disable_fake_crashes:
+            server_thread = Thread(target=run_server)
+        else:
+            server_thread = Thread(target=run_server_and_fake_crashes)
+        server_thread.start()
 
     # This is an array of client processes which will communicate with the server.
     # They will all run at the same time, then the return value of each
@@ -107,8 +112,9 @@ if __name__ == "__main__":
         print("One or more clients failed.")
 
     # Terminal any remaining processes
-    continue_server = False
-    server_thread.join()
+    if not clients_only:
+        continue_server = False
+        server_thread.join()
     for client in clients:
         try:
             os.killpg(os.getpgid(client.pid), signal.SIGTERM)
