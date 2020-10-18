@@ -155,8 +155,6 @@ void NetworkTable::Connection::Subscribe(std::string uri, \
             bool is_self_reply)) {
     assert(connected_);
 
-    callbacks_[uri] = callback;
-
     auto *subscribe_request = new NetworkTable::SubscribeRequest();
     subscribe_request->set_uri(uri);
 
@@ -169,6 +167,10 @@ void NetworkTable::Connection::Subscribe(std::string uri, \
     }
 
     WaitForAck();
+
+    // Don't fill in our callback table until
+    // after we get the ACK.
+    callbacks_[uri] = callback;
 }
 
 void NetworkTable::Connection::Unsubscribe(std::string uri) {
