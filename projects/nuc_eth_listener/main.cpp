@@ -10,6 +10,8 @@
 #include "Sensors.pb.h"
 #include "sailbot_msg/actuation_angle.h"
 #include "sailbot_msg/Sensors.h"
+#include "sailbot_msg/AISMsg.h"
+#include "sailbot_msg/AISShip.h"
 
 /*
  * Needed for communication over ethernet
@@ -28,6 +30,7 @@ int send(const std::string &serialized_data) {
  */
 ros::Subscriber nt_sub;
 ros::Publisher sensors_pub;
+ros::Publisher ais_msg_pub;
 
 void ActuationCallBack(const sailbot_msg::actuation_angle ros_actuation_angle) {
     /*
@@ -65,44 +68,60 @@ void PublishSensorData() {
             NetworkTable::Node node;
             node.ParseFromString(message_serialized);
 
-        NetworkTable::Sensors proto_sensors = NetworkTable::RootToSensors(&node);
-        sailbot_msg::Sensors sensors;
-        sensors.boom_angle_sensor_angle = proto_sensors.boom_angle_sensor().sensor_data().angle();
-        sensors.wind_sensor_0_speed = proto_sensors.wind_sensor_0().iimwv().wind_speed();
-        sensors.wind_sensor_0_direction = proto_sensors.wind_sensor_0().iimwv().wind_direction();
-        sensors.wind_sensor_0_reference = proto_sensors.wind_sensor_0().iimwv().wind_reference();
-        sensors.wind_sensor_1_speed = proto_sensors.wind_sensor_1().iimwv().wind_speed();
-        sensors.wind_sensor_1_direction = proto_sensors.wind_sensor_1().iimwv().wind_direction();
-        sensors.wind_sensor_1_reference = proto_sensors.wind_sensor_1().iimwv().wind_reference();
-        sensors.wind_sensor_2_speed = proto_sensors.wind_sensor_2().iimwv().wind_speed();
-        sensors.wind_sensor_2_direction = proto_sensors.wind_sensor_2().iimwv().wind_direction();
-        sensors.wind_sensor_2_reference = proto_sensors.wind_sensor_2().iimwv().wind_reference();
-        sensors.gps_0_timestamp = proto_sensors.gps_0().gprmc().utc_timestamp();
-        sensors.gps_0_latitude = proto_sensors.gps_0().gprmc().latitude();
-        sensors.gps_0_longitude = proto_sensors.gps_0().gprmc().longitude();
-        sensors.gps_0_latitude_loc = proto_sensors.gps_0().gprmc().latitude_loc();
-        sensors.gps_0_longitude_loc = proto_sensors.gps_0().gprmc().longitude_loc();
-        sensors.gps_0_groundspeed = proto_sensors.gps_0().gprmc().ground_speed();
-        sensors.gps_0_track_made_good = proto_sensors.gps_0().gprmc().track_made_good();
-        sensors.gps_0_magnetic_variation = proto_sensors.gps_0().gprmc().magnetic_variation();
-        sensors.gps_0_magnetic_variation_sense = proto_sensors.gps_0().gprmc().magnetic_variation_sense();
-        sensors.gps_1_timestamp = proto_sensors.gps_1().gprmc().utc_timestamp();
-        sensors.gps_1_latitude = proto_sensors.gps_1().gprmc().latitude();
-        sensors.gps_1_longitude = proto_sensors.gps_1().gprmc().longitude();
-        sensors.gps_1_latitude_loc = proto_sensors.gps_1().gprmc().latitude_loc();
-        sensors.gps_1_longitude_loc = proto_sensors.gps_1().gprmc().longitude_loc();
-        sensors.gps_1_groundspeed = proto_sensors.gps_1().gprmc().ground_speed();
-        sensors.gps_1_track_made_good = proto_sensors.gps_1().gprmc().track_made_good();
-        sensors.gps_1_magnetic_variation = proto_sensors.gps_1().gprmc().magnetic_variation();
-        sensors.gps_1_magnetic_variation_sense = proto_sensors.gps_1().gprmc().magnetic_variation_sense();
-        sensors.accelerometer_x_axis_acceleration = \
-            proto_sensors.accelerometer().boat_orientation_data().x_axis_acceleration();
-        sensors.accelerometer_y_axis_acceleration = \
-        proto_sensors.accelerometer().boat_orientation_data().y_axis_acceleration();
-        sensors.accelerometer_z_axis_acceleration = \
-        proto_sensors.accelerometer().boat_orientation_data().z_axis_acceleration();
+            auto proto_ais_Allboats = node.children().at("ais").children().at("boats").value().boats();
+            sailbot_msg::AISMsg ais_msg;
+            for (const auto& proto_ais_boat : proto_ais_Allboats) {
+                sailbot_msg::AISShip ais_ship;
+                ais_ship.ID = proto_ais_boat.m_mmsi();
+                ais_ship.lat = proto_ais_boat.m_latitude();
+                ais_ship.lon = proto_ais_boat.m_longitude();
+                // double check that this the correct data
+                ais_ship.headingDegrees = proto_ais_boat.m_trueheading();
+                // is m_sog in m/s or km/h?
+                ais_ship.speedKmph = proto_ais_boat.m_sog();
+                ais_msg.ships.push_back(ais_ship);
+                std::cout << "AIS boat: " << proto_ais_boat.m_mmsi() << std::endl;
+            }
 
-        sensors_pub.publish(sensors);
+            NetworkTable::Sensors proto_sensors = NetworkTable::RootToSensors(&node);
+            sailbot_msg::Sensors sensors;
+            sensors.boom_angle_sensor_angle = proto_sensors.boom_angle_sensor().sensor_data().angle();
+            sensors.wind_sensor_0_speed = proto_sensors.wind_sensor_0().iimwv().wind_speed();
+            sensors.wind_sensor_0_direction = proto_sensors.wind_sensor_0().iimwv().wind_direction();
+            sensors.wind_sensor_0_reference = proto_sensors.wind_sensor_0().iimwv().wind_reference();
+            sensors.wind_sensor_1_speed = proto_sensors.wind_sensor_1().iimwv().wind_speed();
+            sensors.wind_sensor_1_direction = proto_sensors.wind_sensor_1().iimwv().wind_direction();
+            sensors.wind_sensor_1_reference = proto_sensors.wind_sensor_1().iimwv().wind_reference();
+            sensors.wind_sensor_2_speed = proto_sensors.wind_sensor_2().iimwv().wind_speed();
+            sensors.wind_sensor_2_direction = proto_sensors.wind_sensor_2().iimwv().wind_direction();
+            sensors.wind_sensor_2_reference = proto_sensors.wind_sensor_2().iimwv().wind_reference();
+            sensors.gps_0_timestamp = proto_sensors.gps_0().gprmc().utc_timestamp();
+            sensors.gps_0_latitude = proto_sensors.gps_0().gprmc().latitude();
+            sensors.gps_0_longitude = proto_sensors.gps_0().gprmc().longitude();
+            sensors.gps_0_latitude_loc = proto_sensors.gps_0().gprmc().latitude_loc();
+            sensors.gps_0_longitude_loc = proto_sensors.gps_0().gprmc().longitude_loc();
+            sensors.gps_0_groundspeed = proto_sensors.gps_0().gprmc().ground_speed();
+            sensors.gps_0_track_made_good = proto_sensors.gps_0().gprmc().track_made_good();
+            sensors.gps_0_magnetic_variation = proto_sensors.gps_0().gprmc().magnetic_variation();
+            sensors.gps_0_magnetic_variation_sense = proto_sensors.gps_0().gprmc().magnetic_variation_sense();
+            sensors.gps_1_timestamp = proto_sensors.gps_1().gprmc().utc_timestamp();
+            sensors.gps_1_latitude = proto_sensors.gps_1().gprmc().latitude();
+            sensors.gps_1_longitude = proto_sensors.gps_1().gprmc().longitude();
+            sensors.gps_1_latitude_loc = proto_sensors.gps_1().gprmc().latitude_loc();
+            sensors.gps_1_longitude_loc = proto_sensors.gps_1().gprmc().longitude_loc();
+            sensors.gps_1_groundspeed = proto_sensors.gps_1().gprmc().ground_speed();
+            sensors.gps_1_track_made_good = proto_sensors.gps_1().gprmc().track_made_good();
+            sensors.gps_1_magnetic_variation = proto_sensors.gps_1().gprmc().magnetic_variation();
+            sensors.gps_1_magnetic_variation_sense = proto_sensors.gps_1().gprmc().magnetic_variation_sense();
+            sensors.accelerometer_x_axis_acceleration = \
+                proto_sensors.accelerometer().boat_orientation_data().x_axis_acceleration();
+            sensors.accelerometer_y_axis_acceleration = \
+            proto_sensors.accelerometer().boat_orientation_data().y_axis_acceleration();
+            sensors.accelerometer_z_axis_acceleration = \
+            proto_sensors.accelerometer().boat_orientation_data().z_axis_acceleration();
+
+            sensors_pub.publish(sensors);
+            ais_msg_pub.publish(ais_msg);
 
             std::cout << "Publishing sensor data. ex: wind_sensor_0 speed: " \
                 << sensors.wind_sensor_0_speed << std::endl;
@@ -143,6 +162,7 @@ int main(int argc, char** argv) {
     std::thread publish_sensor_data(PublishSensorData);
 
     sensors_pub = n.advertise<sailbot_msg::Sensors>("sensors", 100);
+    ais_msg_pub = n.advertise<sailbot_msg::AISMsg>("ais_msg", 100);
 
     nt_sub = n.subscribe("/actuation_angles", 100, ActuationCallBack);
     ros::spin();
