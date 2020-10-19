@@ -3,6 +3,7 @@
 // Sends requests to the network table
 
 #include "Connection.h"
+#include "Help.h"
 #include "Value.pb.h"
 #include "Node.pb.h"
 #include "Exceptions.h"
@@ -561,12 +562,13 @@ try_subscribe_root:
             any_test_failed = 1;
         }
         // GET
+        std::map<std::string, NetworkTable::Value> values;
         try {
             std::set<std::string> keys;
             keys.insert("dummy_sensor/uccm/voltage");
             keys.insert("dummy_sensor/uccm/current");
 
-            auto values = connection.GetValues(keys);
+            values = connection.GetValues(keys);
             if (values["dummy_sensor/uccm/voltage"].int_data()\
                             != dummy_sensor_uccm_voltage.int_data()) {
                 std::cout << "Error, wrong value for dummy_sensor/uccm/voltage" << std::endl;
@@ -584,11 +586,15 @@ try_subscribe_root:
         } catch (NetworkTable::TimeoutException) {
         } catch (...) {
             std::cout << "Error getting dummy_sensor/uccm" << std::endl;
+            for (const auto &pair : values) {
+                std::cout << pair.first << std::endl;
+            }
             any_test_failed = 1;
         }
         // GET the whole tree
+        NetworkTable::Node root;
         try {
-            auto root = connection.GetNode("/");
+            root = connection.GetNode("/");
             int received_voltage = root.children().at("dummy_sensor").children().at("uccm")\
                             .children().at("voltage").value().int_data();
             if (received_voltage != dummy_sensor_uccm_voltage.int_data()) {
@@ -599,7 +605,8 @@ try_subscribe_root:
             }
         } catch (NetworkTable::TimeoutException) {
         } catch (...) {
-            std::cout << "Error getting whole tree" << std::endl;
+            std::cout << "Error getting whole tree: " << std::endl;
+            NetworkTable::PrintNode(root);
             any_test_failed = 1;
         }
     }
