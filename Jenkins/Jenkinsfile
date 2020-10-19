@@ -25,7 +25,7 @@ pipeline {
                     }
                     steps {
                         // Make sure canbus is enabled
-                        dir("/home/debian/network-table/") {
+                        dir("/home/debian/workspace/can_bbb_nuc_integration/") {
                             checkout scm
                             // TODO: Should run make clean here, but the BBB
                             // is soo slow
@@ -46,7 +46,7 @@ pipeline {
                     steps {
                         // compile network table.
                         // specifically we want nuc_eth_listener
-                        dir('/home/raye/network-table/') {
+                        dir('/home/raye/workspace/can_bbb_nuc_integration') {
                             checkout scm
                             sh '''
                                 set +x
@@ -79,9 +79,9 @@ pipeline {
                     }
                     steps {
                         catchError(stageResult: 'FAILURE') {
-                            sh '/usr/sbin/daemonize -E JENKINS_NODE_COOKIE=network_table_server /home/debian/network-table/build/bin/network_table_server'
-                            sh '/usr/sbin/daemonize -E JENKINS_NODE_COOKIE=bbb_eth_listener /home/debian/network-table/build/bin/bbb_eth_listener 192.168.1.82 5555'
-                            sh '/usr/sbin/daemonize -E JENKINS_NODE_COOKIE=bbb_canbus_listener /home/debian/network-table/build/bin/bbb_canbus_listener vcan0'
+                            sh '/usr/sbin/daemonize -E JENKINS_NODE_COOKIE=network_table_server /home/debian/workspace/can_bbb_nuc_integration/build/bin/network_table_server'
+                            sh '/usr/sbin/daemonize -E JENKINS_NODE_COOKIE=bbb_eth_listener /home/debian/workspace/can_bbb_nuc_integration/build/bin/bbb_eth_listener 192.168.1.82 5555'
+                            sh '/usr/sbin/daemonize -E JENKINS_NODE_COOKIE=bbb_canbus_listener /home/debian/workspace/can_bbb_nuc_integration/build/bin/bbb_canbus_listener vcan0'
                         }
                     }
                 }
@@ -100,7 +100,7 @@ pipeline {
                             sh '''
                                 set +x
                                 source /opt/ros/melodic/setup.bash
-                                daemonize -E JENKINS_NODE_COOKIE=nuc_eth_listener_jenkins /home/raye/network-table/build/bin/nuc_eth_listener 192.168.1.82 5555
+                                daemonize -E JENKINS_NODE_COOKIE=nuc_eth_listener_jenkins /home/raye/workspace/can_bbb_nuc_integration/build/bin/nuc_eth_listener 192.168.1.82 5555
                             '''
                             sh '''
                                 set +x
@@ -118,8 +118,8 @@ pipeline {
                     }
                     steps {
                         catchError(stageResult: 'FAILURE') {
-                            sh '/usr/sbin/daemonize -E JENKINS_NODE_COOKIE=mock_sensors /home/debian/network-table/scripts/mock_sensors.py -c vcan0 -f recorded_data/mock_can_data.csv --loop'
-                            sh '/home/debian/network-table/scripts/canbus_data_checker.py -c vcan0'
+                            sh '/usr/sbin/daemonize -E JENKINS_NODE_COOKIE=mock_sensors /home/debian/workspace/can_bbb_nuc_integration/scripts/mock_sensors.py -c vcan0 -f recorded_data/mock_can_data.csv --loop'
+                            sh '/home/debian/workspace/can_bbb_nuc_integration/scripts/canbus_data_checker.py -c vcan0'
                         }
                     }
                 }
