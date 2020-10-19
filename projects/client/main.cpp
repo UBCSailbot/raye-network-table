@@ -59,12 +59,8 @@ int main() {
     const double precision = .01;  // Precision to use when comparing doubles.
 
     NetworkTable::Connection connection;
-    connection.SetTimeout(5000);  // This will occasionally timeout
-                                  // if the integration test uses 100
-                                  // clients, which is good! We should
-                                  // be testing the timeout functionality.
     try {
-        connection.Connect();
+        connection.Connect(5000);
     } catch (NetworkTable::TimeoutException) {
         std::cout << "Connection to server timed out" << std::endl;
         return 0;

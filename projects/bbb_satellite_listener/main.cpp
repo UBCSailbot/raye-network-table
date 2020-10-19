@@ -279,9 +279,8 @@ int main(int argc, char **argv) {
     receive_size = 0;
 
     NetworkTable::Connection connection;
-    connection.SetTimeout(100);
     try {
-        connection.Connect();
+        connection.Connect(100);
     } catch (NetworkTable::TimeoutException) {
         std::cout << "Failed to connect" << std::endl;
         return 0;

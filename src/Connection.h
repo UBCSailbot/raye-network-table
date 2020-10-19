@@ -26,7 +26,17 @@ class Connection {
  public:
     Connection();
 
-    void Connect();
+    /*
+     * Open a connection to the network table. After this,
+     * you will be able to use the other functions
+     * @param timeout - How long to wait before timing out
+     *                  while waiting for replies. Note that
+     *                  you can only set this once when you connect.
+     *                  To change it, you will need to disconnect
+     *                  and reconnect (this is due to how 0mq works).
+     *                  Set this to -1 for infinite/no timeout.
+     */
+    void Connect(int timeout_millis);
 
     void Disconnect();
 
@@ -98,12 +108,6 @@ class Connection {
      */
     void Unsubscribe(std::string uri);
 
-    /*
-     * Set timeout for all methods which communicate with server.
-     * @param timeout - timeout in milliseconds; if negative then there is no timeout
-     */
-    void SetTimeout(int timeout);
-
  private:
     int Send(const NetworkTable::Request &request, zmq::socket_t *socket);
 
@@ -125,7 +129,7 @@ class Connection {
      */
     void WaitForAck();
 
-    void ManageSocket();
+    void ManageSocket(int timeout_millis);
 
     zmq::context_t context_;
     zmq::socket_t mst_socket_;
@@ -140,8 +144,6 @@ class Connection {
         void(*)(NetworkTable::Node, \
                const std::map<std::string, NetworkTable::Value> &, \
                bool)> callbacks_;
-    int timeout_;  // How long to wait before throwing an exception when
-                   // communicating with server. This is in milliseconds.
 };
 
 /*

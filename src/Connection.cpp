@@ -17,15 +17,14 @@
 
 NetworkTable::Connection::Connection() : context_(1),
                                          mst_socket_(context_, ZMQ_PAIR),
-                                         connected_(false),
-                                         timeout_(-1) {
+                                         connected_(false) {
 }
 
-void NetworkTable::Connection::Connect() {
+void NetworkTable::Connection::Connect(int timeout_millis) {
     assert(!connected_);
 
     mst_socket_.bind("inproc://#1");
-    socket_thread_ = std::thread(&NetworkTable::Connection::ManageSocket, this);
+    socket_thread_ = std::thread(&NetworkTable::Connection::ManageSocket, this, timeout_millis);
 
     zmq::message_t message;
     mst_socket_.recv(&message);
@@ -36,10 +35,8 @@ void NetworkTable::Connection::Connect() {
         throw TimeoutException(const_cast<char*>("timed out when connecting to server"));
     }
 
-    if (timeout_ > 0) {
-        mst_socket_.setsockopt(ZMQ_RCVTIMEO, timeout_);
-        mst_socket_.setsockopt(ZMQ_SNDTIMEO, timeout_);
-    }
+    mst_socket_.setsockopt(ZMQ_RCVTIMEO, timeout_millis);
+    mst_socket_.setsockopt(ZMQ_SNDTIMEO, timeout_millis);
 }
 
 void NetworkTable::Connection::Disconnect() {
@@ -192,10 +189,6 @@ void NetworkTable::Connection::Unsubscribe(std::string uri) {
     WaitForAck();
 }
 
-void NetworkTable::Connection::SetTimeout(int timeout) {
-    timeout_ = timeout;
-}
-
 ////////////////////// PRIVATE //////////////////////
 
 int NetworkTable::Connection::Send(const NetworkTable::Request &request, zmq::socket_t *socket) {
@@ -264,7 +257,7 @@ void NetworkTable::Connection::WaitForAck() {
     }
 }
 
-void NetworkTable::Connection::ManageSocket() {
+void NetworkTable::Connection::ManageSocket(int timeout_millis) {
     /*
      * The context must be created here so that
      * its destructor is called when this function
@@ -294,9 +287,7 @@ void NetworkTable::Connection::ManageSocket() {
         // discards any messages it is still trying to
         // send/receive:
         init_socket.setsockopt(ZMQ_LINGER, 0);
-        if (timeout_ > 0) {
-            init_socket.setsockopt(ZMQ_RCVTIMEO, timeout_);
-        }
+        init_socket.setsockopt(ZMQ_RCVTIMEO, timeout_millis);
         init_socket.connect("ipc:///tmp/sailbot/NetworkTable");
 
         {

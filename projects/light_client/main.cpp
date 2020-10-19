@@ -12,9 +12,8 @@
  */
 int main() {
     NetworkTable::Connection connection;
-    connection.SetTimeout(100);
     try {
-        connection.Connect();
+        connection.Connect(100);
     } catch (NetworkTable::TimeoutException) {
         std::cout << "Failed to connect to server" << std::endl;
         return 0;

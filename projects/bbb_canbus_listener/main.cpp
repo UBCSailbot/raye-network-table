@@ -75,9 +75,8 @@ int main(int argc, char **argv) {
     }
 
     // Connect to the network table
-    connection.SetTimeout(-1);
     try {
-        connection.Connect();
+        connection.Connect(-1);
     } catch (NetworkTable::TimeoutException) {
         std::cout << "Failed to connect to server" << std::endl;
         return 0;
