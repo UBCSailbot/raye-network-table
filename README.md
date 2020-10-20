@@ -97,4 +97,4 @@ The directories `src` and `test/basic_tests` should mirror each other. That is, 
 -   **scripts/** - Scripts used for various purposes. View the comments at the top of the scripts to learn what they do.
 -   **test/** - Unit tests. These test specific functionality of the network-table.
 -   **projects/** - Target specific code. For more details, check the README file in this directory.
--   **Jenkins/** - Jenkins scripts for running automated tests.
+-   **jenkins/** - Jenkins scripts for running automated tests.

@@ -288,7 +288,7 @@ void NetworkTable::Connection::ManageSocket(int timeout_millis) {
         // send/receive:
         init_socket.setsockopt(ZMQ_LINGER, 0);
         init_socket.setsockopt(ZMQ_RCVTIMEO, timeout_millis);
-        init_socket.connect("ipc:///tmp/sailbot/NetworkTable");
+        init_socket.connect("ipc://" + kWelcome_Directory_ + "NetworkTable");
 
         {
             // The request body must be "connect"
