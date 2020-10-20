@@ -274,6 +274,8 @@ void NetworkTable::Server::DisconnectSocket(socket_ptr socket) {
         entry.second.erase(socket);
     }
 
+    WriteSubscriptionTable();
+
     {
         // Remove the socket from our list of sockets to poll
         // and delete it.
