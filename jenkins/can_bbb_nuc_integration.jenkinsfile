@@ -29,10 +29,18 @@ pipeline {
                             checkout scm
                             // TODO: Should run make clean here, but the BBB
                             // is soo slow
+                            //
+                            // Also the WELCOME_DIRECTORY needs to be escaped a bunch of times:
+                            // once for the jenkins file, and then another time
+                            // when its called from cmake. When it finally
+                            // ends up in the C++, it should be in the form
+                            // #define WELCOME_DIRECTORY "/tmp/can_bbb_nuc_integration/"
+                            // the number of backslashes to use I found out using trial
+                            // and error :(
                             sh '''
                                 mkdir -p build
                                 cd build
-                                cmake ..
+                                cmake .. -DWELCOME_DIRECTORY="\\\"/tmp/can_bbb_nuc_integration/\\\""
                                 make
                             '''
                         }
@@ -48,6 +56,8 @@ pipeline {
                         // specifically we want nuc_eth_listener
                         dir('/home/raye/workspace/can_bbb_nuc_integration') {
                             checkout scm
+                            // We're not running network_table_server here,
+                            // so we don't need the WELCOME_DIRECTORY flag
                             sh '''
                                 set +x
                                 source /opt/ros/melodic/setup.bash
@@ -141,7 +151,7 @@ def cleanup() {
             sh 'pkill -f bbb_eth_listener'
             sh 'pkill -f bbb_canbus_listener'
             sh 'pkill -f mock_sensors'
-            sh 'rm -r /tmp/sailbot'
+            sh 'rm -r /tmp/can_bbb_nuc_integration/'
         }
     }
     // Cleanup processes on NUC

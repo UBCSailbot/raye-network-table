@@ -17,10 +17,17 @@ class Connection:
     This is the python implementation of Connection.h
     """
 
-    def __init__(self):
+    def __init__(self, welcome_dir='/tmp/sailbot/'):
+        """The default location to connect to is in
+        the /tmp/sailbot/ folder. However, for certain tests,
+        we change this so that we can run a network table
+        without messing with anyone doing development and using
+        the default location.
+        """
         self.context = zmq.Context()
         self.socket = None
         self.connected = False
+        self.welcome_dir = welcome_dir
 
     def Connect(self):
         """Initiates connection to the network table server
@@ -32,7 +39,7 @@ class Connection:
 
         # Send a request to connect to the network table
         init_socket = self.context.socket(zmq.REQ)
-        init_socket.connect('ipc:///tmp/sailbot/NetworkTable')
+        init_socket.connect('ipc://{}NetworkTable'.format(self.welcome_dir))
         # make sure to null terminate strings
         init_socket.send(b'connect\x00')
 

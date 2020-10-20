@@ -55,8 +55,11 @@ def run_server_and_fake_crashes():
     os.killpg(os.getpgid(server.pid), signal.SIGTERM)
 
 
-def run_python_client():
-    nt_connection = Connection()
+def run_python_client(welcome_dir):
+    if welcome_dir is not None:
+        nt_connection = Connection(welcome_dir)
+    else:
+        nt_connection = Connection()
     nt_connection.Connect()
 
     num_queries = 10
@@ -122,12 +125,20 @@ if __name__ == '__main__':
         "--python-client", help="Runs the python client\
                 instead of the C++ client",
         action='store_true')
+
+    # note that this is only needed by python. The C++ code
+    # automatically does this with a define statement set by cmake.
+    parser.add_argument(
+        "--python-client-welcome-dir", help="When running the python client,\
+                this determines which network table to connect to",
+        type=str)
     args = parser.parse_args()
 
     num_clients = args.num_clients
     disable_fake_crashes = args.disable_fake_crashes
     clients_only = args.clients_only
     python_client = args.python_client
+    python_client_welcome_dir = args.python_client_welcome_dir
     build = args.compile  # variable name compile is not allowed
 
     # Go to the build directory
@@ -152,7 +163,8 @@ if __name__ == '__main__':
         server_thread.start()
 
     if python_client:
-        clients = [Thread(target=run_python_client)
+        clients = [Thread(target=run_python_client, args=(
+                        python_client_welcome_dir,))
                    for i in range(num_clients)]
 
         for client in clients:

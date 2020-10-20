@@ -22,21 +22,6 @@ namespace NetworkTable {
 class Server {
 typedef std::shared_ptr<zmq::socket_t> socket_ptr;
 
-// location of welcoming socket
-const std::string  kWelcome_Directory_ = "/tmp/sailbot/";  // NOLINT(runtime/string)
-
-// location of client sockets
-const std::string kClients_Directory_ = kWelcome_Directory_ + "clients/";  // NOLINT(runtime/string)
-
-// where root_ is saved (in case of crash)
-const std::string kRootFilePath_ = kWelcome_Directory_ + "root_.txt";  // NOLINT(runtime/string)
-
-// where info about who is subcribed to what is saved (in case of crash)
-// sorry for stupid NOLINT stuff, it has to be on the same
-// line as the lint error. try to ignore it
-const std::string kSubscriptionsTableFilePath_ = /* NOLINT(runtime/string) */\
-    kWelcome_Directory_  + "subscriptions_table_.txt";
-
  public:
     Server();
 
@@ -142,6 +127,21 @@ const std::string kSubscriptionsTableFilePath_ = /* NOLINT(runtime/string) */\
     std::unordered_map<std::string, \
         std::set<socket_ptr>> subscriptions_table_;  // maps from a key in the network table
                                                       // to a set of sockets subscribe to that key.
+
+    // location of welcoming socket
+    const std::string kWelcome_Directory_ = WELCOME_DIRECTORY;  // NOLINT(runtime/string)
+
+    // location of client sockets
+    const std::string kClients_Directory_ = kWelcome_Directory_ + "clients/";  // NOLINT(runtime/string)
+
+    // where root_ is saved (in case of crash)
+    const std::string kRootFilePath_ = kWelcome_Directory_ + "root_.txt";  // NOLINT(runtime/string)
+
+    // where info about who is subcribed to what is saved (in case of crash)
+    // sorry for stupid NOLINT stuff, it has to be on the same
+    // line as the lint error. try to ignore it
+    const std::string kSubscriptionsTableFilePath_ = /* NOLINT(runtime/string) */\
+        kWelcome_Directory_  + "subscriptions_table_.txt";
 };
 }  // namespace NetworkTable
 

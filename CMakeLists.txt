@@ -1,10 +1,17 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.10.0)
 
 set(CMAKE_C_COMPILER "clang")
 set(CMAKE_CXX_COMPILER "clang++")
 # If you set this to ON, make sure you
 # have installed ROS and catkin is in your path.
-set(ENABLE_ROS OFF CACHE BOOL OFF)
+set(ENABLE_ROS OFF CACHE BOOL
+    "Compile executables which require ROS?")
+
+# If you're changing this,
+# make sure to escape string properly. ex:
+# cmake .. -DWELCOME_DIRECTORY="\"/tmp/banana/\""
+set(WELCOME_DIRECTORY "\"/tmp/sailbot/\"" CACHE STRING
+    "Where the network table stores its data")
 
 project(network-table CXX)
 

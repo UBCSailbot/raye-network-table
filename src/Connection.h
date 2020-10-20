@@ -144,6 +144,9 @@ class Connection {
         void(*)(NetworkTable::Node, \
                const std::map<std::string, NetworkTable::Value> &, \
                bool)> callbacks_;
+
+    // location of welcoming socket
+    const std::string kWelcome_Directory_ = WELCOME_DIRECTORY;  // NOLINT(runtime/string)
 };
 
 /*
