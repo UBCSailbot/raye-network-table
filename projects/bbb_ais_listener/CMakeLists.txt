@@ -12,7 +12,7 @@ set(${PROJECT_NAME}_SRCS main.cpp)
 
 # Define the executable
 add_executable(${PROJECT_NAME} ${${PROJECT_NAME}_SRCS})
-target_link_libraries(${PROJECT_NAME} ${ZMQ_LIBRARIES} ${PROTOBUF_LIBRARIES} src_core aislib)
+target_link_libraries(${PROJECT_NAME} ${ZMQ_LIBRARIES} ${PROTOBUF_LIBRARIES} nt_client aislib)
 link_directories(ais/aislib ais/aisd)
 
 # Directories with required header files
@@ -32,7 +32,7 @@ set(${TEST_NAME}_SRCS test.cpp)
 
 # Define the executable
 add_executable(${TEST_NAME} ${${TEST_NAME}_SRCS})
-target_link_libraries(${TEST_NAME} ${ZMQ_LIBRARIES} ${PROTOBUF_LIBRARIES} src_core aislib)
+target_link_libraries(${TEST_NAME} ${ZMQ_LIBRARIES} ${PROTOBUF_LIBRARIES} nt_client aislib)
 link_directories(ais/aislib ais/aisd)
 
 include_directories(ais/aislib ais/aisd)

@@ -14,4 +14,4 @@ add_executable(${PROJECT_NAME} ${${PROJECT_NAME}_SRCS})
 target_link_libraries(${PROJECT_NAME} ${ZMQ_LIBRARIES} 
     ${PROTOBUF_LIBRARIES} ${Boost_SYSTEM_LIBRARY} 
     ${Boost_FILESYSTEM_LIBRARY} ${Boost_SERIALIZATION_LIBRARY}
-    src_core)
+    nt_server)

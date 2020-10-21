@@ -5,4 +5,4 @@ set(TEST_FILES
 
 add_executable(run_basic_tests ${TEST_FILES})
 
-target_link_libraries(run_basic_tests src_core ${PROTOBUF_LIBRARIES} gtest gtest_main)
+target_link_libraries(run_basic_tests nt_server nt_client ${PROTOBUF_LIBRARIES} gtest gtest_main)
