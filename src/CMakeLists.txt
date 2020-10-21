@@ -2,16 +2,24 @@
 # SOURCES #
 ###########
 
-set(LIB_SRCS
+set(NT_SERVER_SRCS
         Server.cpp
         Help.cpp
-        Connection.cpp
         )
 
-set(LIB_HDRS
+set(NT_SERVER_HDRS
         Server.h
         Help.h
+        )
+
+set(NT_CLIENT_SRCS
+        Connection.cpp
+        Help.cpp
+        )
+
+set(NT_CLIENT_HDRS
         Connection.h
+        Help.h
         )
 
 protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS
@@ -32,7 +40,7 @@ protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS
     protofiles/ErrorReply.proto
     )
 
-# Define the src_core library target
-add_library(src_core STATIC ${LIB_SRCS} ${LIB_HDRS} ${PROTO_SRCS} ${PROTO_HDRS})
+add_library(nt_server STATIC ${NT_SERVER_SRCS} ${NT_SERVER_HDRS} ${PROTO_SRCS} ${PROTO_HDRS})
+add_library(nt_client STATIC ${NT_CLIENT_SRCS} ${NT_CLIENT_HDRS} ${PROTO_SRCS} ${PROTO_HDRS})
 
 add_subdirectory(python)
