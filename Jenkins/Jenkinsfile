@@ -55,7 +55,7 @@ pipeline {
                                 cd build
                                 cmake .. -DENABLE_ROS:BOOL=ON
                                 make clean
-                                make
+                                make -j6
                             '''
                         }
 
