@@ -36,7 +36,7 @@ class Connection {
      *                  and reconnect (this is due to how 0mq works).
      *                  Set this to -1 for infinite/no timeout.
      */
-    void Connect(int timeout_millis);
+    void Connect(int timeout_millis, bool async=false);
 
     void Disconnect();
 
@@ -129,7 +129,7 @@ class Connection {
      */
     void WaitForAck();
 
-    void ManageSocket(int timeout_millis);
+    void ManageSocket(int timeout_millis, bool async);
 
     zmq::context_t context_;
     zmq::socket_t mst_socket_;

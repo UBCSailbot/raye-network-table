@@ -20,19 +20,23 @@ NetworkTable::Connection::Connection() : context_(1),
                                          connected_(false) {
 }
 
-void NetworkTable::Connection::Connect(int timeout_millis) {
+void NetworkTable::Connection::Connect(int timeout_millis, bool async) {
     assert(!connected_);
 
     mst_socket_.bind("inproc://#1");
-    socket_thread_ = std::thread(&NetworkTable::Connection::ManageSocket, this, timeout_millis);
+    socket_thread_ = std::thread(&NetworkTable::Connection::ManageSocket, this, timeout_millis, async);
 
-    zmq::message_t message;
-    mst_socket_.recv(&message);
+    if (!async) {
+        zmq::message_t message;
+        mst_socket_.recv(&message);
 
-    std::string message_data(static_cast<char*>(message.data()), message.size());
-    if (strcmp(message_data.c_str(), "timeout") == 0) {
-        socket_thread_.join();
-        throw TimeoutException(const_cast<char*>("timed out when connecting to server"));
+        std::string message_data(static_cast<char*>(message.data()), message.size());
+        if (strcmp(message_data.c_str(), "timeout") == 0) {
+            socket_thread_.join();
+            throw TimeoutException(const_cast<char*>("timed out when connecting to server"));
+        }
+    } else {
+        sleep(1);
     }
 
     mst_socket_.setsockopt(ZMQ_RCVTIMEO, timeout_millis);
@@ -40,7 +44,9 @@ void NetworkTable::Connection::Connect(int timeout_millis) {
 }
 
 void NetworkTable::Connection::Disconnect() {
-    assert(connected_);
+    if (!connected_) {
+        throw NotConnectedException(const_cast<char*>("fail to disconnect"));
+    }
 
     // Tell manage socket thread to disconnect
     std::string request_body = "disconnect";
@@ -56,13 +62,17 @@ void NetworkTable::Connection::Disconnect() {
 ////////////////////// PUBLIC //////////////////////
 
 void NetworkTable::Connection::SetValue(const std::string &uri, const NetworkTable::Value &value) {
-    assert(connected_);
+    if (!connected_) {
+        throw NotConnectedException(const_cast<char*>("fail to set value"));
+    }
     std::map<std::string, NetworkTable::Value> values = {{uri, value}};
     SetValues(values);
 }
 
 void NetworkTable::Connection::SetValues(const std::map<std::string, NetworkTable::Value> &values) {
-    assert(connected_);
+    if (!connected_) {
+        throw NotConnectedException(const_cast<char*>("fail to set value"));
+    }
 
     // Create a SetValuesRequest with each of the uri/value pairs.
     auto *setvalues_request = new NetworkTable::SetValuesRequest();
@@ -85,7 +95,9 @@ void NetworkTable::Connection::SetValues(const std::map<std::string, NetworkTabl
 }
 
 NetworkTable::Value NetworkTable::Connection::GetValue(const std::string &uri) {
-    assert(connected_);
+    if (!connected_) {
+        throw NotConnectedException(const_cast<char*>("fail to get value"));
+    }
 
     std::set<std::string> uris = {uri};
 
@@ -93,7 +105,9 @@ NetworkTable::Value NetworkTable::Connection::GetValue(const std::string &uri) {
 }
 
 std::map<std::string, NetworkTable::Value> NetworkTable::Connection::GetValues(const std::set<std::string> &uris) {
-    assert(connected_);
+    if (!connected_) {
+        throw NotConnectedException(const_cast<char*>("fail to get value"));
+    }
 
     std::map<std::string, NetworkTable::Value> values;
 
@@ -105,7 +119,9 @@ std::map<std::string, NetworkTable::Value> NetworkTable::Connection::GetValues(c
 }
 
 NetworkTable::Node NetworkTable::Connection::GetNode(const std::string &uri) {
-    assert(connected_);
+    if (!connected_) {
+        throw NotConnectedException(const_cast<char*>("fail to get node"));
+    }
 
     std::set<std::string> uris = {uri};
 
@@ -113,7 +129,9 @@ NetworkTable::Node NetworkTable::Connection::GetNode(const std::string &uri) {
 }
 
 std::map<std::string, NetworkTable::Node> NetworkTable::Connection::GetNodes(const std::set<std::string> &uris) {
-    assert(connected_);
+    if (!connected_) {
+        throw NotConnectedException(const_cast<char*>("fail to get node"));
+    }
 
     auto *getnodes_request = new NetworkTable::GetNodesRequest();
 
@@ -150,7 +168,9 @@ void NetworkTable::Connection::Subscribe(std::string uri, \
         void (*callback)(NetworkTable::Node node, \
             const std::map<std::string, NetworkTable::Value> &diffs, \
             bool is_self_reply)) {
-    assert(connected_);
+    if (!connected_) {
+        throw NotConnectedException(const_cast<char*>("fail to subscribe"));
+    }
 
     auto *subscribe_request = new NetworkTable::SubscribeRequest();
     subscribe_request->set_uri(uri);
@@ -171,7 +191,9 @@ void NetworkTable::Connection::Subscribe(std::string uri, \
 }
 
 void NetworkTable::Connection::Unsubscribe(std::string uri) {
-    assert(connected_);
+    if (!connected_) {
+        throw NotConnectedException(const_cast<char*>("fail to unsubscribe"));
+    }
 
     callbacks_.erase(uri);
 
@@ -257,7 +279,7 @@ void NetworkTable::Connection::WaitForAck() {
     }
 }
 
-void NetworkTable::Connection::ManageSocket(int timeout_millis) {
+void NetworkTable::Connection::ManageSocket(int timeout_millis, bool async) {
     /*
      * The context must be created here so that
      * its destructor is called when this function
@@ -287,7 +309,18 @@ void NetworkTable::Connection::ManageSocket(int timeout_millis) {
         // discards any messages it is still trying to
         // send/receive:
         init_socket.setsockopt(ZMQ_LINGER, 0);
-        init_socket.setsockopt(ZMQ_RCVTIMEO, timeout_millis);
+
+        // In synchronous mode, we wait some time for the server
+        // to reply, and then possibly timeout.
+        // In async mode, we wait forever to the server to
+        // reply. It might not even be up yet. However,
+        // the main thread is not blocked, and continuous on
+        // while we wait to connect to the server here.
+        if (!async) {
+            init_socket.setsockopt(ZMQ_RCVTIMEO, timeout_millis);
+        } else {
+            init_socket.setsockopt(ZMQ_RCVTIMEO, -1);
+        }
         init_socket.connect("ipc://" + kWelcome_Directory_ + "NetworkTable");
 
         {
@@ -299,27 +332,38 @@ void NetworkTable::Connection::ManageSocket(int timeout_millis) {
             init_socket.send(request);
         }
 
+        zmq::message_t reply;
+
         // The server replies with a location to connect to.
         // after this, this ZMQ_REQ socket is no longer needed.
-        zmq::message_t reply;
         if (!init_socket.recv(&reply)) {
-            std::string request_body = "timeout";
-            zmq::message_t request(request_body.size()+1);
-            memcpy(request.data(), request_body.c_str(), request_body.size()+1);
-            mt_socket.send(request);
+            if (!async) {
+                std::string request_body = "timeout";
+                zmq::message_t request(request_body.size()+1);
+                memcpy(request.data(), request_body.c_str(), request_body.size()+1);
+                mt_socket.send(request);
+            }
             return;
-        } else {
-            connected_ = true;
-            std::string request_body = "connected";
-            zmq::message_t request(request_body.size()+1);
-            memcpy(request.data(), request_body.c_str(), request_body.size()+1);
-            mt_socket.send(request);
         }
 
         // Connect to the ZMQ_PAIR socket which was created
         // by the server.
         socket_filepath_ = std::string(static_cast<char*>(reply.data()));
         socket.connect("ipc://" + socket_filepath_);
+        connected_ = true;
+
+        // if we're in synchronous mode, we need to tell
+        // the main thread we managed to connected so that it
+        // can move on. If we're not, do not send this message
+        // or it will be received by the main thread
+        // when the main thread expects something completely different.
+        if (!async) {
+            // Let the main thread know we connected
+            std::string request_body = "connected";
+            zmq::message_t request(request_body.size()+1);
+            memcpy(request.data(), request_body.c_str(), request_body.size()+1);
+            mt_socket.send(request);
+        }
     }
 
     // Poll the two sockets.

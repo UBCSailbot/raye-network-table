@@ -8,6 +8,7 @@
 #include <string>
 #include <iostream>
 #include <map>
+#include "Exceptions.h"
 
 zmq::context_t context(1);
 zmq::socket_t eth_socket(context, ZMQ_PAIR);
@@ -65,12 +66,9 @@ int main(int argc, char *argv[]) {
     }
 
     NetworkTable::Connection connection;
-    try {
-        connection.Connect(-1);
-    } catch (NetworkTable::TimeoutException) {
-        std::cout << "Failed to connect to network table." << std::endl;
-        return 0;
-    }
+
+
+    connection.Connect(1000, true);
 
     try {
         eth_socket.bind("tcp://" + std::string(argv[1]) + ":" + argv[2]);
@@ -84,7 +82,19 @@ int main(int argc, char *argv[]) {
         return 0;
     }
 
-    connection.Subscribe("/", &RootCallback);
+    bool is_subscribed = false;
+
+    while (!is_subscribed) {
+        try {
+            connection.Subscribe("/", &RootCallback);
+            is_subscribed = true;
+        }
+        catch (NetworkTable::NotConnectedException) {
+            std::cout << "Failed to connect" << std::endl;
+            sleep(1);
+        }
+    }
+
     while (true) {
         /*
          * Receive actuation angle and put it into network table
@@ -115,7 +125,14 @@ int main(int argc, char *argv[]) {
 
             std::cout << "received rudder angle: " << actuation_angle.rudder_angle() \
                 << " winch angle: " << actuation_angle.winch_angle() << std::endl;
-            connection.SetValues(values);
+
+            try {
+                connection.SetValues(values);
+            } catch (NetworkTable::NotConnectedException) {
+                std::cout << "Failed to connect" << std::endl;
+            } catch (NetworkTable::TimeoutException) {
+                std::cout << "timeout" << std::endl;
+            }
         }
     }
 }
