@@ -19,6 +19,8 @@
 #include "uccm-sensors/frame_parser.h"
 #include "Connection.h"
 #include "Value.pb.h"
+#include "Exceptions.h"
+
 int s;
 NetworkTable::Connection connection;
 
@@ -42,7 +44,13 @@ void SetWindSensorData(int angle, int speed, const std::string &id) {
     values.insert((std::pair<std::string, NetworkTable::Value> \
                 ("wind_sensor_"+id+"/iimwv/wind_speed", speed_nt)));
 
-    connection.SetValues(values);
+    try {
+        connection.SetValues(values);
+    } catch (NetworkTable::NotConnectedException) {
+        std::cout << "Failed to set value" << std::endl;
+    } catch (NetworkTable::TimeoutException) {
+        std::cout << "Timeout" << std::endl;
+    }
 }
 
 void MotorCallback(NetworkTable::Node node, \
@@ -75,12 +83,7 @@ int main(int argc, char **argv) {
     }
 
     // Connect to the network table
-    try {
-        connection.Connect(-1);
-    } catch (NetworkTable::TimeoutException) {
-        std::cout << "Failed to connect to server" << std::endl;
-        return 0;
-    }
+    connection.Connect(1000, true);
 
     // Connect to the canbus network.
     // It should show up as a network interface.
@@ -108,11 +111,17 @@ int main(int argc, char **argv) {
     }
 
     // subscribe to network-table
-    try {
-        connection.Subscribe("actuation_angle/winch", &MotorCallback);
-    } catch (NetworkTable::TimeoutException) {
-        std::cout << "Failed to subscribe to actuation_angle" << std::endl;
-        return -2;
+    bool is_subscribed = false;
+
+    while (!is_subscribed) {
+        try {
+            connection.Subscribe("actuation_angle/winch", &MotorCallback);
+            is_subscribed = true;
+        }
+        catch (NetworkTable::NotConnectedException) {
+            std::cout << "Failed to subscribe to actuation_angle" << std::endl;
+            sleep(1);
+        }
     }
 
     // Keep on reading the wind sensor data off canbus, and
@@ -148,7 +157,13 @@ int main(int argc, char **argv) {
                 boom_angle.set_int_data(static_cast<int>(angle));
                 values.insert(std::pair<std::string, NetworkTable::Value>\
                         ("boom_angle_sensor/sensor_data/angle", boom_angle));
-                connection.SetValues(values);
+                try {
+                    connection.SetValues(values);
+                } catch (NetworkTable::NotConnectedException) {
+                    std::cout << "Failed to set value" << std::endl;
+                } catch (NetworkTable::TimeoutException) {
+                    std::cout << "Timeout" << std::endl;
+                }
 
                 std::cout << "sailencoder value: " << std::dec << angle << std::dec << std::endl;
                 break;
@@ -163,7 +178,13 @@ int main(int argc, char **argv) {
                 gps_longitude.set_int_data(static_cast<int>(longitude));
                 values.insert(std::pair<std::string, NetworkTable::Value>\
                         ("gps/gprmc/longitude", gps_longitude));
-                connection.SetValues(values);
+                try {
+                    connection.SetValues(values);
+                } catch (NetworkTable::NotConnectedException) {
+                    std::cout << "Failed to set value" << std::endl;
+                } catch (NetworkTable::TimeoutException) {
+                    std::cout << "Timeout" << std::endl;
+                }
 
                 std::cout << "longitude = " << longitude << " " << std::endl;
                 break;
@@ -178,7 +199,13 @@ int main(int argc, char **argv) {
                 gps_latitude.set_int_data(static_cast<int>(latitude));
                 values.insert(std::pair<std::string, NetworkTable::Value>\
                         ("gps/gprmc/latitude", gps_latitude));
-                connection.SetValues(values);
+                try {
+                    connection.SetValues(values);
+                } catch (NetworkTable::NotConnectedException) {
+                    std::cout << "Failed to set value" << std::endl;
+                } catch (NetworkTable::TimeoutException) {
+                    std::cout << "Timeout" << std::endl;
+                }
 
                 std::cout << "latitude = " << latitude << " " << std::endl;
                 break;
@@ -211,7 +238,13 @@ int main(int argc, char **argv) {
                         ("gps/gprmc/TMG", gps_TMG));
                 std::cout << "gps tmg =  " << gpsTMG << " " << std::endl;
 
-                connection.SetValues(values);
+                try {
+                    connection.SetValues(values);
+                } catch (NetworkTable::NotConnectedException) {
+                    std::cout << "Failed to set value" << std::endl;
+                } catch (NetworkTable::TimeoutException) {
+                    std::cout << "Timeout" << std::endl;
+                }
                 break;
             }
             case GPS_DATE_FRAME_ID : {
@@ -288,7 +321,13 @@ int main(int argc, char **argv) {
                 values.insert(std::pair<std::string, NetworkTable::Value>\
                         ("gps/gps_date/long_west", gps_date_varLongWest));
 
-                connection.SetValues(values);
+                try {
+                    connection.SetValues(values);
+                } catch (NetworkTable::NotConnectedException) {
+                    std::cout << "Failed to set value" << std::endl;
+                } catch (NetworkTable::TimeoutException) {
+                    std::cout << "Timeout" << std::endl;
+                }
                 break;
             }
             case BMS_FRAME_ID_1: {
@@ -327,7 +366,13 @@ int main(int argc, char **argv) {
                         ("bms/uccm/mincell", bms_mincell_data));
                 std::cout << "mincell_data:" << mincell_data << std::endl;
 
-                connection.SetValues(values);
+                try {
+                    connection.SetValues(values);
+                } catch (NetworkTable::NotConnectedException) {
+                    std::cout << "Failed to set value" << std::endl;
+                } catch (NetworkTable::TimeoutException) {
+                    std::cout << "Timeout" << std::endl;
+                }
                 break;
             }
             case ACCEL_FRAME_ID: {
@@ -356,7 +401,13 @@ int main(int argc, char **argv) {
                         ("accelerometer/boat_orientation_data/z_axis_acceleration", accel_z_pos));
                 std::cout << "z_pos " << z_pos << std::endl;
 
-                connection.SetValues(values);
+                try {
+                    connection.SetValues(values);
+                } catch (NetworkTable::NotConnectedException) {
+                    std::cout << "Failed to set value" << std::endl;
+                } catch (NetworkTable::TimeoutException) {
+                    std::cout << "Timeout" << std::endl;
+                }
                 break;
             }
         }
