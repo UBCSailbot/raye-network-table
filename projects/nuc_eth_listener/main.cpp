@@ -2,6 +2,7 @@
 
 #include <zmq.hpp>
 #include <thread>
+#include <iostream>
 
 #include <ros/ros.h>
 #include "Help.h"
@@ -12,6 +13,8 @@
 #include "sailbot_msg/Sensors.h"
 #include "sailbot_msg/AISMsg.h"
 #include "sailbot_msg/AISShip.h"
+#include "sailbot_msg/path.h"
+#include "sailbot_msg/latlon.h"
 
 /*
  * Needed for communication over ethernet
@@ -31,6 +34,7 @@ int send(const std::string &serialized_data) {
 ros::Subscriber nt_sub;
 ros::Publisher sensors_pub;
 ros::Publisher ais_msg_pub;
+ros::Publisher waypoint_msg_pub;
 
 void ActuationCallBack(const sailbot_msg::actuation_angle ros_actuation_angle) {
     /*
@@ -68,20 +72,39 @@ void PublishSensorData() {
             NetworkTable::Node node;
             node.ParseFromString(message_serialized);
 
-            auto proto_ais_Allboats = node.children().at("ais").children().at("boats").value().boats();
             sailbot_msg::AISMsg ais_msg;
-            for (const auto& proto_ais_boat : proto_ais_Allboats) {
-                sailbot_msg::AISShip ais_ship;
-                ais_ship.ID = proto_ais_boat.m_mmsi();
-                ais_ship.lat = proto_ais_boat.m_latitude();
-                ais_ship.lon = proto_ais_boat.m_longitude();
-                // double check that this the correct data
-                ais_ship.headingDegrees = proto_ais_boat.m_trueheading();
-                // is m_sog in m/s or km/h?
-                ais_ship.speedKmph = proto_ais_boat.m_sog();
-                ais_msg.ships.push_back(ais_ship);
-                std::cout << "AIS boat: " << proto_ais_boat.m_mmsi() << std::endl;
+            try {
+                auto proto_ais_Allboats = node.children().at("ais").children().at("boats").value().boats();
+                for (const auto& proto_ais_boat : proto_ais_Allboats) {
+                    sailbot_msg::AISShip ais_ship;
+                    ais_ship.ID = proto_ais_boat.m_mmsi();
+                    ais_ship.lat = proto_ais_boat.m_latitude();
+                    ais_ship.lon = proto_ais_boat.m_longitude();
+                    // double check that this the correct data
+                    ais_ship.headingDegrees = proto_ais_boat.m_trueheading();
+                    // is m_sog in m/s or km/h?
+                    ais_ship.speedKmph = proto_ais_boat.m_sog();
+                    ais_msg.ships.push_back(ais_ship);
+                    std::cout << "AIS boat: " << proto_ais_boat.m_mmsi() << std::endl;
+                }
+            } catch(...) {
+                std::cout << "ERROR** Ais boat data not found" << std::endl;
             }
+
+            sailbot_msg::path waypoint_msg;
+            try {
+                auto proto_Allwaypoints = node.children().at("waypoints").value().waypoints();
+                for (const auto& proto_waypoint : proto_Allwaypoints) {
+                    sailbot_msg::latlon waypoint_data;
+                    waypoint_data.lat = proto_waypoint.latitude();
+                    waypoint_data.lon = proto_waypoint.longitude();
+                    waypoint_msg.waypoints.push_back(waypoint_data);
+                    std::cout << "Waypoint: " << proto_waypoint.latitude() << std::endl;
+                }
+            } catch(...) {
+                std::cout << "ERROR** waypoint data not found" << std::endl;
+            }
+
 
             NetworkTable::Sensors proto_sensors = NetworkTable::RootToSensors(&node);
             sailbot_msg::Sensors sensors;
@@ -122,6 +145,7 @@ void PublishSensorData() {
 
             sensors_pub.publish(sensors);
             ais_msg_pub.publish(ais_msg);
+            waypoint_msg_pub.publish(waypoint_msg);
 
             std::cout << "Publishing sensor data. ex: wind_sensor_0 speed: " \
                 << sensors.wind_sensor_0_speed << std::endl;
@@ -163,6 +187,7 @@ int main(int argc, char** argv) {
 
     sensors_pub = n.advertise<sailbot_msg::Sensors>("sensors", 100);
     ais_msg_pub = n.advertise<sailbot_msg::AISMsg>("ais_msg", 100);
+    waypoint_msg_pub = n.advertise<sailbot_msg::path>("waypoint_msg", 100);
 
     nt_sub = n.subscribe("/actuation_angles", 100, ActuationCallBack);
     ros::spin();
