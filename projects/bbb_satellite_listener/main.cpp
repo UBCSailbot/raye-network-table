@@ -17,6 +17,7 @@
 #include "Uccms.pb.h"
 #include "Satellite.pb.h"
 #include "Value.pb.h"
+#include "Exceptions.h"
 
 // Stores serialized sensor and uccm data to send to rockblock
 std::string latest_sensors_satellite_string;  // NOLINT(runtime/string)
@@ -279,17 +280,18 @@ int main(int argc, char **argv) {
     receive_size = 0;
 
     NetworkTable::Connection connection;
-    try {
-        connection.Connect(100);
-    } catch (NetworkTable::TimeoutException) {
-        std::cout << "Failed to connect" << std::endl;
-        return 0;
-    }
+
+    connection.Connect(1000, true);
 
     latest_sensors_satellite_string = "";
     latest_uccms_satellite_string = "";
 
-    connection.Subscribe("/", &RootCallback);
+    try {
+        connection.Subscribe("/", &RootCallback);
+    }
+    catch (NetworkTable::NotConnectedException) {
+        std::cout << "Fail to connect" << std::endl; //TODO: Fix it.
+    }
 
     serial.set_option(boost::asio::serial_port_base::baud_rate(19200));
     boost::asio::write(serial, boost::asio::buffer("AT\r", 3));
