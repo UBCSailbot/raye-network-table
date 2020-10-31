@@ -20,19 +20,24 @@ NetworkTable::Connection::Connection() : context_(1),
                                          connected_(false) {
 }
 
-void NetworkTable::Connection::Connect(int timeout_millis) {
+void NetworkTable::Connection::Connect(int timeout_millis, bool async) {
     assert(!connected_);
 
     mst_socket_.bind("inproc://#1");
     socket_thread_ = std::thread(&NetworkTable::Connection::ManageSocket, this, timeout_millis);
 
-    zmq::message_t message;
-    mst_socket_.recv(&message);
+    if (!async) {
+        zmq::message_t message;
+        mst_socket_.recv(&message);
 
-    std::string message_data(static_cast<char*>(message.data()), message.size());
-    if (strcmp(message_data.c_str(), "timeout") == 0) {
-        socket_thread_.join();
-        throw TimeoutException(const_cast<char*>("timed out when connecting to server"));
+        std::string message_data(static_cast<char*>(message.data()), message.size());
+        if (strcmp(message_data.c_str(), "timeout") == 0) {
+            socket_thread_.join();
+            throw TimeoutException(const_cast<char*>("timed out when connecting to server"));
+        }
+    }
+    else {
+        sleep(1);
     }
 
     mst_socket_.setsockopt(ZMQ_RCVTIMEO, timeout_millis);
@@ -40,7 +45,9 @@ void NetworkTable::Connection::Connect(int timeout_millis) {
 }
 
 void NetworkTable::Connection::Disconnect() {
-    assert(connected_);
+    if(!connected_) {
+        throw NotConnectedException(const_cast<char*>("fail to disconnect"));
+    }
 
     // Tell manage socket thread to disconnect
     std::string request_body = "disconnect";
@@ -56,13 +63,17 @@ void NetworkTable::Connection::Disconnect() {
 ////////////////////// PUBLIC //////////////////////
 
 void NetworkTable::Connection::SetValue(const std::string &uri, const NetworkTable::Value &value) {
-    assert(connected_);
+    if (!connected_) {
+        throw NotConnectedException(const_cast<char*>("fail to set value"));
+    }
     std::map<std::string, NetworkTable::Value> values = {{uri, value}};
     SetValues(values);
 }
 
 void NetworkTable::Connection::SetValues(const std::map<std::string, NetworkTable::Value> &values) {
-    assert(connected_);
+    if (!connected_) {
+        throw NotConnectedException(const_cast<char*>("fail to set value"));
+    }
 
     // Create a SetValuesRequest with each of the uri/value pairs.
     auto *setvalues_request = new NetworkTable::SetValuesRequest();
@@ -85,7 +96,9 @@ void NetworkTable::Connection::SetValues(const std::map<std::string, NetworkTabl
 }
 
 NetworkTable::Value NetworkTable::Connection::GetValue(const std::string &uri) {
-    assert(connected_);
+    if (!connected_) {
+        throw NotConnectedException(const_cast<char*>("fail to get value"));
+    }
 
     std::set<std::string> uris = {uri};
 
@@ -93,7 +106,9 @@ NetworkTable::Value NetworkTable::Connection::GetValue(const std::string &uri) {
 }
 
 std::map<std::string, NetworkTable::Value> NetworkTable::Connection::GetValues(const std::set<std::string> &uris) {
-    assert(connected_);
+    if (!connected_) {
+        throw NotConnectedException(const_cast<char*>("fail to get value"));
+    }
 
     std::map<std::string, NetworkTable::Value> values;
 
@@ -105,7 +120,9 @@ std::map<std::string, NetworkTable::Value> NetworkTable::Connection::GetValues(c
 }
 
 NetworkTable::Node NetworkTable::Connection::GetNode(const std::string &uri) {
-    assert(connected_);
+    if (!connected_) {
+        throw NotConnectedException(const_cast<char*>("fail to get node"));
+    }
 
     std::set<std::string> uris = {uri};
 
@@ -113,7 +130,9 @@ NetworkTable::Node NetworkTable::Connection::GetNode(const std::string &uri) {
 }
 
 std::map<std::string, NetworkTable::Node> NetworkTable::Connection::GetNodes(const std::set<std::string> &uris) {
-    assert(connected_);
+    if (!connected_) {
+        throw NotConnectedException(const_cast<char*>("fail to get node"));
+    }
 
     auto *getnodes_request = new NetworkTable::GetNodesRequest();
 
@@ -150,7 +169,9 @@ void NetworkTable::Connection::Subscribe(std::string uri, \
         void (*callback)(NetworkTable::Node node, \
             const std::map<std::string, NetworkTable::Value> &diffs, \
             bool is_self_reply)) {
-    assert(connected_);
+    if (!connected_) {
+        throw NotConnectedException(const_cast<char*>("fail to subscribe"));
+    }
 
     auto *subscribe_request = new NetworkTable::SubscribeRequest();
     subscribe_request->set_uri(uri);
@@ -171,7 +192,9 @@ void NetworkTable::Connection::Subscribe(std::string uri, \
 }
 
 void NetworkTable::Connection::Unsubscribe(std::string uri) {
-    assert(connected_);
+    if (!connected_) {
+        throw NotConnectedException(const_cast<char*>("fail to unsubscribe"));
+    }
 
     callbacks_.erase(uri);
 
