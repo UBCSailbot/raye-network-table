@@ -8,12 +8,12 @@
 
 namespace NetworkTable {
 
-class ConnectionException : public std::runtime_error {
- public:
-     explicit ConnectionException(const std::string &what) : std::runtime_error(what.c_str()) { };
+class NotConnectedException : public std::runtime_error {
+public:
+     explicit NotConnectedException(const std::string &what) : std::runtime_error(what.c_str()) { };
 };
 
-class NotConnectedException : public std::runtime_error {
+class NodeNotFoundException : public std::runtime_error {
 public:
     explicit NodeNotFoundException(const std::string &what) : std::runtime_error(what.c_str()) { };
 };
