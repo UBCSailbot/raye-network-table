@@ -129,7 +129,7 @@ class Connection {
      */
     void WaitForAck();
 
-    void ManageSocket(int timeout_millis);
+    void ManageSocket(int timeout_millis, bool async);
 
     zmq::context_t context_;
     zmq::socket_t mst_socket_;

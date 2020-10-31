@@ -24,7 +24,7 @@ void NetworkTable::Connection::Connect(int timeout_millis, bool async) {
     assert(!connected_);
 
     mst_socket_.bind("inproc://#1");
-    socket_thread_ = std::thread(&NetworkTable::Connection::ManageSocket, this, timeout_millis);
+    socket_thread_ = std::thread(&NetworkTable::Connection::ManageSocket, this, timeout_millis, async);
 
     if (!async) {
         zmq::message_t message;
@@ -280,7 +280,7 @@ void NetworkTable::Connection::WaitForAck() {
     }
 }
 
-void NetworkTable::Connection::ManageSocket(int timeout_millis) {
+void NetworkTable::Connection::ManageSocket(int timeout_millis, bool async) {
     /*
      * The context must be created here so that
      * its destructor is called when this function
@@ -310,7 +310,12 @@ void NetworkTable::Connection::ManageSocket(int timeout_millis) {
         // discards any messages it is still trying to
         // send/receive:
         init_socket.setsockopt(ZMQ_LINGER, 0);
-        init_socket.setsockopt(ZMQ_RCVTIMEO, timeout_millis);
+        if (!async) {
+            init_socket.setsockopt(ZMQ_RCVTIMEO, timeout_millis);
+        }
+        else {
+            init_socket.setsockopt(ZMQ_RCVTIMEO, -1);
+        }
         init_socket.connect("ipc://" + kWelcome_Directory_ + "NetworkTable");
 
         {
