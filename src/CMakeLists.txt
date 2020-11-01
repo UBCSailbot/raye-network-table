@@ -46,3 +46,7 @@ target_compile_definitions(nt_client PUBLIC WELCOME_DIRECTORY=${WELCOME_DIRECTOR
 target_compile_definitions(nt_server PUBLIC WELCOME_DIRECTORY=${WELCOME_DIRECTORY})
 
 add_subdirectory(python)
+
+# Executing network-table/scripts/generate_frameID_json.py
+# Generated file will be in network-table/src/frame_ids.json
+execute_process(COMMAND python3 generate_frameID_json.py WORKING_DIRECTORY "../scripts/utility")

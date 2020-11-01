@@ -11,4 +11,3 @@ set(${PROJECT_NAME}_SRCS main.cpp)
 add_executable(${PROJECT_NAME} ${${PROJECT_NAME}_SRCS})
 target_link_libraries(${PROJECT_NAME} ${ZMQ_LIBRARIES} ${PROTOBUF_LIBRARIES} nt_client)
 
-include_directories(uccm-sensors)
