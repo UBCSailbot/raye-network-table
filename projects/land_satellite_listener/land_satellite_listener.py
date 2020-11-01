@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from nt_connection.Connection import Connection
 import generated_python.Value_pb2 as Value_pb2
 import generated_python.Satellite_pb2 as Satellite_pb2
