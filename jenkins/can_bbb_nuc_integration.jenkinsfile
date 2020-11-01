@@ -27,6 +27,7 @@ pipeline {
                         force_cleanup()
                     }
                 }
+
                 stage('Compile BBB') {
                     agent {
                         label 'bbb'
@@ -91,15 +92,36 @@ pipeline {
                     }
                 }
 
+                stage('Compile Land Server') {
+                    agent {
+                        label 'master'
+                    }
+                    steps {
+                        // Make sure canbus is enabled
+                        dir("/var/lib/jenkins/workspace/can_bbb_nuc_integration/") {
+                            checkout scm
+                            sh '''
+                                mkdir -p build
+                                cd build
+                                cmake .. -DWELCOME_DIRECTORY="\\\"/tmp/can_bbb_nuc_integration/\\\""
+                                make
+                            '''
+                        }
+                    }
+                }
+
                 stage('Run BBB') {
                     agent {
                         label 'bbb'
                     }
                     steps {
                         catchError(stageResult: 'FAILURE') {
+                            sh '/usr/sbin/daemonize -E JENKINS_NODE_COOKIE=socat /usr/bin/socat -d -d pty,raw,echo=0,link=/tmp/serialport1 pty,raw,echo=0,link=/tmp/serialport2'
                             sh '/usr/sbin/daemonize -E JENKINS_NODE_COOKIE=network_table_server /home/debian/workspace/can_bbb_nuc_integration/build/bin/network_table_server'
                             sh '/usr/sbin/daemonize -E JENKINS_NODE_COOKIE=bbb_eth_listener /home/debian/workspace/can_bbb_nuc_integration/build/bin/bbb_eth_listener 192.168.1.60 5555'
                             sh '/usr/sbin/daemonize -E JENKINS_NODE_COOKIE=bbb_canbus_listener /home/debian/workspace/can_bbb_nuc_integration/build/bin/bbb_canbus_listener vcan0'
+                            sh '/usr/sbin/daemonize -E JENKINS_NODE_COOKIE=bbb_satellite_listener /home/debian/workspace/can_bbb_nuc_integration/build/bin/bbb_satellite_listener 2 2 2 /tmp/serialport1'
+                            sh '/usr/sbin/daemonize -E JENKINS_NODE_COOKIE=virtual_iridium /home/debian/workspace/can_bbb_nuc_integration/projects/virtual_iridium/python/Iridium9602.py --webhook_server_endpoint 10.0.0.1:8000 --http_server_port 8080 -d /tmp/serialport2 -m HTTP_POST'
                         }
                     }
                 }
@@ -126,6 +148,18 @@ pipeline {
                                 source /home/raye/catkin_ws/devel/setup.sh
                                 daemonize -E JENKINS_NODE_COOKIE=ros_communication_node /opt/ros/melodic/bin/rosrun raye_communication raye_communication_node
                             '''
+                        }
+                    }
+                }
+
+                stage('Run Land Server') {
+                    agent {
+                        label 'master'
+                    }
+                    steps {
+                        catchError(stageResult: 'FAILURE') {
+                            sh '/usr/sbin/daemonize -E JENKINS_NODE_COOKIE=network_table_server /var/lib/jenkins/workspace/can_bbb_nuc_integration/build/bin/network_table_server'
+                            sh '/usr/sbin/daemonize -E JENKINS_NODE_COOKIE=land_satellite_listener /var/lib/jenkins/workspace/can_bbb_nuc_integration/projects/land_satellite_listener/land_satellite_listener.py -p 8000 -e 10.0.0.3:8080 -f 5 -u SEC'
                         }
                     }
                 }
@@ -159,7 +193,10 @@ def force_cleanup() {
             sh 'pkill -f network_table_server || true'
             sh 'pkill -f bbb_eth_listener || true'
             sh 'pkill -f bbb_canbus_listener || true'
+            sh 'pkill -f bbb_satellite_listener || true'
+            sh 'pkill -f Iridium9602 || true'
             sh 'pkill -f mock_sensors || true'
+            sh 'pkill -f socat || true'
             sh 'rm -r /tmp/can_bbb_nuc_integration/ || true'
         }
     }
@@ -171,6 +208,13 @@ def force_cleanup() {
             sh 'pkill -f raye_communication_node || true'
         }
     }
+    // Cleanup processes on Land Server
+    node('master') {
+        script {
+            sh 'pkill -f network_table_server || true'
+            sh 'pkill -f land_satellite_listener || true'
+        }
+    }
 }
 
 def cleanup() {
@@ -180,7 +224,10 @@ def cleanup() {
             sh 'pkill -f network_table_server'
             sh 'pkill -f bbb_eth_listener'
             sh 'pkill -f bbb_canbus_listener'
+            sh 'pkill -f bbb_satellite_listener'
+            sh 'pkill -f Iridium9602'
             sh 'pkill -f mock_sensors'
+            sh 'pkill -f socat'
             sh 'rm -r /tmp/can_bbb_nuc_integration/'
         }
     }
@@ -190,6 +237,13 @@ def cleanup() {
             sh 'pkill -f roscore'
             sh 'pkill -f nuc_eth_listener'
             sh 'pkill -f raye_communication_node'
+        }
+    }
+    // Cleanup processes on Land Server
+    node('master') {
+        script {
+            sh 'pkill -f network_table_server'
+            sh 'pkill -f land_satellite_listener'
         }
     }
 }
