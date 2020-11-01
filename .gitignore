@@ -42,3 +42,6 @@ compile_commands.json
 
 # macOS
 .DS_Store
+
+#.json files
+frame_ids.json

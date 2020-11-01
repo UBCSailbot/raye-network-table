@@ -9,7 +9,7 @@
 	path = projects/nuc_eth_listener/sailbot-msg
 	url = https://github.com/UBCSailbot/sailbot-msg.git
 [submodule "projects/bbb_canbus_listener/uccm-sensors"]
-	path = projects/bbb_canbus_listener/uccm-sensors
+	path = src/uccm-sensors
 	url = https://github.com/UBCSailbot/uccm-sensors.git
 [submodule "projects/bbb_ais_listener/ais"]
 	path = projects/bbb_ais_listener/ais

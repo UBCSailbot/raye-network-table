@@ -16,7 +16,7 @@
 #include <linux/can/raw.h>
 
 #include <stdint.h>
-#include "uccm-sensors/frame_parser.h"
+#include <frame_parser.h>
 #include "Connection.h"
 #include "Value.pb.h"
 #include "Exceptions.h"
