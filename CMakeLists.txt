@@ -13,6 +13,8 @@ set(ENABLE_ROS OFF CACHE BOOL
 set(WELCOME_DIRECTORY "\"/tmp/sailbot/\"" CACHE STRING
     "Where the network table stores its data")
 
+message("WELCOME DIRECTORY ${WELCOME_DIRECTORY}")
+
 project(network-table CXX)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -std=c++14 -Wall -Wextra -O0")

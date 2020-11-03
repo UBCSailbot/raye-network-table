@@ -132,6 +132,8 @@ typedef std::shared_ptr<zmq::socket_t> socket_ptr;
     const std::string kWelcome_Directory_ = WELCOME_DIRECTORY;  // NOLINT(runtime/string)
 
     // location of client sockets
+    // WELCOME_DIRECTORY passed in as a compile flag
+    // from cmake. You won't find its definition in the code
     const std::string kClients_Directory_ = kWelcome_Directory_ + "clients/";  // NOLINT(runtime/string)
 
     // where root_ is saved (in case of crash)

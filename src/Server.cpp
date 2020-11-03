@@ -24,7 +24,6 @@
 
 NetworkTable::Server::Server()
     : context_(1), welcome_socket_(context_, ZMQ_REP) {
-    std::cout << "starting network table server" << std::endl;
     // Create the folders where sockets go.
     boost::filesystem::create_directory(kWelcome_Directory_);
     boost::filesystem::create_directory(kClients_Directory_);
