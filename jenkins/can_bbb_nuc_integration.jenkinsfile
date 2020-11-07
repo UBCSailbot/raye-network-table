@@ -1,8 +1,8 @@
 pipeline {
     options {
-        // Keep only 20 builds, then start deleting them
+        // start deleting builds after a certain amount
         // (I don't have that much disk space)
-        buildDiscarder(logRotator(numToKeepStr:'20'))
+        buildDiscarder(logRotator(numToKeepStr:'100'))
     }
 
     agent none
