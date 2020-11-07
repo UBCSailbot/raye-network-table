@@ -109,12 +109,19 @@ int main(int argc, char **argv) {
     }
 
     // subscribe to network-table
-    try {
-        connection.Subscribe("actuation_angle/winch", &MotorCallback);
-    } catch (NetworkTable::NotConnectedException) {
-        std::cout << "Failed to subscribe to actuation_angle" << std::endl;
-        // TODO: fix it.
+    bool is_subscribed = false;
+
+    while (!is_subscribed) {
+        try {
+            connection.Subscribe("actuation_angle/winch", &MotorCallback);
+            is_subscribed = true; 
+        }
+        catch (NetworkTable::NotConnectedException) {
+            std::cout << "Failed to subscribe to actuation_angle" << std::endl;
+            // TODO: fix it.
+        }
     }
+    
 
     // Keep on reading the wind sensor data off canbus, and
     // placing the latest data in the network table.
