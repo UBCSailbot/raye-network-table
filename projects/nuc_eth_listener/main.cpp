@@ -187,7 +187,7 @@ int main(int argc, char** argv) {
 
     sensors_pub = n.advertise<sailbot_msg::Sensors>("sensors", 100);
     ais_msg_pub = n.advertise<sailbot_msg::AISMsg>("ais_msg", 100);
-    waypoint_msg_pub = n.advertise<sailbot_msg::path>("waypoint_msg", 100);
+    waypoint_msg_pub = n.advertise<sailbot_msg::path>("globalPath", 100);
 
     nt_sub = n.subscribe("/actuation_angles", 100, ActuationCallBack);
     ros::spin();
