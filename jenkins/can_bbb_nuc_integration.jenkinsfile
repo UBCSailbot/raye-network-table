@@ -90,7 +90,7 @@ pipeline {
                     steps {
                         catchError(stageResult: 'FAILURE') {
                             sh '/usr/sbin/daemonize -E JENKINS_NODE_COOKIE=network_table_server /home/debian/workspace/can_bbb_nuc_integration/build/bin/network_table_server'
-                            sh '/usr/sbin/daemonize -E JENKINS_NODE_COOKIE=bbb_eth_listener /home/debian/workspace/can_bbb_nuc_integration/build/bin/bbb_eth_listener 192.168.1.82 5555'
+                            sh '/usr/sbin/daemonize -E JENKINS_NODE_COOKIE=bbb_eth_listener /home/debian/workspace/can_bbb_nuc_integration/build/bin/bbb_eth_listener 192.168.1.60 5555'
                             sh '/usr/sbin/daemonize -E JENKINS_NODE_COOKIE=bbb_canbus_listener /home/debian/workspace/can_bbb_nuc_integration/build/bin/bbb_canbus_listener vcan0'
                         }
                     }
@@ -110,7 +110,7 @@ pipeline {
                             sh '''
                                 set +x
                                 source /opt/ros/melodic/setup.bash
-                                daemonize -E JENKINS_NODE_COOKIE=nuc_eth_listener_jenkins /home/raye/workspace/can_bbb_nuc_integration/build/bin/nuc_eth_listener 192.168.1.82 5555
+                                daemonize -E JENKINS_NODE_COOKIE=nuc_eth_listener_jenkins /home/raye/workspace/can_bbb_nuc_integration/build/bin/nuc_eth_listener 192.168.1.60 5555
                             '''
                             sh '''
                                 set +x
