@@ -83,11 +83,18 @@ int main(int argc, char *argv[]) {
         return 0;
     }
 
-    try {
-        connection.Subscribe("/", &RootCallback); //TODO: fix it.
-    } catch (NetworkTable::TimeoutException) {
-        std::cout << "Failed to connect" << std::endl;
-    } 
+    bool is_subscribed = false;
+
+    while (!is_subscribed) {
+        try {
+            connection.Subscribe("/", &RootCallback); //TODO: fix it.
+            is_subscribed = true;
+        }
+        catch (NetworkTable::TimeoutException) {
+            std::cout << "Failed to connect" << std::endl;
+            sleep(1);
+        }
+    }
     
     while (true) {
         /*

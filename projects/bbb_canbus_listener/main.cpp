@@ -1,4 +1,4 @@
-// Copyright 2017 UBC Sailbot
+﻿// Copyright 2017 UBC Sailbot
 
 #include <stdio.h>
 #include <map>
@@ -118,7 +118,7 @@ int main(int argc, char **argv) {
         }
         catch (NetworkTable::NotConnectedException) {
             std::cout << "Failed to subscribe to actuation_angle" << std::endl;
-            // TODO: fix it.
+            sleep(1); 
         }
     }
     

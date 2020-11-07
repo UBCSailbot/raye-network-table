@@ -286,11 +286,17 @@ int main(int argc, char **argv) {
     latest_sensors_satellite_string = "";
     latest_uccms_satellite_string = "";
 
-    try {
-        connection.Subscribe("/", &RootCallback);
-    }
-    catch (NetworkTable::NotConnectedException) {
-        std::cout << "Fail to connect" << std::endl; //TODO: Fix it.
+    bool is_subscribed = false;
+
+    while (!is_subscribed) {
+        try {
+            connection.Subscribe("/", &RootCallback);
+            is_subscribed = true;
+        }
+        catch (NetworkTable::NotConnectedException) {
+            std::cout << "Fail to connect" << std::endl; //TODO: Fix it.
+            sleep(1);
+        }
     }
 
     serial.set_option(boost::asio::serial_port_base::baud_rate(19200));
