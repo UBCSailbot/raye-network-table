@@ -19,6 +19,14 @@ pipeline {
             }
             agent none
             stages {
+                stage ('Cleanup Leftovers') {
+                    // sometimes the pkill from another test
+                    // can fail, causing a bunch of of leftover
+                    // processes to hang around.
+                    steps {
+                        force_cleanup()
+                    }
+                }
                 stage('Compile BBB') {
                     agent {
                         label 'bbb'
@@ -139,6 +147,28 @@ pipeline {
                     }
                 }
             }
+        }
+    }
+}
+
+// always succeeds
+def force_cleanup() {
+    // Cleanup processes on BBB
+    node('bbb') {
+        script {
+            sh 'pkill -f network_table_server || true'
+            sh 'pkill -f bbb_eth_listener || true'
+            sh 'pkill -f bbb_canbus_listener || true'
+            sh 'pkill -f mock_sensors || true'
+            sh 'rm -r /tmp/can_bbb_nuc_integration/ || true'
+        }
+    }
+    // Cleanup processes on NUC
+    node('nuc') {
+        script {
+            sh 'pkill -f roscore || true'
+            sh 'pkill -f nuc_eth_listener || true'
+            sh 'pkill -f raye_communication_node || true'
         }
     }
 }
