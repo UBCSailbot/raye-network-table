@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from nt_connection.Connection import Connection
+from nt_connection.Help import Help
 import generated_python.Value_pb2 as Value_pb2
 import generated_python.Satellite_pb2 as Satellite_pb2
 import generated_python.Node_pb2 as Node_pb2
@@ -11,26 +12,37 @@ import threading
 import time
 import sys
 import argparse
+from functools import partial
 
 
 class HTTPRequestHandler(BaseHTTPRequestHandler):
+    def __init__(self, nt_connection, *args, **kwargs):
+        self.nt_connection = nt_connection
+        super().__init__(*args, **kwargs)
+
     def do_POST(self):
         print("Handling post request")
         content_len = int(self.headers['Content-Length'])
         body = self.rfile.read(content_len)
         sat = Satellite_pb2.Satellite()
+        helper = Help()
 
         try:
             sat.ParseFromString(body)
             if sat.type == Satellite_pb2.Satellite.Type.SENSORS:
                 print("Receiving Sensor Data")
-                print(sat.sensors)
+                values = helper.sensors_to_root(sat.sensors)
+                self.nt_connection.setValues(values)
+
             elif sat.type == Satellite_pb2.Satellite.Type.UCCMS:
                 print("Receiving UCCM Data")
-                print(sat.uccms)
+                values = helper.uccms_to_root(sat.uccms)
+                self.nt_connection.setValues(values)
+
             elif sat.type == Satellite_pb2.Satellite.Type.VALUE:
                 print("Receiving Waypoint Data")
                 print(sat.value)
+
             else:
                 print("Did Not receive Sensor or UCCM data")
                 print(body)
@@ -40,21 +52,29 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
 
         except IOError:
             print("Error Decoding incoming data")
+            pass
+
+        except ConnectionError:
+            print("Error setting network table value")
+            pass
 
 
 class runServer(threading.Thread):
-    def __init__(self, port, target_address):
+    def __init__(self, port, target_address, nt_connection):
         """ Server class that receives satellite data from the boat
 
-            port - http server port number
+                     port - http server port number
+            nt_connection - network table connection instance
         """
         threading.Thread.__init__(self)
         self.port = port
         self.target_address = target_address
+        self.nt_connection = nt_connection
 
     def run(self):
         """ Initiates the HTTP Server"""
-        httpd = HTTPServer((self.target_address, self.port), HTTPRequestHandler)
+        handler = partial(HTTPRequestHandler, self.nt_connection)
+        httpd = HTTPServer((self.target_address, self.port), handler)
         httpd.serve_forever()
 
 
@@ -153,12 +173,13 @@ def main():
                         choices=["SEC", "MIN", "HR"],
                         required=True)
 
-    parser.add_argument('-b',
-                        '--bind',
-                        type=str,
-                        help='Specifies a target address to bind to when sending requests',
-                        default="",
-                        required=False)
+    parser.add_argument(
+        '-b',
+        '--bind',
+        type=str,
+        help='Specifies a target address to bind to when sending requests',
+        default="",
+        required=False)
 
     args = parser.parse_args()
 
@@ -176,7 +197,7 @@ def main():
     nt_connection = Connection()
     nt_connection.Connect()
 
-    server = runServer(args.port, args.bind)
+    server = runServer(args.port, args.bind, nt_connection)
     client = runClient(nt_connection, poll_freq, args.endpoint)
     server.start()
     client.start()
