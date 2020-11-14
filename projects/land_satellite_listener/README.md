@@ -15,11 +15,11 @@ Install protobuf for python3:
 ```pip3 install protobuf```
 
 To run the script:  
-```python3 land_satellite_listener.py <SERVER_PORT_NUMBER> <HTTP_POST_ENDPOINT>```
+```python3 land_satellite_listener.py <SERVER_PORT_NUMBER> <HTTP_POST_ENDPOINT> <POLL_FREQUENCY> <UNIT> <BINDING_ADDRESS>```
 
 For example:
 ```
-python3 land_satellite_listener.py 8000 https://rockblock.rock7.com/rockblock/MT
+python3 land_satellite_listener.py -p 8000 -e https://rockblock.rock7.com/rockblock/MT -f 30 -u SEC -b 70.36.55.243 
 ```
 
 ## Full-Scale Testing 
