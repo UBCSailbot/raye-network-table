@@ -115,13 +115,13 @@ pipeline {
                         label 'bbb'
                     }
                     steps {
-                        catchError(stageResult: 'FAILURE') {
-                            sh '/usr/sbin/daemonize -E JENKINS_NODE_COOKIE=socat /usr/bin/socat -d -d pty,raw,echo=0,link=/tmp/serialport1 pty,raw,echo=0,link=/tmp/serialport2'
-                            sh '/usr/sbin/daemonize -E JENKINS_NODE_COOKIE=network_table_server /home/debian/workspace/can_bbb_nuc_integration/build/bin/network_table_server'
-                            sh '/usr/sbin/daemonize -E JENKINS_NODE_COOKIE=bbb_eth_listener /home/debian/workspace/can_bbb_nuc_integration/build/bin/bbb_eth_listener 192.168.1.60 5555'
-                            sh '/usr/sbin/daemonize -E JENKINS_NODE_COOKIE=bbb_canbus_listener /home/debian/workspace/can_bbb_nuc_integration/build/bin/bbb_canbus_listener vcan0'
-                            sh '/usr/sbin/daemonize -E JENKINS_NODE_COOKIE=bbb_satellite_listener /home/debian/workspace/can_bbb_nuc_integration/build/bin/bbb_satellite_listener 2 2 2 /tmp/serialport1'
-                            sh '/usr/sbin/daemonize -E JENKINS_NODE_COOKIE=virtual_iridium /home/debian/workspace/can_bbb_nuc_integration/projects/virtual_iridium/python/Iridium9602.py --webhook_server_endpoint 10.0.0.1:8000 --http_server_port 8080 -d /tmp/serialport2 -m HTTP_POST'
+                        dir("/home/debian/workspace/can_bbb_nuc_integration/") {
+                            sh 'JENKINS_NODE_COOKIE=nokill nohup /usr/bin/socat -d -d pty,raw,echo=0,link=/tmp/serialport1 pty,raw,echo=0,link=/tmp/serialport2 &'
+                            sh 'JENKINS_NODE_COOKIE=nokill nohup ./build/bin/network_table_server &'
+                            sh 'JENKINS_NODE_COOKIE=nokill nohup ./build/bin/bbb_eth_listener 192.168.1.60 5555 &'
+                            sh 'JENKINS_NODE_COOKIE=nokill nohup ./build/bin/bbb_canbus_listener vcan0 &'
+                            sh 'JENKINS_NODE_COOKIE=nokill nohup ./build/bin/bbb_satellite_listener 2 2 2 /tmp/serialport1 &'
+                            sh 'JENKINS_NODE_COOKIE=nokill nohup ./projects/virtual_iridium/python/Iridium9602.py --webhook_server_endpoint 10.0.0.1:8000 --http_server_port 8085 -d /tmp/serialport2 -m HTTP_POST &'
                         }
                     }
                 }
@@ -131,22 +131,22 @@ pipeline {
                         label 'nuc'
                     }
                     steps {
-                        catchError(stageResult: 'FAILURE') {
+                        dir('/home/raye/workspace/can_bbb_nuc_integration') {
                             sh '''
                                 set +x
                                 source /opt/ros/melodic/setup.bash
-                                daemonize -E JENKINS_NODE_COOKIE=roscore_jenkins /opt/ros/melodic/bin/roscore
+                                JENKINS_NODE_COOKIE=nokill nohup /opt/ros/melodic/bin/roscore &
                             '''
                             sh '''
                                 set +x
                                 source /opt/ros/melodic/setup.bash
-                                daemonize -E JENKINS_NODE_COOKIE=nuc_eth_listener_jenkins /home/raye/workspace/can_bbb_nuc_integration/build/bin/nuc_eth_listener 192.168.1.60 5555
+                                JENKINS_NODE_COOKIE=nokill nohup ./build/bin/nuc_eth_listener 192.168.1.60 5555 &
                             '''
                             sh '''
                                 set +x
                                 source /opt/ros/melodic/setup.bash
                                 source /home/raye/catkin_ws/devel/setup.sh
-                                daemonize -E JENKINS_NODE_COOKIE=ros_communication_node /opt/ros/melodic/bin/rosrun raye_communication raye_communication_node
+                                JENKINS_NODE_COOKIE=nokill nohup /opt/ros/melodic/bin/rosrun raye_communication raye_communication_node &
                             '''
                         }
                     }
@@ -157,9 +157,9 @@ pipeline {
                         label 'master'
                     }
                     steps {
-                        catchError(stageResult: 'FAILURE') {
-                            sh '/usr/sbin/daemonize -E JENKINS_NODE_COOKIE=network_table_server /var/lib/jenkins/workspace/can_bbb_nuc_integration/build/bin/network_table_server'
-                            sh '/usr/sbin/daemonize -E JENKINS_NODE_COOKIE=land_satellite_listener /var/lib/jenkins/workspace/can_bbb_nuc_integration/projects/land_satellite_listener/land_satellite_listener.py -p 8000 -e 10.0.0.3:8080 -f 5 -u SEC'
+                        dir("/var/lib/jenkins/workspace/can_bbb_nuc_integration/") {
+                            sh 'JENKINS_NODE_COOKIE=nokill nohup ./build/bin/network_table_server &'
+                            sh 'JENKINS_NODE_COOKIE=nokill nohup ./projects/land_satellite_listener/land_satellite_listener.py -p 8000 -e 10.0.0.3:8085 -f 5 -u SEC &'
                         }
                     }
                 }
@@ -169,9 +169,9 @@ pipeline {
                         label 'bbb'
                     }
                     steps {
-                        catchError(stageResult: 'FAILURE') {
-                            sh '/usr/sbin/daemonize -E JENKINS_NODE_COOKIE=mock_sensors /home/debian/workspace/can_bbb_nuc_integration/scripts/mock_sensors.py -c vcan0 -f recorded_data/mock_can_data.csv --loop'
-                            sh '/home/debian/workspace/can_bbb_nuc_integration/scripts/canbus_data_checker.py -c vcan0'
+                        dir("/home/debian/workspace/can_bbb_nuc_integration/") {
+                            sh 'JENKINS_NODE_COOKIE=nokill nohup ./scripts/mock_sensors.py -c vcan0 -f recorded_data/mock_can_data.csv --loop &'
+                            sh './scripts/canbus_data_checker.py -c vcan0'
                         }
                     }
                 }
