@@ -159,7 +159,7 @@ pipeline {
                     steps {
                         dir("/var/lib/jenkins/workspace/can_bbb_nuc_integration/") {
                             sh 'JENKINS_NODE_COOKIE=nokill nohup ./build/bin/network_table_server &'
-                            sh 'JENKINS_NODE_COOKIE=nokill nohup ./projects/land_satellite_listener/land_satellite_listener.py -p 8000 -e 10.0.0.3:8085 -f 5 -u SEC &'
+                            sh 'JENKINS_NODE_COOKIE=nokill nohup ./projects/land_satellite_listener/land_satellite_listener.py -p 8000 -e 10.0.0.3:8085 -f 5 -u SEC --bind tun0 &'
                         }
                     }
                 }

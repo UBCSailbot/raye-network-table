@@ -43,17 +43,18 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
 
 
 class runServer(threading.Thread):
-    def __init__(self, port):
+    def __init__(self, port, target_address):
         """ Server class that receives satellite data from the boat
 
             port - http server port number
         """
         threading.Thread.__init__(self)
         self.port = port
+        self.target_address = target_address
 
     def run(self):
         """ Initiates the HTTP Server"""
-        httpd = HTTPServer(("", self.port), HTTPRequestHandler)
+        httpd = HTTPServer((self.target_address, self.port), HTTPRequestHandler)
         httpd.serve_forever()
 
 
@@ -152,6 +153,13 @@ def main():
                         choices=["SEC", "MIN", "HR"],
                         required=True)
 
+    parser.add_argument('-b',
+                        '--bind',
+                        type=str,
+                        help='Specifies a target address to bind to when sending requests',
+                        default="",
+                        required=False)
+
     args = parser.parse_args()
 
     # Get the polling frequency in seconds
@@ -168,7 +176,7 @@ def main():
     nt_connection = Connection()
     nt_connection.Connect()
 
-    server = runServer(args.port)
+    server = runServer(args.port, args.bind)
     client = runClient(nt_connection, poll_freq, args.endpoint)
     server.start()
     client.start()
