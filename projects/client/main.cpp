@@ -548,19 +548,31 @@ try_subscribe_root:
         dummy_sensor_uccm_current.set_type(NetworkTable::Value::INT);
         dummy_sensor_uccm_current.set_int_data(4);
 
-        try {
-            std::map<std::string, NetworkTable::Value> values;
-            values.insert(std::pair<std::string, NetworkTable::Value>(\
-                        "dummy_sensor/uccm/voltage", dummy_sensor_uccm_voltage));
-            values.insert(std::pair<std::string, NetworkTable::Value>(\
-                        "dummy_sensor/uccm/current", dummy_sensor_uccm_current));
 
-            connection.SetValues(values);
-        } catch (NetworkTable::TimeoutException) {
-        } catch (...) {
-            std::cout << "Error setting dummy_sensor/uccm" << std::endl;
-            any_test_failed = 1;
+        /*
+         * Use this bool to keep trying to set dummy data until
+         * we are guaranteed its in the network table.
+         * Or else, you can get bad timing where you timeout,
+         * don't set dummy data, and then try to get it.
+         */
+        bool dummy_data_set = false;
+        while (!dummy_data_set) {
+            try {
+                std::map<std::string, NetworkTable::Value> values;
+                values.insert(std::pair<std::string, NetworkTable::Value>(\
+                            "dummy_sensor/uccm/voltage", dummy_sensor_uccm_voltage));
+                values.insert(std::pair<std::string, NetworkTable::Value>(\
+                            "dummy_sensor/uccm/current", dummy_sensor_uccm_current));
+
+                connection.SetValues(values);
+                dummy_data_set = true;
+            } catch (NetworkTable::TimeoutException) {
+            } catch (...) {
+                std::cout << "Error setting dummy_sensor/uccm" << std::endl;
+                any_test_failed = 1;
+            }
         }
+
         // GET
         std::map<std::string, NetworkTable::Value> values;
         try {
