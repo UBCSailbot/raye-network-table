@@ -148,6 +148,12 @@ pipeline {
                                 source /home/raye/catkin_ws/devel/setup.sh
                                 JENKINS_NODE_COOKIE=nokill nohup /opt/ros/melodic/bin/rosrun raye_communication raye_communication_node &
                             '''
+                            sh '''
+                                set +x
+                                source /opt/ros/melodic/setup.bash
+                                source /home/raye/catkin_ws/devel/setup.sh
+                                JENKINS_NODE_COOKIE=nokill nohup /opt/ros/melodic/bin/rosrun local_pathfinding main_loop.py &
+                            '''
                         }
                     }
                 }
@@ -206,6 +212,7 @@ def force_cleanup() {
             sh 'pkill -f roscore || true'
             sh 'pkill -f nuc_eth_listener || true'
             sh 'pkill -f raye_communication_node || true'
+            sh 'pkill -f main_loop || true'
         }
     }
     // Cleanup processes on Land Server
@@ -237,6 +244,7 @@ def cleanup() {
             sh 'pkill -f roscore'
             sh 'pkill -f nuc_eth_listener'
             sh 'pkill -f raye_communication_node'
+            sh 'pkill -f main_loop.py'
         }
     }
     // Cleanup processes on Land Server
