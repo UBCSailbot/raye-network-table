@@ -15,11 +15,13 @@ set(NT_SERVER_HDRS
 set(NT_CLIENT_SRCS
         Connection.cpp
         Help.cpp
+        NonProtoConnection.cpp
         )
 
 set(NT_CLIENT_HDRS
         Connection.h
         Help.h
+        NonProtoConnection.h
         )
 
 protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS
