@@ -45,6 +45,14 @@ void PrintTree(NetworkTable::Node root, int depth) {
                     std::cout << " | ";
                 }
                 break;
+            case NetworkTable::Value::WAYPOINTS :
+                for (int i = 0; i < value.waypoints_size(); i++) {
+                    auto waypoint = value.waypoints(i);
+                    std::cout << " latitude: " << waypoint.latitude();
+                    std::cout << " longtitude: " << waypoint.longitude();
+                    std::cout << " | ";
+                }
+                break;
 
             default: std::cout << "Unknown type\n";
         }
