@@ -9,15 +9,34 @@
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
+#include <zmq.hpp>
+#include <csignal>
+#include <cerrno>
 #include "Exceptions.h"
 #include "GetNodesRequest.pb.h"
 #include "SetValuesRequest.pb.h"
 #include "ErrorReply.pb.h"
 
+// Use this to check if we received
+// a signal, ex SIGINT
+static volatile sig_atomic_t signaled = 0;
+static volatile std::atomic<bool> signal_handler_registered(false);
+
+void signal_handler(int param) {
+      signaled = 1;
+}
 
 NetworkTable::Connection::Connection() : context_(1),
                                          mst_socket_(context_, ZMQ_PAIR),
                                          connected_(false) {
+    // Register our signal handler.
+    // After this, if we ctrl-c,
+    // this function will be called, which allows
+    // us to gracefully exit.
+    if (!signal_handler_registered) {
+        signal(SIGINT, signal_handler);
+        signal_handler_registered = true;
+    }
 }
 
 void NetworkTable::Connection::Connect(int timeout_millis, bool async) {
@@ -28,7 +47,14 @@ void NetworkTable::Connection::Connect(int timeout_millis, bool async) {
 
     if (!async) {
         zmq::message_t message;
-        mst_socket_.recv(&message);
+        try {
+            mst_socket_.recv(&message);
+        } catch (const zmq::error_t &e) {
+            if (signaled && e.num() == EINTR) {
+                InterruptManageSocketThread();
+                throw NetworkTable::InterruptedException("Received interrupt signal");
+            }
+        }
 
         std::string message_data(static_cast<char*>(message.data()), message.size());
         if (strcmp(message_data.c_str(), "timeout") == 0) {
@@ -52,8 +78,15 @@ void NetworkTable::Connection::Disconnect() {
     std::string request_body = "disconnect";
     zmq::message_t request(request_body.size()+1);
     memcpy(request.data(), request_body.c_str(), request_body.size()+1);
-    if (!mst_socket_.send(request)) {
-        throw TimeoutException(const_cast<char*>("disconnect timed out"));
+    try {
+        if (!mst_socket_.send(request)) {
+            throw TimeoutException(const_cast<char*>("disconnect timed out"));
+        }
+    } catch (const zmq::error_t &e) {
+        if (signaled && e.num() == EINTR) {
+            InterruptManageSocketThread();
+            throw NetworkTable::InterruptedException("Received interrupt signal");
+        }
     }
 
     socket_thread_.join();
@@ -74,8 +107,11 @@ void NetworkTable::Connection::SetValues(const std::map<std::string, NetworkTabl
         throw NotConnectedException(const_cast<char*>("fail to set value"));
     }
 
+    NetworkTable::Request request;
+    request.set_type(NetworkTable::Request::SETVALUES);
+
     // Create a SetValuesRequest with each of the uri/value pairs.
-    auto *setvalues_request = new NetworkTable::SetValuesRequest();
+    auto *setvalues_request = request.mutable_setvalues_request();
     auto mutable_values = setvalues_request->mutable_values();
     for (auto const &entry : values) {
         std::string uri = entry.first;
@@ -83,15 +119,18 @@ void NetworkTable::Connection::SetValues(const std::map<std::string, NetworkTabl
         (*mutable_values)[uri] = value;
     }
 
-    NetworkTable::Request request;
-    request.set_type(NetworkTable::Request::SETVALUES);
-    request.set_allocated_setvalues_request(setvalues_request);
+    try {
+        if (!Send(request, &mst_socket_)) {
+            throw TimeoutException(const_cast<char*>("set values timed out"));
+        }
 
-    if (!Send(request, &mst_socket_)) {
-        throw TimeoutException(const_cast<char*>("set values timed out"));
+        WaitForAck();
+    } catch (const zmq::error_t &e) {
+        if (signaled && e.num() == EINTR) {
+            InterruptManageSocketThread();
+            throw NetworkTable::InterruptedException("Received interrupt signal");
+        }
     }
-
-    WaitForAck();
 }
 
 NetworkTable::Value NetworkTable::Connection::GetValue(const std::string &uri) {
@@ -133,23 +172,36 @@ std::map<std::string, NetworkTable::Node> NetworkTable::Connection::GetNodes(con
         throw NotConnectedException(const_cast<char*>("fail to get node"));
     }
 
-    auto *getnodes_request = new NetworkTable::GetNodesRequest();
+    NetworkTable::Request request;
+    request.set_type(NetworkTable::Request::GETNODES);
+
+    auto *getnodes_request = request.mutable_getnodes_request();
 
     for (auto const &uri : uris) {
         getnodes_request->add_uris(uri);
     }
 
-    NetworkTable::Request request;
-    request.set_type(NetworkTable::Request::GETNODES);
-    request.set_allocated_getnodes_request(getnodes_request);
-
-    if (!Send(request, &mst_socket_)) {
-        throw TimeoutException(const_cast<char*>("getnodes send timed out"));
+    try {
+        if (!Send(request, &mst_socket_)) {
+            throw TimeoutException(const_cast<char*>("getnodes send timed out"));
+        }
+    } catch (const zmq::error_t &e) {
+        if (signaled && e.num() == EINTR) {
+            InterruptManageSocketThread();
+            throw NetworkTable::InterruptedException("Received interrupt signal");
+        }
     }
 
     NetworkTable::Reply reply;
-    if (!Receive(&reply, &mst_socket_)) {
-        throw TimeoutException(const_cast<char*>("getnodes reply timed out"));
+    try {
+        if (!Receive(&reply, &mst_socket_)) {
+            throw TimeoutException(const_cast<char*>("getnodes reply timed out"));
+        }
+    } catch (const zmq::error_t &e) {
+        if (signaled && e.num() == EINTR) {
+            InterruptManageSocketThread();
+            throw NetworkTable::InterruptedException("Received interrupt signal");
+        }
     }
 
     CheckForError(reply);
@@ -172,18 +224,24 @@ void NetworkTable::Connection::Subscribe(std::string uri, \
         throw NotConnectedException(const_cast<char*>("fail to subscribe"));
     }
 
-    auto *subscribe_request = new NetworkTable::SubscribeRequest();
-    subscribe_request->set_uri(uri);
-
     NetworkTable::Request request;
     request.set_type(NetworkTable::Request::SUBSCRIBE);
-    request.set_allocated_subscribe_request(subscribe_request);
 
-    if (!Send(request, &mst_socket_)) {
-        throw TimeoutException(const_cast<char*>("subscribe send timed out"));
+    auto *subscribe_request = request.mutable_subscribe_request();
+    subscribe_request->set_uri(uri);
+
+    try {
+        if (!Send(request, &mst_socket_)) {
+            throw TimeoutException(const_cast<char*>("subscribe send timed out"));
+        }
+
+        WaitForAck();
+    } catch (const zmq::error_t &e) {
+        if (signaled && e.num() == EINTR) {
+            InterruptManageSocketThread();
+            throw NetworkTable::InterruptedException("Received interrupt signal");
+        }
     }
-
-    WaitForAck();
 
     // Don't fill in our callback table until
     // after we get the ACK.
@@ -197,18 +255,24 @@ void NetworkTable::Connection::Unsubscribe(std::string uri) {
 
     callbacks_.erase(uri);
 
-    auto *unsubscribe_request = new NetworkTable::UnsubscribeRequest();
-    unsubscribe_request->set_uri(uri);
-
     NetworkTable::Request request;
     request.set_type(NetworkTable::Request::UNSUBSCRIBE);
-    request.set_allocated_unsubscribe_request(unsubscribe_request);
 
-    if (!Send(request, &mst_socket_)) {
-        throw TimeoutException(const_cast<char*>("unsubscribe send timed out"));
+    auto *unsubscribe_request = request.mutable_unsubscribe_request();
+    unsubscribe_request->set_uri(uri);
+
+    try {
+        if (!Send(request, &mst_socket_)) {
+            throw TimeoutException(const_cast<char*>("unsubscribe send timed out"));
+        }
+
+        WaitForAck();
+    } catch (const zmq::error_t &e) {
+        if (signaled && e.num() == EINTR) {
+            InterruptManageSocketThread();
+            throw NetworkTable::InterruptedException("Received interrupt signal");
+        }
     }
-
-    WaitForAck();
 }
 
 ////////////////////// PRIVATE //////////////////////
@@ -279,6 +343,22 @@ void NetworkTable::Connection::WaitForAck() {
     }
 }
 
+void NetworkTable::Connection::InterruptManageSocketThread() {
+    // It turns out when you send an interrupt signal,
+    // the exception is thrown by the socket in the main thread.
+    // any blocking socket.recv in the manage socket thread
+    // will keep on waiting like normal.
+    // Because of this, a zmq::poll is done in manage socket thread
+    // to listen to the main thread socket, as well as any other socket.
+    // If we do get an interrupt, we can tell the manage socket thread to die,
+    // avoiding any memory leaks.
+    std::string interrupt_string = "interrupted";
+    zmq::message_t interrupt_msg(interrupt_string.size()+1);
+    memcpy(interrupt_msg.data(), interrupt_string.c_str(), interrupt_string.size()+1);
+    mst_socket_.send(interrupt_msg);
+    socket_thread_.join();
+}
+
 void NetworkTable::Connection::ManageSocket(int timeout_millis, bool async) {
     /*
      * The context must be created here so that
@@ -334,16 +414,46 @@ void NetworkTable::Connection::ManageSocket(int timeout_millis, bool async) {
 
         zmq::message_t reply;
 
-        // The server replies with a location to connect to.
-        // after this, this ZMQ_REQ socket is no longer needed.
-        if (!init_socket.recv(&reply)) {
-            if (!async) {
-                std::string request_body = "timeout";
-                zmq::message_t request(request_body.size()+1);
-                memcpy(request.data(), request_body.c_str(), request_body.size()+1);
-                mt_socket.send(request);
+        // Listen to the master socket, and the init socket.
+        // We need to listen to the master socket because
+        // it will tell us if the program got an interrupt signal,
+        // in which case we clean up our thread and return.
+        std::vector<zmq::pollitem_t> pollitems;
+
+        zmq::pollitem_t mt_pollitem;
+        mt_pollitem.socket = static_cast<void*>(mt_socket);
+        mt_pollitem.events = ZMQ_POLLIN;
+        pollitems.push_back(mt_pollitem);
+
+        zmq::pollitem_t init_pollitem;
+        init_pollitem.socket = static_cast<void*>(init_socket);
+        init_pollitem.events = ZMQ_POLLIN;
+        pollitems.push_back(init_pollitem);
+
+        zmq::poll(pollitems.data(), 2, -1);
+
+        if (pollitems[0].revents & ZMQ_POLLIN) {
+            mt_socket.recv(&reply);
+            /*
+             * This looks jank (convert c string to std::string and then back),
+             * but for some reason I had to do this (can't remember why. maybe you can fix it?)
+             */
+            std::string message_data(static_cast<char*>(reply.data()), reply.size());
+            if (strcmp(message_data.c_str(), "interrupted") == 0) {
+                return;
             }
-            return;
+        } else {
+            // The server replies with a location to connect to.
+            // after this, this ZMQ_REQ socket is no longer needed.
+            if (!init_socket.recv(&reply)) {
+                if (!async) {
+                    std::string request_body = "timeout";
+                    zmq::message_t request(request_body.size()+1);
+                    memcpy(request.data(), request_body.c_str(), request_body.size()+1);
+                    mt_socket.send(request);
+                }
+                return;
+            }
         }
 
         // Connect to the ZMQ_PAIR socket which was created
@@ -432,9 +542,17 @@ void NetworkTable::Connection::ManageSocket(int timeout_millis, bool async) {
             zmq::message_t message;
             mt_socket.recv(&message);
 
+            /*
+             * This looks jank (convert c string to std::string and then back),
+             * but for some reason I had to do this (can't remember why. maybe you can fix it?)
+             */
             std::string message_data(static_cast<char*>(message.data()), message.size());
             if (strcmp(message_data.c_str(), "disconnect") == 0) {
                 break;
+            }
+
+            if (strcmp(message_data.c_str(), "interrupted") == 0) {
+                return;
             }
 
             NetworkTable::Request request;
