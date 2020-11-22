@@ -123,11 +123,11 @@ pipeline {
                     steps {
                         dir("/home/debian/workspace/can_bbb_nuc_integration/") {
                             sh 'JENKINS_NODE_COOKIE=nokill nohup /usr/bin/socat -d -d pty,raw,echo=0,link=/tmp/serialport1 pty,raw,echo=0,link=/tmp/serialport2 &'
-                            sh 'JENKINS_NODE_COOKIE=nokill nohup ./build/bin/network_table_server &'
-                            sh 'JENKINS_NODE_COOKIE=nokill nohup ./build/bin/bbb_eth_listener 192.168.1.60 5555 &'
-                            sh 'JENKINS_NODE_COOKIE=nokill nohup ./build/bin/bbb_canbus_listener vcan0 &'
-                            sh 'JENKINS_NODE_COOKIE=nokill nohup ./build/bin/bbb_satellite_listener 2 2 2 /tmp/serialport1 &'
-                            sh 'JENKINS_NODE_COOKIE=nokill nohup ./projects/virtual_iridium/python/Iridium9602.py --webhook_server_endpoint 10.0.0.1:8000 --http_server_port 8085 -d /tmp/serialport2 -m HTTP_POST &'
+                            sh 'JENKINS_NODE_COOKIE=nokill nohup ./build/bin/network_table_server > network_table_server.log &'
+                            sh 'JENKINS_NODE_COOKIE=nokill nohup ./build/bin/bbb_eth_listener 192.168.1.60 5555 > bbb_eth_listener.log &'
+                            sh 'JENKINS_NODE_COOKIE=nokill nohup ./build/bin/bbb_canbus_listener vcan0 > bbb_canbus_listener.log &'
+                            sh 'JENKINS_NODE_COOKIE=nokill nohup ./build/bin/bbb_satellite_listener 2 2 2 /tmp/serialport1 > bbb_satellite_listener.log &'
+                            sh 'JENKINS_NODE_COOKIE=nokill nohup ./projects/virtual_iridium/python/Iridium9602.py --webhook_server_endpoint 10.0.0.1:8000 --http_server_port 8085 -d /tmp/serialport2 -m HTTP_POST > virtual_iridium.log &'
                         }
                     }
                 }
@@ -146,7 +146,7 @@ pipeline {
                             sh '''
                                 set +x
                                 source /opt/ros/melodic/setup.bash
-                                JENKINS_NODE_COOKIE=nokill nohup ./build/bin/nuc_eth_listener 192.168.1.60 5555 &
+                                JENKINS_NODE_COOKIE=nokill nohup ./build/bin/nuc_eth_listener 192.168.1.60 5555 > nuc_eth_listener.log &
                             '''
                             sh '''
                                 set +x
@@ -170,8 +170,8 @@ pipeline {
                     }
                     steps {
                         dir("/var/lib/jenkins/workspace/can_bbb_nuc_integration/") {
-                            sh 'JENKINS_NODE_COOKIE=nokill nohup ./build/bin/network_table_server &'
-                            sh 'JENKINS_NODE_COOKIE=nokill nohup ./projects/land_satellite_listener/land_satellite_listener.py -p 8000 -e 10.0.0.3:8085 -f 5 -u SEC --bind tun0 &'
+                            sh 'JENKINS_NODE_COOKIE=nokill nohup ./build/bin/network_table_server > network_table_server.log &'
+                            sh 'JENKINS_NODE_COOKIE=nokill nohup ./projects/land_satellite_listener/land_satellite_listener.py -p 8000 -e 10.0.0.3:8085 -f 5 -u SEC --bind tun0 > land_satellite_listener.log &'
                         }
                     }
                 }
@@ -187,6 +187,53 @@ pipeline {
                         }
                     }
                 }
+
+                stage ('Report logs BBB') {
+                    agent {
+                        label 'bbb'
+                    }
+                    steps {
+                        dir("/home/debian/workspace/can_bbb_nuc_integration/") {
+                            echo "======== BBB network_table_server ========"
+                            sh 'cat network_table_server.log'
+                            echo "======== BBB bbb_eth_listener ========"
+                            sh 'cat bbb_eth_listener.log'
+                            echo "======== BBB bbb_canbus_listener ========"
+                            sh 'cat bbb_canbus_listener.log'
+                            echo "======== BBB bbb_satellite_listener ========"
+                            sh 'cat bbb_satellite_listener.log'
+                            echo "======== BBB virtual_iridium ========"
+                            sh 'cat virtual_iridium.log'
+                        }
+                    }
+                }
+
+                stage ('Report logs NUC') {
+                    agent {
+                        label 'nuc'
+                    }
+                    steps {
+                        dir('/home/raye/workspace/can_bbb_nuc_integration') {
+                            echo "======== NUC nuc_eth_listener ========"
+                            sh 'cat nuc_eth_listener.log'
+                        }
+                    }
+                }
+
+                stage ('Report logs Land Server') {
+                    agent {
+                        label 'master'
+                    }
+                    steps {
+                        dir("/var/lib/jenkins/workspace/can_bbb_nuc_integration/") {
+                            echo "======== Land Server network_table_server ========"
+                            sh 'cat network_table_server.log'
+                            echo "======== Land Server land_satellite_listener ========"
+                            sh 'cat land_satellite_listener.log'
+                        }
+                    }
+                }
+
                 stage ('Cleanup') {
                     steps {
                         cleanup()
