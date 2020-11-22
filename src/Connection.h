@@ -129,6 +129,12 @@ class Connection {
      */
     void WaitForAck();
 
+    /*
+     * Helper function which sends a message
+     * to our background thread telling it to die.
+     */
+    void InterruptManageSocketThread();
+
     void ManageSocket(int timeout_millis, bool async);
 
     zmq::context_t context_;

@@ -17,13 +17,34 @@
 #include <boost/serialization/set.hpp>
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
+#include <atomic>
 #include <iostream>
+#include <cerrno>
 #include <fstream>
 #include <cstdio>
+#include <csignal>
 #include <stdexcept>
+
+// Use this to check if we received
+// a signal, ex SIGINT
+static volatile sig_atomic_t signaled = 0;
+static volatile std::atomic<bool> signal_handler_registered(false);
+
+void signal_handler(int param) {
+      signaled = 1;
+}
 
 NetworkTable::Server::Server()
     : context_(1), welcome_socket_(context_, ZMQ_REP) {
+    // Register our signal handler.
+    // After this, if we ctrl-c,
+    // this function will be called, which allows
+    // us to gracefully exit.
+    if (!signal_handler_registered) {
+        signal(SIGINT, signal_handler);
+        signal_handler_registered = true;
+    }
+
     // Create the folders where sockets go.
     boost::filesystem::create_directory(kWelcome_Directory_);
     boost::filesystem::create_directory(kClients_Directory_);
@@ -76,7 +97,14 @@ void NetworkTable::Server::Run() {
         // Set the timeout to -1, which means poll
         // indefinitely until something happens.
         // This line will block until a socket is ready.
-        zmq::poll(pollitems.data(), num_sockets, -1);
+        try {
+            zmq::poll(pollitems.data(), num_sockets, -1);
+        } catch(const zmq::error_t &e) {
+            if (signaled && e.num() == EINTR) {
+                throw NetworkTable::InterruptedException(e.what());
+            }
+        }
+
 
         if (pollitems[0].revents & ZMQ_POLLIN) {
             CreateNewConnection();
@@ -94,12 +122,23 @@ void NetworkTable::Server::Run() {
                 HandleRequest(sockets_copy[i]);
             }
         }
+        // If we got interrupted, we finish up what we were doing
+        // and then exit.
+        if (signaled) {
+            throw NetworkTable::InterruptedException("Received interrupt signal");
+        }
     }
 }
 
 void NetworkTable::Server::CreateNewConnection() {
     zmq::message_t request;
-    welcome_socket_.recv(&request);
+    try {
+        welcome_socket_.recv(&request);
+    } catch(const zmq::error_t &e) {
+        if (signaled && e.num() == EINTR) {
+            throw NetworkTable::InterruptedException(e.what());
+        }
+    }
 
     std::string message = static_cast<char*>(request.data());
 
@@ -123,12 +162,24 @@ void NetworkTable::Server::CreateNewConnection() {
         std::string reply_body = filepath;
         zmq::message_t reply(reply_body.size()+1);
         memcpy(reply.data(), reply_body.c_str(), reply_body.size()+1);
-        welcome_socket_.send(reply);
+        try {
+            welcome_socket_.send(reply);
+        } catch(const zmq::error_t &e) {
+            if (signaled && e.num() == EINTR) {
+                throw NetworkTable::InterruptedException(e.what());
+            }
+        }
     } else {
         std::string reply_body = "error unknown request: " + message;
         zmq::message_t reply(reply_body.size()+1);
         memcpy(reply.data(), reply_body.c_str(), reply_body.size()+1);
-        welcome_socket_.send(reply);
+        try {
+            welcome_socket_.send(reply);
+        } catch(const zmq::error_t &e) {
+            if (signaled && e.num() == EINTR) {
+                throw NetworkTable::InterruptedException(e.what());
+            }
+        }
     }
 }
 
@@ -149,7 +200,13 @@ void NetworkTable::Server::ReconnectAbandonedSockets() {
 
 void NetworkTable::Server::HandleRequest(socket_ptr socket) {
     zmq::message_t message;
-    socket->recv(&message);
+    try {
+        socket->recv(&message);
+    } catch(const zmq::error_t &e) {
+        if (signaled && e.num() == EINTR) {
+            throw NetworkTable::InterruptedException(e.what());
+        }
+    }
 
     // First check to see if the client wanted to disconnect from the server.
     if (strcmp(static_cast<char*>(message.data()), "disconnect") == 0) {
@@ -225,7 +282,10 @@ void NetworkTable::Server::SetValues(const NetworkTable::SetValuesRequest &reque
 
 void NetworkTable::Server::GetNodes(const NetworkTable::GetNodesRequest &request, \
             std::string id, socket_ptr socket) {
-    auto *getnodes_reply = new NetworkTable::GetNodesReply();
+    NetworkTable::Reply reply;
+    reply.set_id(id);
+    reply.set_type(NetworkTable::Reply::GETNODES);
+    auto *getnodes_reply = reply.mutable_getnodes_reply();
     auto *mutable_nodes = getnodes_reply->mutable_nodes();
 
     for (int i = 0; i < request.uris_size(); i++) {
@@ -234,21 +294,15 @@ void NetworkTable::Server::GetNodes(const NetworkTable::GetNodesRequest &request
             NetworkTable::Node node = NetworkTable::GetNode(uri, &root_);
             (*mutable_nodes)[uri] = node;
         } catch (NetworkTable::NodeNotFoundException) {
-            NetworkTable::Reply reply;
-            reply.set_id(id);
-            reply.set_type(NetworkTable::Reply::ERROR);
-            auto *error_reply = new NetworkTable::ErrorReply;
+            NetworkTable::Reply ereply;  // funny name to avoid shadowing "reply" variable
+            ereply.set_id(id);
+            ereply.set_type(NetworkTable::Reply::ERROR);
+            auto *error_reply = ereply.mutable_error_reply();
             error_reply->set_message_data(std::string(uri + " does not exist"));
-            reply.set_allocated_error_reply(error_reply);
-            SendReply(reply, socket);
+            SendReply(ereply, socket);
             return;
         }
     }
-
-    NetworkTable::Reply reply;
-    reply.set_id(id);
-    reply.set_type(NetworkTable::Reply::GETNODES);
-    reply.set_allocated_getnodes_reply(getnodes_reply);
 
     SendReply(reply, socket);
 }
@@ -323,18 +377,20 @@ void NetworkTable::Server::NotifySubscribers(const std::set<std::string> &uris, 
         // Now, send the reply to anybody who is subscribed to those uris
         for (const std::string &subscribed_uri : subscribed_uris) {
             if (do_not_send.find(subscribed_uri) == do_not_send.end()) {
-                auto *subscribe_reply = new NetworkTable::SubscribeReply();
-                subscribe_reply->set_allocated_node(\
-                        new NetworkTable::Node(NetworkTable::GetNode(subscribed_uri, &root_)));
+                NetworkTable::Reply reply;
+                reply.set_type(NetworkTable::Reply::SUBSCRIBE);
+
+                auto *subscribe_reply = reply.mutable_subscribe_reply();
+
+                auto *node = subscribe_reply->mutable_node();
+                node->CopyFrom(NetworkTable::GetNode(subscribed_uri, &root_));
+
                 subscribe_reply->set_uri(subscribed_uri);
                 subscribe_reply->set_responsible_socket(responsible_socket_filepath);
                 auto reply_diffs = subscribe_reply->mutable_diffs();
                 for (auto const &diff : diffs) {
                     (*reply_diffs)[diff.first] = diff.second;
                 }
-                NetworkTable::Reply reply;
-                reply.set_type(NetworkTable::Reply::SUBSCRIBE);
-                reply.set_allocated_subscribe_reply(subscribe_reply);
 
                 std::set<socket_ptr> subscription_sockets = subscriptions_table_[subscribed_uri];
                 // Do the serialization here, not in the for loop
@@ -360,7 +416,13 @@ void NetworkTable::Server::SendReply(const NetworkTable::Reply &reply, socket_pt
 void NetworkTable::Server::SendSerializedReply(const std::string &serialized_reply, socket_ptr socket) {
     zmq::message_t message(serialized_reply.length());
     memcpy(message.data(), serialized_reply.data(), serialized_reply.length());
-    socket->send(message, ZMQ_DONTWAIT);
+    try {
+        socket->send(message, ZMQ_DONTWAIT);
+    } catch(const zmq::error_t &e) {
+        if (signaled && e.num() == EINTR) {
+            throw NetworkTable::InterruptedException(e.what());
+        }
+    }
 }
 
 void NetworkTable::Server::Ack(const std::string &id, socket_ptr socket) {
@@ -373,7 +435,13 @@ void NetworkTable::Server::Ack(const std::string &id, socket_ptr socket) {
 
     zmq::message_t message(serialized_reply.length());
     memcpy(message.data(), serialized_reply.data(), serialized_reply.length());
-    socket->send(message, ZMQ_DONTWAIT);
+    try {
+        socket->send(message, ZMQ_DONTWAIT);
+    } catch(const zmq::error_t &e) {
+        if (signaled && e.num() == EINTR) {
+            throw NetworkTable::InterruptedException(e.what());
+        }
+    }
 }
 
 void NetworkTable::Server::WriteSubscriptionTable() {

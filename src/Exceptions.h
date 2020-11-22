@@ -18,6 +18,11 @@ public:
     explicit NodeNotFoundException(const std::string &what) : std::runtime_error(what.c_str()) { };
 };
 
+class InterruptedException : public std::runtime_error {
+public:
+    explicit InterruptedException(const std::string &what) : std::runtime_error(what.c_str()) { };
+};
+
 }  // namespace NetworkTable
 
 #endif  // EXCEPTIONS_H_

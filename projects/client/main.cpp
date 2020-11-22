@@ -61,6 +61,9 @@ int main() {
     NetworkTable::Connection connection;
     try {
         connection.Connect(5000);
+    } catch (NetworkTable::InterruptedException) {
+        std::cout << "Received interrupt signal" << std::endl;
+        return 0;
     } catch (NetworkTable::TimeoutException) {
         std::cout << "Connection to server timed out" << std::endl;
         return 0;
