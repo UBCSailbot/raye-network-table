@@ -27,24 +27,6 @@ this script takes about 1 hour to run.
 Python scripts require zmq and protobuf  
 ```pip3 install pyzmq protobuf```
 
-### ROS (Robot Operating System)
-You can enable ROS when running cmake by running:  
-```cmake .. -DENABLE_ROS:BOOL=ON```  
-From then on, ROS will be enabled, even if you run cmake again.  
-To turn it off, run:  
-```cmake .. -DENABLE_ROS:BOOL=OFF```
-
-If ENABLE_ROS is set to ON in the top
-level CMakeLists.txt, this builds an
-extra executable which is ran on the
-Intel NUC. Obviously you will need to have
-ROS and catkin installed. Refer to the [ROS website](https://www.ros.org/install/)
-to find out how to install it on your computer.
-
-To use the sailbot-msg datatypes (for example if you're running
-```rostopic echo /sensors```), you will have to run  
-```source ./build/devel/setup.bash```
-
 ## Compiling
 In the root directory of the repository run these commands:
 ```bash
@@ -53,6 +35,43 @@ cd build
 cmake ..
 make
 ```
+
+## CMake flags (pre-compile)
+When you run cmake, theres certain flags you can pass to cmake
+to control how your project is compiled. Note that
+these variables are "sticky". If you set them, and then
+later you just run ```cmake ..```, the variables will
+still be set to whatever you last set them to. You can either
+pass in the flag again to set them to something else, or delete
+your build folder to reset to normal.
+
+### ROS (Robot Operating System)
+```cmake .. -DENABLE_ROS:BOOL=ON```  
+
+By default, this is set to OFF.
+Setting ENABLE_ROS to ON 
+builds an extra executable which is ran on the
+Intel NUC. Inside the NUC, ROS is used to communicate between
+different processes. Obviously you will need to have
+ROS installed. Refer to the [ROS website](https://www.ros.org/install/)
+to find out how to install it on your computer.
+
+To use the sailbot-msg datatypes from your terminal, (for example if you're running
+```rostopic echo /sensors```), you will have to run  
+```source ./build/devel/setup.bash```
+
+### Welcome Directory
+```cmake .. -DWELCOME_DIRECTORY="\"/tmp/banana/\""```
+
+By default, this is set to "/tmp/sailbot/"
+The "Welcome Directory" is where the network table stores
+all its sockets and files it uses to recover from a crash.
+If you have multiple network tables running, you can change
+this so that they don't mess with each others data.
+You probably won't change this yourself, it's used in the automated
+testing to ensure that automated tests don't conflict
+with people who are SSH'd in and manually running/debugging code.
+Note that you have to escape the quotation marks or it will fail to compile.
 
 ## Running
 Executables can be found in `build/bin/`
