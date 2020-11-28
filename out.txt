@@ -1,0 +1,2034 @@
+Network table is running at /tmp/sailbot/
+network_table_server: waiting for request
+network_table_server: received request: network_table: create connection
+network_table: create connection done
+network_table_server: waiting for request
+network_table_server: received request: network_table: create connection
+network_table: create connection done
+network_table_server: waiting for request
+network_table_server: received request: network_table: create connection
+network_table: create connection done
+network_table_server: waiting for request
+network_table_server: received request: network_table: create connection
+network_table: create connection done
+network_table_server: waiting for request
+network_table_server: received request: network_table: create connection
+network_table: create connection done
+network_table_server: waiting for request
+network_table_server: received request: network_table: create connection
+network_table: create connection done
+network_table_server: waiting for request
+network_table_server: received request: network_table: create connection
+network_table: create connection done
+network_table_server: waiting for request
+network_table_server: received request: network_table: create connection
+network_table: create connection done
+network_table_server: waiting for request
+network_table_server: received request: network_table: create connection
+network_table: create connection done
+network_table_server: waiting for request
+network_table_server: received request: network_table: create connection
+network_table: create connection done
+network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: create connection
+network_table: create connection done
+network_table_server: waiting for request
+network_table_server: received request: network_table: create connection
+network_table: create connection done
+network_table: handle request
+network_table: handle request done
+network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: create connection
+network_table: create connection done
+network_table_server: waiting for request
+network_table_server: received request: network_table: create connection
+network_table: create connection done
+network_table_server: waiting for request
+network_table_server: received request: network_table: create connection
+network_table: create connection done
+network_table_server: waiting for request
+network_table_server: received request: network_table: create connection
+network_table: create connection done
+network_table_server: waiting for request
+network_table_server: received request: network_table: create connection
+network_table: create connection done
+network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: create connection
+network_table: create connection done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: create connection
+network_table: create connection done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: create connection
+network_table: create connection done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+This test may take a few seconds.
+0: connecting
+1: connecting
+2: connecting
+3: connecting
+4: connecting
+5: connecting
+6: connecting
+7: connecting
+8: connecting
+9: connecting
+10: connecting
+11: connecting
+12: connecting
+13: connecting
+14: connecting
+15: connecting
+0: done connecting
+0: setting values
+2: done connecting
+2: setting values
+5: done connecting
+5: setting values
+13: done connecting
+13: setting values
+4: done connecting
+4: setting values
+16: connecting
+14: done connecting
+8: done connecting
+8: setting values
+17: connecting
+14: setting values
+2: done setting values
+2: getting values
+3: done connecting
+3: setting values
+9: done connecting
+9: setting values
+6: done connecting
+12: done connecting
+12: setting values
+18: connecting
+7: done connecting
+7: setting values
+6: setting values
+15: done connecting
+15: setting values
+13: done setting values
+13: getting values
+3: done setting values
+3: getting values
+0: done setting values
+0: getting values
+17: done connecting
+17: setting values
+1: done connecting
+10: done connecting
+10: setting values
+14: done setting values
+14: getting values
+2: done getting values
+5: done setting values
+5: getting values
+19: connecting
+2: setting values
+18: done connecting
+1: setting values
+11: done connecting
+11: setting values
+7: done setting values
+7: getting values
+5: done getting values
+5: setting values
+13: done getting values
+13: setting values
+3: done getting values
+3: setting values
+12: done setting values
+12: getting values
+16: done connecting
+16: setting values
+15: done setting values
+15: getting values
+8: done setting values
+8: getting values
+0: done getting values
+0: setting values
+10: done setting values
+10: getting values
+17: done setting values
+17: getting values
+18: setting values
+19: done connecting
+19: setting values
+16: done setting values
+16: getting values
+6: done setting values
+6: getting values
+14: done getting values
+12: done getting values
+12: setting values
+5: done setting values
+5: getting values
+7: done getting values
+3: done setting values
+3: getting values
+4: done setting values
+4: getting values
+7: setting values
+8: done getting values
+8: setting values
+13: done setting values
+13: getting values
+16: done getting values
+16: setting values
+18: done setting values
+18: getting values
+11: done setting values
+11: getting values
+5: done getting values
+5: setting values
+6: done getting values
+6: setting values
+0: done setting values
+0: getting values
+19: done setting values
+19: getting values
+14: setting values
+17: done getting values
+17: setting values
+15: done getting values
+15: setting values
+16: done setting values
+16: getting values
+7: done setting values
+7: getting values
+8: done setting values
+8: getting values
+9: done setting values
+9: getting values
+14: done setting values
+14: getting values
+19: done getting values
+19: setting values
+3: done getting values
+3: setting values
+9: done getting values
+9: setting values
+0: done getting values
+0: setting values
+4: done getting values
+4: setting values
+0: done setting values
+0: getting values
+18: done getting values
+18: setting values
+5: done setting values
+5: getting values
+7: done getting values
+6: done setting values
+6: getting values
+5: done getting values
+11: done getting values
+11: setting values
+17: done setting values
+17: getting values
+2: done setting values
+2: getting values
+9: done setting values
+9: getting values
+10: done getting values
+10: setting values
+6: done getting values
+6: setting values
+0: done getting values
+0: setting values
+2: done getting values
+2: setting values
+11: done setting values
+11: getting values
+13: done getting values
+13: setting values
+1: done setting values
+1: getting values
+17: done getting values
+16: done getting values
+5: setting values
+8: done getting values
+8: setting values
+17: setting values
+7: setting values
+16: setting values
+15: done setting values
+15: getting values
+11: done getting values
+3: done setting values
+3: getting values
+10: done setting values
+10: getting values
+14: done getting values
+14: setting values
+4: done setting values
+4: getting values
+11: setting values
+6: done setting values
+6: getting values
+18: done setting values
+18: getting values
+15: done getting values
+15: setting values
+16: done setting values
+16: getting values
+19: done setting values
+19: getting values
+5: done setting values
+5: getting values
+1: done getting values
+1: setting values
+7: done setting values
+7: getting values
+6: done getting values
+6: setting values
+18: done getting values
+18: setting values
+14: done setting values
+14: getting values
+17: done setting values
+17: getting values
+10: done getting values
+10: setting values
+9: done getting values
+9: setting values
+14: done getting values
+3: done getting values
+15: done setting values
+15: getting values
+2: done setting values
+2: getting values
+11: done setting values
+11: getting values
+13: done setting values
+13: getting values
+3: setting values
+18: done setting values
+18: getting values
+6: done setting values
+6: getting values
+16: done getting values
+16: setting values
+5: done getting values
+17: done getting values
+17: setting values
+6: done getting values
+6: setting values
+3: done setting values
+3: getting values
+7: done getting values
+7: setting values
+15: done getting values
+15: setting values
+19: done getting values
+19: setting values
+12: done setting values
+12: getting values
+1: done setting values
+1: getting values
+3: done getting values
+4: done getting values
+4: setting values
+10: done setting values
+10: getting values
+13: done getting values
+13: setting values
+14: setting values
+1: done getting values
+1: setting values
+3: setting values
+18: done getting values
+8: done setting values
+8: getting values
+2: done getting values
+2: setting values
+18: setting values
+13: done setting values
+13: getting values
+14: done setting values
+14: getting values
+8: done getting values
+9: done setting values
+9: getting values
+5: setting values
+11: done getting values
+11: setting values
+15: done setting values
+15: getting values
+0: done setting values
+0: getting values
+8: setting values
+16: done setting values
+16: getting values
+17: done setting values
+17: getting values
+7: done setting values
+7: getting values
+14: done getting values
+17: done getting values
+17: setting values
+6: done setting values
+6: getting values
+19: done setting values
+19: getting values
+5: done setting values
+5: getting values
+3: done setting values
+3: getting values
+7: done getting values
+15: done getting values
+15: setting values
+0: done getting values
+14: setting values
+6: done getting values
+6: setting values
+11: done setting values
+11: getting values
+10: done getting values
+10: setting values
+14: done setting values
+14: getting values
+9: done getting values
+0: setting values
+2: done setting values
+2: getting values
+17: done setting values
+17: getting values
+7: setting values
+5: done getting values
+5: setting values
+9: setting values
+10: done setting values
+10: getting values
+13: done getting values
+13: setting values
+10: done getting values
+10: setting values
+18: done setting values
+18: getting values
+12: done getting values
+12: setting values
+1: done setting values
+1: getting values
+9: done setting values
+9: getting values
+14: done getting values
+11: done getting values
+3: done getting values
+16: done getting values
+16: setting values
+3: setting values
+1: done getting values
+1: setting values
+7: done setting values
+7: getting values
+3: done setting values
+3: getting values
+14: setting values
+13: done setting values
+13: getting values
+19: done getting values
+19: setting values
+8: done setting values
+8: getting values
+18: done getting values
+17: done getting values
+17: setting values
+9: done getting values
+9: setting values
+12: done setting values
+12: getting values
+14: done setting values
+14: getting values
+18: setting values
+2: done getting values
+2: setting values
+7: done getting values
+1: done setting values
+1: getting values
+8: done getting values
+8: setting values
+4: done setting values
+4: getting values
+11: setting values
+17: done setting values
+17: getting values
+7: setting values
+1: done getting values
+1: setting values
+15: done setting values
+15: getting values
+9: done setting valuesnetwork_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+Network table is running at /tmp/sailbot/
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table: handle request
+network_table: handle request done
+network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table: handle request
+network_table: handle request done
+network_table: handle request
+network_table: handle request done
+network_table: handle request
+network_table: handle request done
+network_table: handle request
+network_table: handle request done
+network_table: handle request
+network_table: handle request done
+network_table: handle request
+network_table: handle request done
+network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table: handle request
+network_table: handle request done
+network_table: handle request
+network_table: handle request done
+network_table: handle request
+network_table: handle request done
+network_table: handle request
+network_table: handle request done
+network_table: handle request
+network_table: handle request done
+network_table: handle request
+network_table: handle request done
+network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table: handle request
+network_table: handle request done
+network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table: handle request
+network_table: handle request done
+network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+16: done setting values
+16: getting values
+12: done getting values
+3: done getting values
+3: setting values
+6: done setting values
+6: getting values
+5: done setting values
+5: getting values
+10: done setting values
+10: getting values
+12: setting values
+11: done setting values
+11: getting values
+0: done setting values
+0: getting values
+
+9: getting values
+13: done getting values
+17: done getting values
+17: setting values
+13: setting values
+14: done getting values
+14: setting values
+16: done getting values
+16: setting values
+4: done getting values
+4: setting values
+16: done setting values
+16: getting values
+3: done setting values
+3: getting values
+0: done getting values
+8: done setting values
+8: getting values
+0: setting values
+16: done getting values
+16: setting values
+13: done setting values
+13: getting values
+8: done getting values
+8: setting values
+15: done getting values
+15: setting values
+7: done setting values
+7: getting values
+11: done getting values
+1: done setting values
+1: getting values
+4: done setting values
+4: getting values
+19: done setting values
+19: getting values
+17: done setting values
+17: getting values
+5: done getting values
+5: setting values
+7: done getting values
+7: setting values
+12: done setting values
+12: getting values
+4: done getting values
+4: setting values
+0: done setting values
+0: getting values
+14: done setting values
+14: getting values
+11: setting values
+1: done getting values
+1: setting values
+10: done getting values
+10: setting values
+14: done getting values
+14: setting values
+16: done setting values
+16: getting values
+9: done getting values
+9: setting values
+10: done setting values
+10: getting values
+7: done setting values
+7: getting values
+17: done getting values
+17: setting values
+3: done getting values
+3: setting values
+16: done getting values
+3: done setting values
+3: getting values
+0: done getting values
+0: setting values
+16: setting values
+3: done getting values
+3: setting values
+5: done setting values
+5: getting values
+0: done setting values
+0: getting values
+19: done getting values
+19: setting values
+10: done getting values
+10: setting values
+1: done setting values
+1: getting values
+15: done setting values
+15: getting values
+16: done setting values
+16: getting values
+0: done getting values
+16: done getting values
+16: setting values
+13: done getting values
+13: setting values
+0: setting values
+3: done setting values
+3: getting values
+4: done setting values
+4: getting values
+15: done getting values
+15: setting values
+11: done setting values
+11: getting values
+3: done getting values
+11: done getting values
+16: done setting values
+16: getting values
+9: done setting values
+9: getting values
+0: done setting values
+0: getting values
+13: done setting values
+13: getting values
+8: done setting values
+8: getting values
+5: done getting values
+5: setting values
+7: done getting values
+7: setting values
+4: done getting values
+4: setting values
+13: done getting values
+13: setting values
+12: done getting values
+12: setting values
+3: setting values
+12: done setting values
+12: getting values
+0: done getting values
+11: setting values
+3: done setting values
+3: getting values
+19: done setting values
+19: getting values
+0: setting values
+9: done getting values
+9: setting values
+17: done setting values
+17: getting values
+4: done setting values
+4: getting values
+6: done getting values
+15: done setting values
+15: getting values
+19: done getting values
+19: setting values
+0: done setting values
+0: getting values
+6: setting values
+1: done getting values
+1: setting values
+14: done setting values
+14: getting values
+3: done getting values
+3: disconnecting
+15: done getting values
+3: done disconnecting
+10: done setting values
+10: getting values
+0: done getting values
+0: setting values
+8: done getting values
+8: setting values
+0: done setting values
+0: getting values
+6: done setting values
+6: getting values
+13: done setting values
+13: getting values
+17: done getting values
+12: done getting values
+12: setting values
+16: done getting values
+16: setting values
+5: done setting values
+5: getting values
+19: done setting values
+19: getting values
+14: done getting values
+17: setting values
+6: done getting values
+6: setting values
+15: setting values
+14: setting values
+4: done getting values
+4: setting values
+16: done setting values
+16: getting values
+11: done setting values
+11: getting values
+15: done setting values
+15: getting values
+5: done getting values
+5: setting values
+9: done setting values
+9: getting values
+19: done getting values
+19: setting values
+7: done setting values
+7: getting values
+13: done getting values
+13: setting values
+7: done getting values
+7: setting values
+10: done getting values
+10: setting values
+19: done setting values
+19: getting values
+17: done setting values
+17: getting values
+12: done setting values
+12: getting values
+17: done getting values
+17: setting values
+12: done getting values
+12: setting values
+9: done getting values
+9: setting values
+0: done getting values
+0: disconnecting
+0: done disconnecting
+16: done getting values
+16: disconnecting
+15: done getting values
+11: done getting values
+11: setting values
+7: done setting values
+7: getting values
+13: done setting values
+13: getting values
+7: done getting values
+7: setting values
+16: done disconnecting
+15: setting values
+14: done setting values
+14: getting values
+10: done setting values
+10: getting values
+9: done setting values
+9: getting values
+12: done setting values
+12: getting values
+15: done setting values
+15: getting values
+19: done getting values
+19: setting values
+8: done setting values
+8: getting values
+14: done getting values
+14: setting values
+9: done getting values
+9: setting values
+8: done getting values
+8: setting values
+6: done setting values
+6: getting values
+13: done getting values
+13: setting values
+5: done setting values
+5: getting values
+4: done setting values
+4: getting values
+1: done setting values
+1: getting values
+11: done setting values
+11: getting values
+12: done getting values
+12: setting values
+10: done getting values
+10: setting values
+7: done setting values
+7: getting values
+5: done getting values
+5: setting values
+4: done getting values
+4: setting values
+17: done setting values
+17: getting values
+9: done setting values
+9: getting values
+8: done setting values
+8: getting values
+7: done getting values
+7: disconnecting
+12: done setting values
+12: getting values
+11: done getting values
+11: setting values
+14: done setting values
+14: getting values
+13: done setting values
+13: getting values
+6: done getting values
+6: setting values
+8: done getting values
+8: setting values
+14: done getting values
+14: disconnecting
+10: done setting values
+10: getting values
+19: done setting values
+19: getting values
+7: done disconnecting
+1: done getting values
+1: setting values
+13: done getting values
+13: disconnecting
+17: done getting values
+17: disconnecting
+4: done setting values
+4: getting values
+10: done getting values
+14: done disconnecting
+4: done getting values
+4: setting values
+15: done getting values
+15: setting values
+8: done setting values
+8: getting values
+13: done disconnecting
+10: setting values
+6: done setting values
+6: getting values
+17: done disconnecting
+1: done setting values
+1: getting values
+9: done getting values
+5: done setting values
+5: getting values
+11: done setting values
+11: getting values
+9: setting values
+1: done getting values
+15: done setting values
+15: getting values
+19: done getting values
+19: setting values
+12: done getting values
+12: setting values
+8: done getting values
+8: setting values
+15: done getting values
+15: disconnecting
+11: done getting values
+11: setting values
+1: setting values
+8: done setting values
+8: getting values
+19: done setting values
+19: getting values
+9: done setting values
+9: getting values
+10: done setting values
+10: getting values
+15: done disconnecting
+10: done getting values
+10: disconnecting
+1: done setting values
+1: getting values
+4: done setting values
+4: getting values
+6: done getting values
+6: setting values
+8: done getting values
+8: disconnecting
+11: done setting values
+11: getting values
+4: done getting values
+9: done getting values
+9: disconnecting
+1: done getting values
+1: setting valuesnetwork_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+network_table_server: received request: network_table: handle request
+network_table: handle request done
+network_table_server: waiting for request
+Network table is running at /tmp/sailbot/
+network_table_server: waiting for request
+Network table is running at /tmp/sailbot/
+network_table_server: waiting for request
+Network table is running at /tmp/sailbot/
+network_table_server: waiting for request
+Network table is running at /tmp/sailbot/
+network_table_server: waiting for request
+Network table is running at /tmp/sailbot/
+network_table_server: waiting for request
+Network table is running at /tmp/sailbot/
+network_table_server: waiting for request
+Network table is running at /tmp/sailbot/
+network_table_server: waiting for request
+Network table is running at /tmp/sailbot/
+network_table_server: waiting for request
+Network table is running at /tmp/sailbot/
+network_table_server: waiting for request
+Network table is running at /tmp/sailbot/
+network_table_server: waiting for request
+Network table is running at /tmp/sailbot/
+network_table_server: waiting for request
+Network table is running at /tmp/sailbot/
+network_table_server: waiting for request

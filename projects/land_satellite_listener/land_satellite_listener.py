@@ -12,55 +12,61 @@ import threading
 import time
 import sys
 import argparse
+import keyring
+from requests.auth import HTTPBasicAuth
 from functools import partial
 
 
 class HTTPRequestHandler(BaseHTTPRequestHandler):
-    def __init__(self, nt_connection, *args, **kwargs):
+    def __init__(self, nt_connection, accepted_ip_addresses, *args, **kwargs):
         self.nt_connection = nt_connection
+        self.accepted_ip_addresses = accepted_ip_addresses
         super().__init__(*args, **kwargs)
 
     def do_POST(self):
-        print("Handling post request")
-        content_len = int(self.headers['Content-Length'])
-        body = self.rfile.read(content_len)
-        sat = Satellite_pb2.Satellite()
-        helper = Help()
+        if self.client_address[0] in self.accepted_ip_addresses:
+            print("Handling post request")
+            content_len = int(self.headers['Content-Length'])
+            body = self.rfile.read(content_len)
+            sat = Satellite_pb2.Satellite()
+            helper = Help()
 
-        try:
-            sat.ParseFromString(body)
-            if sat.type == Satellite_pb2.Satellite.Type.SENSORS:
-                print("Receiving Sensor Data")
-                values = helper.sensors_to_root(sat.sensors)
-                self.nt_connection.setValues(values)
+            try:
+                sat.ParseFromString(body)
+                if sat.type == Satellite_pb2.Satellite.Type.SENSORS:
+                    print("Receiving Sensor Data")
+                    values = helper.sensors_to_root(sat.sensors)
+                    self.nt_connection.setValues(values)
 
-            elif sat.type == Satellite_pb2.Satellite.Type.UCCMS:
-                print("Receiving UCCM Data")
-                values = helper.uccms_to_root(sat.uccms)
-                self.nt_connection.setValues(values)
+                elif sat.type == Satellite_pb2.Satellite.Type.UCCMS:
+                    print("Receiving UCCM Data")
+                    values = helper.uccms_to_root(sat.uccms)
+                    self.nt_connection.setValues(values)
 
-            elif sat.type == Satellite_pb2.Satellite.Type.VALUE:
-                print("Receiving Waypoint Data")
-                print(sat.value)
+                elif sat.type == Satellite_pb2.Satellite.Type.VALUE:
+                    print("Receiving Waypoint Data")
+                    print(sat.value)
 
-            else:
-                print("Did Not receive Sensor or UCCM data")
-                print(body)
+                else:
+                    print("Did Not receive Sensor or UCCM data")
+                    print(body)
 
-            self.send_response(200)
-            self.end_headers()
+                self.send_response(200)
+                self.end_headers()
 
-        except IOError:
-            print("Error Decoding incoming data")
-            pass
+            except IOError:
+                print("Error Decoding incoming data")
+                pass
 
-        except ConnectionError:
-            print("Error setting network table value")
-            pass
+            except ConnectionError:
+                print("Error setting network table value")
+                pass
+        else:
+            print("**ERROR: Client's IP Address is not valid, cancelling post request...")
 
 
 class runServer(threading.Thread):
-    def __init__(self, port, target_address, nt_connection):
+    def __init__(self, port, target_address, nt_connection, accepted_ip_addresses):
         """ Server class that receives satellite data from the boat
 
                      port - http server port number
@@ -70,16 +76,17 @@ class runServer(threading.Thread):
         self.port = port
         self.target_address = target_address
         self.nt_connection = nt_connection
+        self.accepted_ip_addresses = accepted_ip_addresses
 
     def run(self):
         """ Initiates the HTTP Server"""
-        handler = partial(HTTPRequestHandler, self.nt_connection)
+        handler = partial(HTTPRequestHandler, self.nt_connection, self.accepted_ip_addresses)
         httpd = HTTPServer((self.target_address, self.port), handler)
         httpd.serve_forever()
 
 
 class runClient(threading.Thread):
-    def __init__(self, nt_connection, poll_freq, ENDPOINT):
+    def __init__(self, nt_connection, poll_freq, ENDPOINT, username, password):
         """ Client class that sends waypoints to the boat
             via satellite
 
@@ -92,6 +99,8 @@ class runClient(threading.Thread):
         self.nt_connection = nt_connection
         self.poll_freq = poll_freq
         self.ENDPOINT = ENDPOINT
+        self.username = username
+        self.password = password
 
     def init_waypoints(self):
         """ Initializes a satellite object that can be sent to the boat"""
@@ -118,11 +127,15 @@ class runClient(threading.Thread):
                 node = Node_pb2.Node()
                 node.CopyFrom(node_container["waypoints"])
 
+                if self.password is None or self.username is None:
+                    security = None
+                else:
+                    security = {'username': self.username, 'password': self.password}
+
                 if (node.value.type == Value_pb2.Value.Type.WAYPOINTS
                         and node.value != prev_sat.value):
                     cur_sat.value.CopyFrom(node.value)
-                    requests.post(
-                        self.ENDPOINT, data=cur_sat.SerializeToString())
+                    requests.post(self.ENDPOINT, params=security, data=cur_sat.SerializeToString())
                     prev_sat.value.CopyFrom(cur_sat.value)
 
                 time.sleep(self.poll_freq)
@@ -181,8 +194,24 @@ def main():
         default="",
         required=False)
 
-    args = parser.parse_args()
+    parser.add_argument('-n',
+                        '--username',
+                        type=str,
+                        help='Username for RockBlock')
 
+    parser.add_argument('-w',
+                        '--password',
+                        type=str,
+                        help='Password for RockBlock')
+
+    parser.add_argument('-i',
+                        '--ip_addresses',
+                        nargs='+',
+                        type=str,
+                        help='Accepted ip addresses for RockBlock')
+
+    args = parser.parse_args()
+    
     # Get the polling frequency in seconds
     poll_freq = args.freq
     freq_unit = args.unit
@@ -197,8 +226,8 @@ def main():
     nt_connection = Connection()
     nt_connection.Connect()
 
-    server = runServer(args.port, args.bind, nt_connection)
-    client = runClient(nt_connection, poll_freq, args.endpoint)
+    server = runServer(args.port, args.bind, nt_connection, args.ip_addresses)
+    client = runClient(nt_connection, poll_freq, args.endpoint, args.username, args.password)
     server.start()
     client.start()
 

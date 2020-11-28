@@ -36,7 +36,7 @@ pipeline {
                         // Make sure canbus is enabled
                         dir("/home/debian/workspace/can_bbb_nuc_integration/") {
                             checkout scm
-                            sh 'git submodule update --init --recursive'
+                            // sh 'git submodule update --init --recursive'
                             sh 'git clean -dff'
 
                             //
@@ -66,7 +66,7 @@ pipeline {
                         // specifically we want nuc_eth_listener
                         dir('/home/raye/workspace/can_bbb_nuc_integration') {
                             checkout scm
-                            sh 'git submodule update --init --recursive'
+                            // sh 'git submodule update --init --recursive'
                             sh 'git clean -dff'
                             // We're not running network_table_server here,
                             // so we don't need the WELCOME_DIRECTORY flag
@@ -103,7 +103,7 @@ pipeline {
                         // Make sure canbus is enabled
                         dir("/var/lib/jenkins/workspace/can_bbb_nuc_integration/") {
                             checkout scm
-                            sh 'git submodule update --init --recursive'
+                            // sh 'git submodule update --init --recursive'
                             sh 'git clean -dff'
                             sh '''
                                 mkdir -p build

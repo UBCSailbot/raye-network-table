@@ -15,12 +15,23 @@ Install protobuf for python3:
 ```pip3 install protobuf```
 
 To run the script:  
-```python3 land_satellite_listener.py <SERVER_PORT_NUMBER> <HTTP_POST_ENDPOINT> <POLL_FREQUENCY> <UNIT> <BINDING_ADDRESS>```
+```python3 land_satellite_listener.py <SERVER_PORT_NUMBER> <HTTP_POST_ENDPOINT> <POLL_FREQUENCY> <UNIT> <BINDING_ADDRESS> <USERNAME> <PASSWORD> <ACCEPTED_IP_ADDRESSES>```
 
 For example:
 ```
-python3 land_satellite_listener.py -p 8000 -e https://rockblock.rock7.com/rockblock/MT -f 30 -u SEC -b 70.36.55.243 
+python3 land_satellite_listener.py -p 8000 -e https://rockblock.rock7.com/rockblock/MT -f 30 -u SEC -b 70.36.55.243 -n sailbot -p raye2020 -i 109.74.196.135 212.71.235.32
 ```
+
+Binding Address - where you are running the service
+
+Accepted IPs - List of addresses server can accept requests from 
+
+## Security
+The parameters <USERNAME> <PASSWORD> <ACCEPTED_IP_ADDRESSES> are to enforce security measures. 
+The "username" and "password" will be sent as a paramater in the POST request when talking to the Iridium. The Iridium
+will then ensure the username and password are correct before accepting any data. 
+The "accepted ip address(es)" ensures the data being sent to the land satellite listener comes from a correct source. 
+The program verifies if the client's ip address matches the list of ip addresses that you decide.  
 
 ## Full-Scale Testing 
 Refer to bbb_rockblock_listener README for full-scale testing with the virtual rockblock.
@@ -58,8 +69,15 @@ sudo ufw allow 8080
 sudo ufw status
 ```
 
-Run the script to start the HTTP server:  
-```python3 land_satellite_listener.py 8080 ```
+Run the script to start the HTTP server:
+
+To get the list of parameters required:  
+```python3 land_satellite_listener.py -h```
+
+Example command: 
+```python3 land_satellite_listener.py -p 8000 -e http://localhost:8080 -f 1000 -u SEC```
+
+TODO: explain how to use username and password parameters
 
 Send sensor data:  
 ```curl -X POST --data-binary @sensorBinaryData.txt http://<VM_PUBLIC_IP>:8080```
