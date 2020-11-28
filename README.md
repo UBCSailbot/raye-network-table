@@ -13,16 +13,7 @@ Clone all submodules:
 ```git submodule update --init --recursive```  
 
 Install these dependencies (all should be available via apt-get):  
-```build-essential cppcheck pep8 cmake clang libzmq3-dev libboost-all-dev pkg-config```
-
-The following dependencies are needed to build protobuf.
-They're pretty common anyways, you probably have a lot of them:  
-```autoconf automake libtool curl make g++ unzip```
-
-Run this script to compile and install protobuf
- locally in the lib folder. **warning**, 
-this script takes about 1 hour to run.  
-```./scripts/utility/install_protobuf.sh```
+```build-essential cppcheck pep8 cmake clang libzmq3-dev libboost-all-dev pkg-config libprotobuf-dev protobuf-compiler```
 
 Python scripts require zmq and protobuf  
 ```pip3 install pyzmq protobuf```
