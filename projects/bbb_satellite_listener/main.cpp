@@ -34,6 +34,8 @@ boost::asio::serial_port serial(io);
 uint16_t receive_size;
 uint16_t receive_freq;
 
+NetworkTable::Connection connection;
+
 /*
  * boost::asio::read uses a non const reference,
  * so this function dues the same.
@@ -103,11 +105,7 @@ void send(const std::string &data) {
 
 /* Deserialize google protobuf message */
 std::string decodeMessage(boost::asio::serial_port &p /* NOLINT(runtime/references) */) {
-    NetworkTable::Sensors sensorData;
-    NetworkTable::Uccms uccmData;
     NetworkTable::Satellite satellite;
-    NetworkTable::Value value;
-
     std::string data;
     char c;
 
@@ -124,8 +122,10 @@ std::string decodeMessage(boost::asio::serial_port &p /* NOLINT(runtime/referenc
     } else if (satellite.type() == NetworkTable::Satellite::UCCMS) {
         std::cout << "UCCM DATA" << std::endl;
         return satellite.DebugString();
-    } else if (satellite.type() == NetworkTable::Satellite::VALUE) {
+    } else if (satellite.type() == NetworkTable::Satellite::VALUE &&
+               satellite.value().type() == NetworkTable::Value::WAYPOINTS) {
         std::cout << "WAYPOINT DATA" << std::endl;
+        connection.SetValue("waypoints", satellite.value());
         return satellite.DebugString();
     } else {
         throw std::runtime_error("Failed to decode satellite data");
@@ -278,8 +278,6 @@ int main(int argc, char **argv) {
     serial.open(serialPort);
 
     receive_size = 0;
-
-    NetworkTable::Connection connection;
 
     connection.Connect(1000, true);
 
