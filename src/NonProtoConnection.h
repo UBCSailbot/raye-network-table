@@ -14,6 +14,7 @@
 #include <string>
 #include <utility>
 #include <list>
+#include <vector>
 
 namespace NetworkTable{
 class NonProtoConnection : public Connection {
@@ -93,13 +94,18 @@ class NonProtoConnection : public Connection {
      *                 is the uri, and Value is what to set the
      *                 value at that uri to.
      */
-    void SetWaypointValues(const std::list<std::pair<double, double>> &values);
+    void SetWaypointValues(const std::vector<std::pair<double, double>> &values);
 
 
     /*
-     * Returns the current gps coordinates  
+     * Returns the current gps waypoint coordinates  
      */
     std::list<std::pair<double, double>> GetCurrentWaypoints(); 
+
+	/* 
+	 * Returns current gps location
+	 */
+    std::pair<double, double> GetCurrentGpsCoords(); 
 
 };
 
