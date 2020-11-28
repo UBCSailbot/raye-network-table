@@ -20,6 +20,16 @@ int main() {
     }
 
     int val = 4;
+    int lat = 48;
+    int lon = 235;
+    NetworkTable::Value lat_val;
+    lat_val.set_type(NetworkTable::Value::INT);
+    NetworkTable::Value lon_val;
+    lon_val.set_type(NetworkTable::Value::INT);
+    lat_val.set_int_data(lat);
+    lon_val.set_int_data(lon);
+    connection.SetValue("gps/gprmc/longitude", lon_val);
+    connection.SetValue("gps/gprmc/latitude", lat_val);
     while (true) {
         NetworkTable::Value value;
         value.set_type(NetworkTable::Value::INT);

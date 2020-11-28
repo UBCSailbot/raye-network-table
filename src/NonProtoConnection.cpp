@@ -84,13 +84,13 @@ void NetworkTable::NonProtoConnection::SetBooleanValues(const std::map<std::stri
 }
 
 void NetworkTable::NonProtoConnection::SetWaypointValue(const std::pair<double, double> &value) {
-    std::list<std::pair<double, double>> coordinates;
+    std::vector<std::pair<double, double>> coordinates;
     coordinates.push_back(value);
 
     SetWaypointValues(coordinates);
 }
 
-void NetworkTable::NonProtoConnection::SetWaypointValues(const std::list<std::pair<double, double>> &values) {
+void NetworkTable::NonProtoConnection::SetWaypointValues(const std::vector<std::pair<double, double>> &values) {
     std::map<std::string, NetworkTable::Value> proto_values;
     std::string uri = "waypoints";
     NetworkTable::Value waypoints_val;
@@ -121,4 +121,19 @@ std::list<std::pair<double, double>> NetworkTable::NonProtoConnection::GetCurren
     }
 
     return coordinates;
+}
+
+std::pair<double, double> NetworkTable::NonProtoConnection::GetCurrentGpsCoords() {
+    const std::string lat_uri = "gps/gprmc/latitude";
+    const std::string lon_uri = "gps/gprmc/longitude";
+
+    double lat, lon;
+    std::pair<double, double> curr_gps;
+    lat = GetValue(lat_uri).int_data();
+    lon = GetValue(lon_uri).int_data();
+
+    curr_gps.first = lat;
+    curr_gps.second = lon;
+
+    return curr_gps;
 }
