@@ -5,6 +5,9 @@
 # You specify the channel
 # To run the script---> python3 record_sensors.py -i [channel]
 # (OPTIONAL) Print the data to terminal---> python3 record_sensors.py -i [channel] -v True
+# ***NOTE: The data recieved from the canbus will be written in little endian notation.
+#          For example, if the bytearray received from the canbus is [0x1a, 0x2b, 0x3c],
+#          then it will be written into the csv file as "3c2b1a".
 
 import argparse
 import sys
@@ -30,7 +33,7 @@ def record_sensor_data(input_channel, verbose=False):
             try:
                 elapsed_time = (time.time() - start)*1000
                 writer.writerow(["{:.0f}".format(elapsed_time), str(
-                    msg.arbitration_id), bytes(msg.data).hex()])
+                    msg.arbitration_id), bytes(msg.data).hex()[::-1]])
             except can.CanError:
                 print("Error Recording data to csv")
                 pass

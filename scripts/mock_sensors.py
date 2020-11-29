@@ -32,7 +32,7 @@ def playback_sensor_data(input_file, channel, loop):
         reader = csv.reader(logfile)
         for line in reader:
             msg = can.Message(arbitration_id=int(
-                line[1]), dlc=None, data=bytes.fromhex(line[2]))
+                line[1]), dlc=None, data=bytes.fromhex(line[2][::-1]))
             # Skip sleeping when reading first line: no previous timestamp to reference off from
             if last_line is not None:
                 # Calculate the amount of time to sleep for by
