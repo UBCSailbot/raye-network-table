@@ -1,9 +1,0 @@
-syntax = "proto3";
-
-package NetworkTable;
-
-import "Node.proto";
-
-message GetNodesReply {
-    map<string, Node> nodes = 1;
-}

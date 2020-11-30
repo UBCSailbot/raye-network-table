@@ -14,3 +14,6 @@
 [submodule "projects/virtual_iridium"]
 	path = projects/virtual_iridium
 	url = https://github.com/UBCSailbot/virtual_iridium.git
+[submodule "src/protofiles"]
+	path = src/protofiles
+	url = https://github.com/UBCSailbot/protofiles.git

@@ -24,22 +24,28 @@ set(NT_CLIENT_HDRS
         NonProtoConnection.h
         )
 
+# just manually go into the protofiles subrepo
+# and compile our protofiles, instead of
+# using the cmakelists file inside protofiles.
+# if we used it, we would compile some random
+# files we don't need, and compile time
+# on the BBB is already slow enough
 protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS
-    protofiles/ActuationAngle.proto
-    protofiles/Node.proto
-    protofiles/Reply.proto
-    protofiles/Request.proto
-    protofiles/SetValuesRequest.proto
-    protofiles/GetNodesReply.proto
-    protofiles/GetNodesRequest.proto
-    protofiles/Satellite.proto
-    protofiles/Sensors.proto
-    protofiles/SubscribeRequest.proto
-    protofiles/SubscribeReply.proto
-    protofiles/Uccms.proto
-    protofiles/UnsubscribeRequest.proto
-    protofiles/Value.proto
-    protofiles/ErrorReply.proto
+    protofiles/network_table/ActuationAngle.proto
+    protofiles/network_table/Node.proto
+    protofiles/network_table/Reply.proto
+    protofiles/network_table/Request.proto
+    protofiles/network_table/SetValuesRequest.proto
+    protofiles/network_table/GetNodesReply.proto
+    protofiles/network_table/GetNodesRequest.proto
+    protofiles/network_table/Satellite.proto
+    protofiles/network_table/Sensors.proto
+    protofiles/network_table/SubscribeRequest.proto
+    protofiles/network_table/SubscribeReply.proto
+    protofiles/network_table/Uccms.proto
+    protofiles/network_table/UnsubscribeRequest.proto
+    protofiles/network_table/Value.proto
+    protofiles/network_table/ErrorReply.proto
     )
 
 add_library(nt_server STATIC ${NT_SERVER_SRCS} ${NT_SERVER_HDRS} ${PROTO_SRCS} ${PROTO_HDRS})
