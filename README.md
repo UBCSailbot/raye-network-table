@@ -12,11 +12,12 @@ data between various other programs. These are located in the `projects` folder.
 Clone all submodules:  
 ```git submodule update --init --recursive```  
 
-Install these dependencies (all should be available via apt-get):  
-```build-essential cppcheck pep8 cmake clang libzmq3-dev libboost-all-dev pkg-config libprotobuf-dev protobuf-compiler```
+Install these dependencies:  
+```sudo apt-get install build-essential cppcheck pep8 cmake clang libzmq3-dev libboost-all-dev pkg-config libprotobuf-dev protobuf-compiler```
 
-Python scripts require zmq and protobuf  
-```pip3 install pyzmq protobuf```
+Python scripts require the following:  
+```pip3 install pyzmq protobuf python-can```  
+```pip2 install pyserial requests```
 
 ## Compiling
 In the root directory of the repository run these commands:
