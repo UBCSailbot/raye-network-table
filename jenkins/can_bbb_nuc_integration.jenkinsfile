@@ -38,7 +38,10 @@ pipeline {
                             checkout scm
                             sh 'git submodule update --init --recursive'
                             sh 'git clean -dff'
-                            // TODO: Should run make clean here, but the BBB
+
+                            //sh 'git submodule update --init --recursive'
+                            //sh 'git clean -dff'
+                           // TODO: Should run make clean here, but the BBB
                             // is soo slow
                             //
                             // Also the WELCOME_DIRECTORY needs to be escaped a bunch of times:
