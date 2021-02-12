@@ -52,19 +52,6 @@ To use the sailbot-msg datatypes from your terminal, (for example if you're runn
 ```rostopic echo /sensors```), you will have to run  
 ```source ./build/devel/setup.bash```
 
-### Welcome Directory
-```cmake .. -DWELCOME_DIRECTORY="\"/tmp/banana/\""```
-
-By default, this is set to "/tmp/sailbot/"
-The "Welcome Directory" is where the network table stores
-all its sockets and files it uses to recover from a crash.
-If you have multiple network tables running, you can change
-this so that they don't mess with each others data.
-You probably won't change this yourself, it's used in the automated
-testing to ensure that automated tests don't conflict
-with people who are SSH'd in and manually running/debugging code.
-Note that you have to escape the quotation marks or it will fail to compile.
-
 ## Running
 Executables can be found in `build/bin/`
 

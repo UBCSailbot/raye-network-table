@@ -16,6 +16,9 @@ Prints out contents of the network table.
 ## Light Client
 Updates a single value in the network table forever.
 
+## Init GPS Coords
+Just sets gps coords and exit
+
 ## BBB Canbus Listener
 Reads data about various sensors on the canbus network
 and places it into the network table.

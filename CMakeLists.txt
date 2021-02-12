@@ -7,19 +7,10 @@ set(CMAKE_CXX_COMPILER "clang++")
 set(ENABLE_ROS OFF CACHE BOOL
     "Compile executables which require ROS?")
 
-# If you're changing this,
-# make sure to escape string properly. ex:
-# cmake .. -DWELCOME_DIRECTORY="\"/tmp/banana/\""
-set(WELCOME_DIRECTORY "\"/tmp/sailbot/\"" CACHE STRING
-    "Where the network table stores its data")
-
-message("WELCOME DIRECTORY ${WELCOME_DIRECTORY}")
-
 project(network-table CXX)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -std=c++14 -Wall -Wextra -O0")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2")
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
