@@ -1,19 +1,19 @@
 [submodule "lib/googletest"]
 	path = test/lib/googletest
-	url = https://github.com/google/googletest.git
+	url = git@github.com:google/googletest.git
   branch = master
 [submodule "projects/nuc_eth_listener/sailbot-msg"]
 	path = projects/nuc_eth_listener/sailbot-msg
-	url = https://github.com/UBCSailbot/sailbot-msg.git
+	url = git@github.com:UBCSailbot/sailbot-msg.git 
 [submodule "projects/bbb_canbus_listener/uccm-sensors"]
 	path = src/uccm-sensors
-	url = https://github.com/UBCSailbot/uccm-sensors.git
+	url = git@github.com:UBCSailbot/uccm-sensors.git 
 [submodule "projects/bbb_ais_listener/ais"]
 	path = projects/bbb_ais_listener/ais
-	url = https://github.com/UBCSailbot/ais.git
+	url = git@github.com:UBCSailbot/ais.git 
 [submodule "projects/virtual_iridium"]
 	path = projects/virtual_iridium
-	url = https://github.com/UBCSailbot/virtual_iridium.git
+	url = git@github.com:UBCSailbot/virtual_iridium.git 
 [submodule "src/protofiles"]
 	path = src/protofiles
-	url = https://github.com/UBCSailbot/protofiles.git
+	url = git@github.com:UBCSailbot/protofiles.git 
