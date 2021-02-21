@@ -17,3 +17,6 @@
 [submodule "src/protofiles"]
 	path = src/protofiles
 	url = git@github.com:UBCSailbot/protofiles.git 
+[submodule "projects/global-pathfinding"]
+	path = projects/global-pathfinding
+	url = git@github.com:UBCSailbot/global-pathfinding.git

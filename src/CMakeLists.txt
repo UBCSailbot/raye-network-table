@@ -50,8 +50,8 @@ protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS
 
 add_library(nt_server STATIC ${NT_SERVER_SRCS} ${NT_SERVER_HDRS} ${PROTO_SRCS} ${PROTO_HDRS})
 add_library(nt_client STATIC ${NT_CLIENT_SRCS} ${NT_CLIENT_HDRS} ${PROTO_SRCS} ${PROTO_HDRS})
-target_compile_definitions(nt_client PUBLIC WELCOME_DIRECTORY=${WELCOME_DIRECTORY})
-target_compile_definitions(nt_server PUBLIC WELCOME_DIRECTORY=${WELCOME_DIRECTORY})
+target_compile_definitions(nt_client PUBLIC)
+target_compile_definitions(nt_server PUBLIC)
 
 add_subdirectory(python)
 

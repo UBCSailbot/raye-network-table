@@ -39,18 +39,10 @@ pipeline {
                             sh 'git submodule update --init --recursive'
                             sh 'git clean -dff'
 
-                            //
-                            // Also the WELCOME_DIRECTORY needs to be escaped a bunch of times:
-                            // once for the jenkins file, and then another time
-                            // when its called from cmake. When it finally
-                            // ends up in the C++, it should be in the form
-                            // #define WELCOME_DIRECTORY "/tmp/can_bbb_nuc_integration/"
-                            // the number of backslashes to use I found out using trial
-                            // and error :(
                             sh '''
                                 mkdir -p build
                                 cd build
-                                cmake .. -DWELCOME_DIRECTORY="\\\"/tmp/can_bbb_nuc_integration/\\\""
+                                cmake ..
                                 make
                             '''
                         }
@@ -68,8 +60,6 @@ pipeline {
                             checkout scm
                             sh 'git submodule update --init --recursive'
                             sh 'git clean -dff'
-                            // We're not running network_table_server here,
-                            // so we don't need the WELCOME_DIRECTORY flag
                             sh '''
                                 set +x
                                 source /opt/ros/melodic/setup.bash
@@ -100,7 +90,7 @@ pipeline {
                         label 'master'
                     }
                     steps {
-                        // Make sure canbus is enabled
+                        // TODO: Make sure canbus is enabled
                         dir("/var/lib/jenkins/workspace/can_bbb_nuc_integration/") {
                             checkout scm
                             sh 'git submodule update --init --recursive'
@@ -108,7 +98,16 @@ pipeline {
                             sh '''
                                 mkdir -p build
                                 cd build
-                                cmake .. -DWELCOME_DIRECTORY="\\\"/tmp/can_bbb_nuc_integration/\\\""
+                                cmake ..
+                                make
+                            '''
+                        }
+                        // compile global pathfinding
+                        dir("/var/lib/jenkins/workspace/can_bbb_nuc_integration/projects/global-pathfinding/") {
+                            sh '''
+                                mkdir -p build
+                                cd build
+                                cmake ..
                                 make
                             '''
                         }
@@ -127,6 +126,9 @@ pipeline {
                             sh 'JENKINS_NODE_COOKIE=nokill nohup ./build/bin/bbb_canbus_listener vcan0 > bbb_canbus_listener.log &'
                             sh 'JENKINS_NODE_COOKIE=nokill nohup ./build/bin/bbb_satellite_listener 2 2 2 /tmp/serialport1 > bbb_satellite_listener.log &'
                             sh 'JENKINS_NODE_COOKIE=nokill nohup ./projects/virtual_iridium/python/Iridium9602.py --webhook_server_endpoint 10.0.0.1:8000 --http_server_port 8085 -d /tmp/serialport2 -m HTTP_POST > virtual_iridium.log &'
+
+                            // Run this here so that we have gps coordinates in the network table and global pathfinding will work properly
+                            sh 'JENKINS_NODE_COOKIE=nokill nohup ./scripts/mock_sensors.py -c vcan0 -f recorded_data/mock_can_data.csv --loop &'
                         }
                     }
                 }
@@ -142,6 +144,9 @@ pipeline {
                                 source /opt/ros/melodic/setup.bash
                                 JENKINS_NODE_COOKIE=nokill nohup /opt/ros/melodic/bin/roscore &
                             '''
+                            // roscore takes a while to startup.
+                            // without this, nuc_eth_listener may get "failed to contact master"
+                            sleep(5)
                             sh '''
                                 set +x
                                 source /opt/ros/melodic/setup.bash
@@ -170,7 +175,11 @@ pipeline {
                     steps {
                         dir("/var/lib/jenkins/workspace/can_bbb_nuc_integration/") {
                             sh 'JENKINS_NODE_COOKIE=nokill nohup ./build/bin/network_table_server > network_table_server.log &'
-                            sh 'JENKINS_NODE_COOKIE=nokill nohup ./projects/land_satellite_listener/land_satellite_listener.py -p 8000 -e 10.0.0.3:8085 -f 5 -u SEC --bind tun0 > land_satellite_listener.log &'
+                            sh './build/bin/init_gps_coords'
+                            sh 'JENKINS_NODE_COOKIE=nokill nohup ./projects/land_satellite_listener/land_satellite_listener.py -p 8000 -e http://10.0.0.3:8085 -f 5 -u SEC --bind 10.0.0.1 > land_satellite_listener.log &'
+                        }
+                        dir("/var/lib/jenkins/workspace/can_bbb_nuc_integration/projects/global-pathfinding/") {
+                            sh './build/bin/pathfinder_cli -p 8 --table --navigate 21 203 > global_pathfinding.log 2>&1'
                         }
                     }
                 }
@@ -181,7 +190,6 @@ pipeline {
                     }
                     steps {
                         dir("/home/debian/workspace/can_bbb_nuc_integration/") {
-                            sh 'JENKINS_NODE_COOKIE=nokill nohup ./scripts/mock_sensors.py -c vcan0 -f recorded_data/mock_can_data.csv --loop &'
                             sh './scripts/canbus_data_checker.py -c vcan0'
                         }
                     }
@@ -230,6 +238,10 @@ pipeline {
                             echo "======== Land Server land_satellite_listener ========"
                             sh 'cat land_satellite_listener.log'
                         }
+                        dir("/var/lib/jenkins/workspace/can_bbb_nuc_integration/projects/global-pathfinding/") {
+                            echo "======== Land Server global pathfinding ========"
+                            sh 'cat global_pathfinding.log'
+                        }
                     }
                 }
 
@@ -255,7 +267,7 @@ def force_cleanup() {
             sh 'pkill -f Iridium9602 || true'
             sh 'pkill -f mock_sensors || true'
             sh 'pkill -f socat || true'
-            sh 'rm -r /tmp/can_bbb_nuc_integration/ || true'
+            sh 'rm -r /tmp/sailbot/ || true'
         }
     }
     // Cleanup processes on NUC
@@ -280,30 +292,30 @@ def cleanup() {
     // Cleanup processes on BBB
     node('bbb') {
         script {
-            sh 'pkill -f network_table_server'
-            sh 'pkill -f bbb_eth_listener'
-            sh 'pkill -f bbb_canbus_listener'
-            sh 'pkill -f bbb_satellite_listener'
-            sh 'pkill -f Iridium9602'
-            sh 'pkill -f mock_sensors'
-            sh 'pkill -f socat'
-            sh 'rm -r /tmp/can_bbb_nuc_integration/'
+            sh 'pkill -f network_table_server || echo "error: failed to kill network_table_server"'
+            sh 'pkill -f bbb_eth_listener || echo "error: failed to kill bbb_eth_listener"'
+            sh 'pkill -f bbb_canbus_listener || echo "error: failed to kill bbb_canbus_listener"'
+            sh 'pkill -f bbb_satellite_listener || echo "error: failed to kill bbb_satellite_listener"'
+            sh 'pkill -f Iridium9602 || echo "error: failed to kill Iridium9602"'
+            sh 'pkill -f mock_sensors || echo "error: failed to kill mock_sensor"'
+            sh 'pkill -f socat || echo "error: failed to kill socat"'
+            sh 'rm -r /tmp/sailbot/'
         }
     }
     // Cleanup processes on NUC
     node('nuc') {
         script {
-            sh 'pkill -f roscore'
-            sh 'pkill -f nuc_eth_listener'
-            sh 'pkill -f raye_communication_node'
-            sh 'pkill -f main_loop.py'
+            sh 'pkill -f roscore || echo "error: failed to kill roscore"'
+            sh 'pkill -f nuc_eth_listener || echo "error: failed to kill nuc_eth_listener"'
+            sh 'pkill -f raye_communication_node || echo "error: failed to kill raye_communication_node"'
+            sh 'pkill -f main_loop.py || echo "error: failed to kill main_loop.py"'
         }
     }
     // Cleanup processes on Land Server
     node('master') {
         script {
-            sh 'pkill -f network_table_server'
-            sh 'pkill -f land_satellite_listener'
+            sh 'pkill -f network_table_server || echo "error: failed to kill network_table_server"'
+            sh 'pkill -f land_satellite_listener || echo "error: failed to kill land_satellite_listener"'
         }
     }
 }

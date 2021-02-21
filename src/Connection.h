@@ -152,7 +152,7 @@ class Connection {
                bool)> callbacks_;
 
     // location of welcoming socket
-    const std::string kWelcome_Directory_ = WELCOME_DIRECTORY;  // NOLINT(runtime/string)
+    const std::string kWelcome_Directory_ = "/tmp/sailbot/";  // NOLINT(runtime/string)
 };
 
 /*
