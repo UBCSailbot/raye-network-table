@@ -19,7 +19,6 @@ int main() {
         return 0;
     }
 
-    int val = 4;
     int lat = 48;
     int lon = 235;
     NetworkTable::Value lat_val;
