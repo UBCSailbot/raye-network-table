@@ -40,14 +40,14 @@ int main(int argc, char** argv) {
     std::cin >> num_loop;
 
     zmq::context_t ctx;
-    zmq::socket_t *m_socket = new zmq::socket_t(ctx, ZMQ_REP);
-    m_socket->bind(SOCKET_ENDPOINT);
+    zmq::socket_t m_socket(ctx, ZMQ_REP);
+    m_socket.bind(SOCKET_ENDPOINT);
 
     zmq::message_t request;
 
     for (int i = 0; i < num_loop; i++) {
         // recv blocking so program will only generate test boats when requested by query from bbb_ais_listener main
-        m_socket->recv(&request);
+        m_socket.recv(&request);
 
         // Generate boats with random mmsi numbers
         for (int j = 0; j < num_boats; j++) {
@@ -90,7 +90,7 @@ int main(int argc, char** argv) {
         }
 
         memcpy(reply.data(), boat_buff, boat_buff_size);
-        m_socket->send(reply);  // Send reply to socket
+        m_socket.send(reply);  // Send reply to socket
 
         printBoats();
     }

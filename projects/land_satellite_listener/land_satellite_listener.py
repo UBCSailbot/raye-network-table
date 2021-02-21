@@ -211,7 +211,7 @@ def main():
                         help='Accepted ip addresses for RockBlock')
 
     args = parser.parse_args()
-    
+
     # Get the polling frequency in seconds
     poll_freq = args.freq
     freq_unit = args.unit
