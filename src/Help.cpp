@@ -339,7 +339,7 @@ NetworkTable::Node NetworkTable::SensorsToRoot(const NetworkTable::Sensors &sens
     try {
         val.set_type(NetworkTable::Value::INT);
         val.set_int_data(sensors.boom_angle_sensor().sensor_data().angle());
-        SetNode("/boom_angle_sensor/boom_angle_sensor/angle", val, &root);
+        SetNode("/boom_angle_sensor/sensor_data/angle", val, &root);
     } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
