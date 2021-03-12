@@ -32,7 +32,7 @@ class Help:
         # Store boom sensor values
         val = self.create_int_val(
             sensors.boom_angle_sensor.sensor_data.angle)
-        values["/boom_angle_sensor/boom_angle_sensor/angle"] = val
+        values["/boom_angle_sensor/sensor_data/angle"] = val
 
         # Store wind sensor values
         val = self.create_int_val(sensors.wind_sensor_0.iimwv.wind_speed)
