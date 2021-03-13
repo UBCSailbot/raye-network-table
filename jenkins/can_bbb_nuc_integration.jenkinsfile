@@ -141,26 +141,30 @@ pipeline {
                             sh '''
                                 set +x
                                 source /opt/ros/melodic/setup.bash
+                                set -x
                                 JENKINS_NODE_COOKIE=nokill nohup /opt/ros/melodic/bin/roscore &
                             '''
                             // roscore takes a while to startup.
                             // without this, nuc_eth_listener may get "failed to contact master"
                             sleep(5)
                             sh '''
-                                set +x
+                                set +x 
                                 source /opt/ros/melodic/setup.bash
+                                set -x
                                 JENKINS_NODE_COOKIE=nokill nohup ./build/bin/nuc_eth_listener 192.168.1.60 5555 > nuc_eth_listener.log &
                             '''
                             sh '''
                                 set +x
                                 source /opt/ros/melodic/setup.bash
                                 source /home/raye/catkin_ws/devel/setup.sh
+                                set -x
                                 JENKINS_NODE_COOKIE=nokill nohup /opt/ros/melodic/bin/rosrun raye_communication raye_communication_node &
                             '''
                             sh '''
                                 set +x
                                 source /opt/ros/melodic/setup.bash
                                 source /home/raye/catkin_ws/devel/setup.sh
+                                set -x
                                 JENKINS_NODE_COOKIE=nokill nohup /opt/ros/melodic/bin/rosrun local_pathfinding main_loop.py &
                             '''
                         }
