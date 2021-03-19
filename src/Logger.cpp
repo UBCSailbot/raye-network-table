@@ -95,4 +95,8 @@ void NetworkTable::Logger::GenPBErr(std::string msg, Logger::Severity severity) 
         BOOST_LOG_TRIVIAL(fatal) << msg;
         break;
     }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> File logging works. Separate mains log to different file names.

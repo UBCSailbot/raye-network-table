@@ -24,6 +24,7 @@
 #include <string>
 #include <iostream>
 #include <memory>
+<<<<<<< HEAD
 
 #include "Exceptions.h"
 #include "Connection.h"
@@ -84,48 +85,67 @@ class Logger {
 
 };
 }
+=======
+>>>>>>> File logging works. Separate mains log to different file names.
 
-#include <Exceptions.h>
-#include <Connection.h>
+#include "Exceptions.h"
+#include "Connection.h"
 
 namespace NetworkTable {
-    class Logger {
+class Logger {
     public:
-        // Constructor
-        Logger(bool text_logging);
+    // Constructor
+    Logger();
+    Logger(std::string);
 
-        /*
-         * Different levels of logging severity
-         * 
-         * @param msg - error message passed in by caller
-        */
-        void Trace(std::string msg); // Trace log
-        void Debug(std::string msg); // Debug log
-        void Info(std::string msg); // Info log
-        void Warning(std::string msg); // Warning log
-        void Error(std::string msg); // Error log
-        void Fatal(std::string msg); // Fatal log
+    /*
+        * Different levels of logging severity
+        * 
+        * @param msg - error message passed in by caller
+    */
+    void Trace(std::string msg); // Trace log
+    void Debug(std::string msg); // Debug log
+    void Info(std::string msg); // Info log
+    void Warning(std::string msg); // Warning log
+    void Error(std::string msg); // Error log
+    void Fatal(std::string msg); // Fatal log
 
-        /*
-         * Setter for Network Table connection
-         * 
-         * @param connection 
-        */
-        void SetNTConn(NetworkTable::Connection conn);
+    enum Severity {
+        TRACE,
+        DEBUG,
+        INFO,
+        WARNING,
+        ERROR,
+        FATAL
+    };
+
+    /*
+        * Setter for Network Table connection
+        * @param connection 
+    */
+    void SetNTConn(std::shared_ptr<NetworkTable::Connection> conn_ptr);
+
+    /*
+        * Setter for file path
+    */
+    void SetFilePath(std::string);
 
     private:
-        // Init function to set up boost log paramters
-        void Init();
+    // Init function to set up boost log paramters
+    void Init(std::string);
 
-        /*
-        * Generates a protobuf error object
-        */
-        NetworkTable::Value GenPBErr(std::string msg, int severity);
+    /*
+    * Generates a protobuf error object
+    */
+    //NetworkTable::Value GenPBErr(std::string msg, int severity);
+    void GenPBErr(std::string msg, Logger::Severity);
 
-        NetworkTable::Connection nt_conn;
-        std::string file_path;
+    //NetworkTable::Connection nt_conn_;
+    std::shared_ptr<NetworkTable::Connection> conn_ptr_;
+    std::string file_path_;
+    bool nt_logging_;
 
-    };
+};
 }
 
 
