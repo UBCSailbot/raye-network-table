@@ -1,3 +1,4 @@
+#!/usr/bin/env groovy
 pipeline {
     options {
         // start deleting builds after a certain amount
