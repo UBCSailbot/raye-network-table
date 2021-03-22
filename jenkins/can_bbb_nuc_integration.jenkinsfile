@@ -79,6 +79,8 @@ pipeline {
                         dir('/home/raye/catkin_ws') {
                             sh '''
                                 set +x
+								cp -Rp /home/raye/workspace/can_bbb_nuc_integration/src/sailbot-msg/* src/sailbot-msg
+								cp -Rp /home/raye/workspace/can_bbb_nuc_integration/projects/boat_controller/* src/boat_controller
                                 source /opt/ros/melodic/setup.bash
                                 catkin_make clean
                                 catkin_make
@@ -154,7 +156,7 @@ pipeline {
                                 set +x
                                 source /opt/ros/melodic/setup.bash
                                 source /home/raye/catkin_ws/devel/setup.sh
-                                JENKINS_NODE_COOKIE=nokill nohup /opt/ros/melodic/bin/rosrun raye_communication raye_communication_node &
+                                JENKINS_NODE_COOKIE=nokill nohup /opt/ros/melodic/bin/rosrun boat_controller boat_controller_node &
                             '''
                             sh '''
                                 set +x
@@ -287,7 +289,7 @@ def force_cleanup() {
         script {
             sh 'pkill -f roscore || true'
             sh 'pkill -f nuc_eth_listener || true'
-            sh 'pkill -f raye_communication_node || true'
+            sh 'pkill -f boat_controller || true'
             sh 'pkill -f main_loop || true'
         }
     }
@@ -318,7 +320,7 @@ def cleanup() {
         script {
             sh 'pkill -f roscore || echo "error: failed to kill roscore"'
             sh 'pkill -f nuc_eth_listener || echo "error: failed to kill nuc_eth_listener"'
-            sh 'pkill -f raye_communication_node || echo "error: failed to kill raye_communication_node"'
+            sh 'pkill -f boat_controller || echo "error: failed to kill boat_controller"'
             sh 'pkill -f main_loop.py || echo "error: failed to kill main_loop.py"'
         }
     }

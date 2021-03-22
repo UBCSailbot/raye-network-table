@@ -23,3 +23,9 @@
 [submodule "projects/local-pathfinding"]
 	path = projects/local-pathfinding
 	url = git@github.com:UBCSailbot/local-pathfinding.git
+[submodule "projects/boat_controller"]
+	path = projects/boat_controller
+	url = https://github.com/UBCSailbot/boat_controller.git
+[submodule "src/sailbot-msg"]
+	path = src/sailbot-msg
+	url = git@github.com:UBCSailbot/sailbot-msg.git
