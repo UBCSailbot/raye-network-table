@@ -20,3 +20,6 @@
 [submodule "projects/global-pathfinding"]
 	path = projects/global-pathfinding
 	url = git@github.com:UBCSailbot/global-pathfinding.git
+[submodule "projects/local-pathfinding"]
+	path = projects/local-pathfinding
+	url = git@github.com:UBCSailbot/local-pathfinding.git

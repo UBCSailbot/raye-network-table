@@ -73,7 +73,7 @@ pipeline {
                             '''
                         }
 
-                        // compile bruces controller code.
+                        // compile bruces controller code & local-pathfinding.
                         // TODO: This is not handled by git/jenkins at all. Changes
                         // to this code will not appear here.
                         dir('/home/raye/catkin_ws') {
