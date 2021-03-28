@@ -28,6 +28,7 @@ class Connection:
         self.socket = None
         self.connected = False
         self.welcome_dir = welcome_dir
+        self.callbacks = dict()
 
     def Connect(self):
         """Initiates connection to the network table server
@@ -115,3 +116,53 @@ class Connection:
             return
         elif reply_node.type == Reply_pb2.Reply.Type.ERROR:
             raise ConnectionError(reply_node.error_reply.message_data)
+
+    def Subscribe(self, uri, callback=None):
+        """Subscribes to the specified uri in the network table
+
+        uri - a string
+        callback - a function that is performed on the given node at the specified uri
+        """
+        assert self.connected
+        request = Request_pb2.Request()
+        request.type = Request_pb2.Request.Type.SUBSCRIBE
+        request.subscribe_request.uri = uri
+
+        request_body = request.SerializeToString()
+        self.socket.send(request_body)
+
+        reply_message = self.socket.recv()
+        reply_node = Reply_pb2.Reply()
+        reply_node.ParseFromString(reply_message)
+
+        if reply_node.type == Reply_pb2.Reply.Type.ACK:
+            self.callbacks[uri] = callback
+            return
+        elif reply_node.type == Reply_pb2.Reply.Type.ERROR:
+            raise ConnectionError(reply_node.error_reply.message_data)
+
+    def manageSocket(self):
+        """Polls for any subscribers on the network table and performs its callback function.
+
+        DISCLAIMER: Does not perform the same functionality as the method manageSocket in Connection.cpp.
+                    This method only deals with nodes that have subscribed to the network table and performs
+                    its corresponding callback function.
+        """
+        def getReply():
+            reply_message = self.socket.recv()
+            reply_node = Reply_pb2.Reply()
+            reply_node.ParseFromString(reply_message)
+            return reply_node
+
+        while True:
+            self.socket.poll(-1)
+            reply_node = getReply()
+            if reply_node.type == Reply_pb2.Reply.Type.SUBSCRIBE:
+                uri = reply_node.subscribe_reply.uri
+                if self.callbacks[uri] is not None:
+                    node_container = self.getNodes([uri])
+                    subscribed_node = Node_pb2.Node()
+                    subscribed_node.CopyFrom(node_container[uri])
+                    self.callbacks[uri](subscribed_node, uri)
+            elif reply_node.type == Reply_pb2.Reply.Type.ERROR:
+                raise ConnectionError(reply_node.error_reply.message_data)
