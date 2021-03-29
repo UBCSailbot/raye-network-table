@@ -255,7 +255,7 @@ class Help:
         values["/wind_sensor_0/uccm/voltage"] = val
         val = self.create_int_val(
             uccms.wind_sensor_0.temperature)
-        values["/wind_sensor_0/uccm/termperature"] = val
+        values["/wind_sensor_0/uccm/temperature"] = val
         val = self.create_str_val(
             uccms.wind_sensor_0.status)
         values["/wind_sensor_0/uccm/status"] = val
@@ -267,7 +267,7 @@ class Help:
         values["/wind_sensor_1/uccm/voltage"] = val
         val = self.create_int_val(
             uccms.wind_sensor_1.temperature)
-        values["/wind_sensor_1/uccm/termperature"] = val
+        values["/wind_sensor_1/uccm/temperature"] = val
         val = self.create_str_val(
             uccms.wind_sensor_1.status)
         values["/wind_sensor_1/uccm/status"] = val
@@ -279,7 +279,7 @@ class Help:
         values["/wind_sensor_2/uccm/voltage"] = val
         val = self.create_int_val(
             uccms.wind_sensor_2.temperature)
-        values["/wind_sensor_2/uccm/termperature"] = val
+        values["/wind_sensor_2/uccm/temperature"] = val
         val = self.create_str_val(
             uccms.wind_sensor_2.status)
         values["/wind_sensor_2/uccm/status"] = val
