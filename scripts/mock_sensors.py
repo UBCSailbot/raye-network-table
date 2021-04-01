@@ -32,7 +32,7 @@ def playback_sensor_data(input_file, channel, loop):
         reader = csv.reader(logfile)
         for line in reader:
             msg = can.Message(arbitration_id=int(
-                line[1]), dlc=None, data=bytes.fromhex(line[2][::-1]))
+                line[1]), dlc=None, data=bytes.fromhex(line[2][::-1]), extended_id=False)
             # Skip sleeping when reading first line: no previous timestamp to reference off from
             if last_line is not None:
                 # Calculate the amount of time to sleep for by
@@ -62,7 +62,7 @@ def send_sensor_data(device, SID, channel):
     if device == 'bms':
         while True:
             msg = can.Message(arbitration_id=SID[device][i], dlc=0x8, data=[
-                              20, 20, 20, 20, 20, 20, 20, 20])
+                              20, 20, 20, 20, 20, 20, 20, 20], extended_id=False)
             try:
                 bus.send(msg)
             except can.CanError:
@@ -74,7 +74,7 @@ def send_sensor_data(device, SID, channel):
 
             for i in range(len(SID[device])):
                 msg = can.Message(arbitration_id=SID[device][i], dlc=0x8, data=[
-                                  50, 50, 50, 50, 50, 50, 50, 50])
+                                  50, 50, 50, 50, 50, 50, 50, 50], extended_ID=False)
                 try:
                     bus.send(msg)
                 except can.CanError:
@@ -88,7 +88,7 @@ def send_sensor_data(device, SID, channel):
             # help="device to simulate. Options: gps, bms, wind, acc", default='all')ps
             for i in range(len(SID[device])):
                 msg = can.Message(arbitration_id=SID[device][i], dlc=0x8, data=[
-                                  40, 40, 40, 40, 40, 40, 40, 40])
+                                  40, 40, 40, 40, 40, 40, 40, 40], extended_id=False)
                 try:
                     bus.send(msg)
                 except can.CanError:
@@ -99,7 +99,7 @@ def send_sensor_data(device, SID, channel):
         while True:
             for i in range(len(SID[device])):
                 msg = can.Message(arbitration_id=SID[device][i], dlc=0x8, data=[
-                                  30, 30, 30, 30, 30, 30, 30, 30])
+                                  30, 30, 30, 30, 30, 30, 30, 30], extended_id=False)
                 try:
                     bus.send(msg)
                 except can.CanError:
@@ -108,7 +108,7 @@ def send_sensor_data(device, SID, channel):
     elif device == 'acc':
         while True:
             msg = can.Message(arbitration_id=SID[device][i], dlc=0x8, data=[
-                              10, 10, 10, 10, 10, 10, 10, 10])
+                              10, 10, 10, 10, 10, 10, 10, 10], extended_id=False)
             try:
                 bus.send(msg)
             except can.CanError:
@@ -118,7 +118,7 @@ def send_sensor_data(device, SID, channel):
         while True:
             for i in range(len(SID[device])):
                 msg = can.Message(arbitration_id=SID[device][i], dlc=0x8, data=[
-                                  1, 1, 1, 1, 1, 1, 1, 1])
+                                  1, 1, 1, 1, 1, 1, 1, 1], extended_id=False)
                 try:
                     bus.send(msg)
                 except can.CanError:
