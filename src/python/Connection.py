@@ -1,6 +1,7 @@
 import zmq
 from generated_python import Reply_pb2
 from generated_python import Request_pb2
+from generated_python import Node_pb2
 
 
 class ConnectionError(Exception):
