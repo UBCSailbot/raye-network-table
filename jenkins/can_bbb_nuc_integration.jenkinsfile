@@ -125,11 +125,8 @@ pipeline {
                             sh 'JENKINS_NODE_COOKIE=nokill nohup /usr/bin/socat -d -d pty,raw,echo=0,link=/tmp/serialport1 pty,raw,echo=0,link=/tmp/serialport2 &'
                             sh 'JENKINS_NODE_COOKIE=nokill nohup ./build/bin/network_table_server > network_table_server.log &'
                             sh 'JENKINS_NODE_COOKIE=nokill nohup ./build/bin/bbb_eth_listener 192.168.1.60 5555 > bbb_eth_listener.log &'
-                            sh 'JENKINS_NODE_COOKIE=nokill nohup ./build/bin/bbb_canbus_listener vcan0 > bbb_canbus_listener.log &'
+                            sh 'JENKINS_NODE_COOKIE=nokill nohup ./build/bin/bbb_canbus_listener can0 > bbb_canbus_listener.log &'
                             sh 'JENKINS_NODE_COOKIE=nokill nohup ./projects/virtual_iridium/python/Iridium9602.py --webhook_server_endpoint 10.0.0.1:8000 --http_server_port 8085 -d /tmp/serialport2 -m HTTP_POST > virtual_iridium.log &'
-
-                            // Run this here so that we have gps coordinates in the network table and global pathfinding will work properly
-                            sh 'JENKINS_NODE_COOKIE=nokill nohup ./scripts/mock_sensors.py -c vcan0 -f recorded_data/mock_can_data.csv --loop &'
                         }
                     }
                 }
@@ -203,7 +200,7 @@ pipeline {
                     }
                     steps {
                         dir("/home/debian/workspace/can_bbb_nuc_integration/") {
-                            sh './scripts/canbus_data_checker.py -c vcan0'
+                            sh './scripts/canbus_data_checker.py -c can0 > canbus_data_checker.log'
 							sh './build/bin/viewtree'
                         }
                     }
@@ -225,6 +222,8 @@ pipeline {
                             sh 'cat bbb_satellite_listener.log'
                             echo "======== BBB virtual_iridium ========"
                             sh 'cat virtual_iridium.log'
+                            echo "======== BBB canbus_data_checker ========"
+                            sh 'cat canbus_data_checker.log'
                         }
                     }
                 }
@@ -279,7 +278,6 @@ def force_cleanup() {
             sh 'pkill -f bbb_canbus_listener || true'
             sh 'pkill -f bbb_satellite_listener || true'
             sh 'pkill -f Iridium9602 || true'
-            sh 'pkill -f mock_sensors || true'
             sh 'pkill -f socat || true'
             sh 'rm -r /tmp/sailbot/ || true'
         }
@@ -311,7 +309,6 @@ def cleanup() {
             sh 'pkill -f bbb_canbus_listener || echo "error: failed to kill bbb_canbus_listener"'
             sh 'pkill -f bbb_satellite_listener || echo "error: failed to kill bbb_satellite_listener"'
             sh 'pkill -f Iridium9602 || echo "error: failed to kill Iridium9602"'
-            sh 'pkill -f mock_sensors || echo "error: failed to kill mock_sensor"'
             sh 'pkill -f socat || echo "error: failed to kill socat"'
             sh 'rm -r /tmp/sailbot/'
         }

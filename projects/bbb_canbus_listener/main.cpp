@@ -68,7 +68,7 @@ void MotorCallback(NetworkTable::Node node, \
     frame.data[1] = angle_array[1];
     frame.data[2] = angle_array[2];
     frame.data[3] = angle_array[3];
-    std::cout << "Sending angle:" << angle << std::endl;
+    // std::cout << "Sending angle:" << angle << std::endl;
     if (write(s, &frame, sizeof(struct can_frame)) != sizeof(struct can_frame)) {
         perror("Write");
         return;
@@ -131,6 +131,7 @@ int main(int argc, char **argv) {
         std::cout << "Can ID = " << std::hex << frame.can_id << std::endl << std::dec;
         switch (frame.can_id) {
             case WIND_SENS0_FRAME_ID : {
+                std::cout << "Received Wind Sensor 0 Frame" << std::endl;
                 int angle = GET_WIND_ANGLE(frame.data);
                 int speed = GET_WIND_SPEED(frame.data);
 
@@ -138,18 +139,21 @@ int main(int argc, char **argv) {
                 break;
             }
             case WIND_SENS1_FRAME_ID : {
+                std::cout << "Received Wind Sensor 1 Frame" << std::endl;
                 int angle = GET_WIND_ANGLE(frame.data);
                 int speed = GET_WIND_SPEED(frame.data);
                 SetWindSensorData(angle, speed, "1");
                 break;
             }
             case WIND_SENS2_FRAME_ID : {
+                std::cout << "Received Wind Sensor 2 Frame" << std::endl;
                 int angle = GET_WIND_ANGLE(frame.data);
                 int speed = GET_WIND_SPEED(frame.data);
                 SetWindSensorData(angle, speed, "2");
                 break;
             }
             case SAILENCODER_FRAME_ID : {
+                std::cout << "Received Sailencoder Frame" << std::endl;
                 std::map<std::string, NetworkTable::Value> values;
                 NetworkTable::Value boom_angle;
                 int angle = GET_SAILENCODER_ANGLE(frame.data);
@@ -331,7 +335,7 @@ int main(int argc, char **argv) {
                 break;
             }
             case BMS_FRAME_ID_1: {
-                std::cout << "bms 1:" << std::endl;
+                std::cout << "Received BMS1 Frame:" << std::endl;
 
                 std::map<std::string, NetworkTable::Value> values;
                 NetworkTable::Value bms_volt_data;
@@ -376,6 +380,7 @@ int main(int argc, char **argv) {
                 break;
             }
             case ACCEL_FRAME_ID: {
+                std::cout << "Received Accel Frame:" << std::endl;
                 NetworkTable::Value accel_x_pos;
                 std::map<std::string, NetworkTable::Value> values;
                 int16_t x_pos = GET_ACCEL_X_DATA(frame.data);
