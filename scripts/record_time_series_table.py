@@ -14,7 +14,7 @@ import math
 
 def record_time_series_table(input_file):
     start = time.time()
-    with open('time_series_{}.csv'.format(input_file), mode='w') as file:
+    with open('time_series_table_{}.csv'.format(start), mode='w') as file:
         writer = csv.writer(file)
         writer.writerow(["Timestamp(s)", "ID", "Wind Speed (knots)", "Wind Angle (deg)", "Longitude (DDMM)",
                          "Latitude (DDMM)", "Ground Speed (knots)", "Magnetic Variation (deg)",
@@ -31,7 +31,7 @@ def record_time_series_table(input_file):
         reader = csv.reader(logfile)
         for line in reader:
             data = bytes.fromhex(line[2])
-            parse_data(hex(int(line[1])), line[2], data_array, frame_ids)
+            parse_data(hex(int(line[1])), data, data_array, frame_ids)
             writer.writerow([(int(line[0]) / 1000),
                              # ID
                              line[1],
@@ -61,22 +61,48 @@ def record_time_series_table(input_file):
 
 def parse_data(ID, data, data_array, frame_ids):
     if ID == frame_ids["WIND_SENS0_FRAME_ID" or "WIND_SENS1_FRAME_ID" or "WIND_SENS2_FRAME_ID"]:
-        data_array[0] = float.fromhex(data[0:8]) / 10.0
-        data_array[1] = float.fromhex(data[8:16])
+        data_array[0] = ((data[4] +
+                         (data[5] << 8) +
+                         (data[6] << 16) +
+                         (data[7] << 24)) / 10)
+        data_array[1] = (data[0] +
+                         (data[1] << 8) +
+                         (data[2] << 16) +
+                         (data[3] << 24))
     if ID == frame_ids["GPS_LONG_FRAME_ID"]:
-        data_array[2] = float.fromhex(data[8:16]) + (float.fromhex(data[0:8]) / 10000000.0)
+        data_array[2] = (((data[0] << 0) +
+                         (data[1] << 8) +
+                         (data[2] << 16) +
+                         (data[3] << 24)) +
+                         (((data[4] << 0) +
+                          (data[5] << 8) +
+                          (data[6] << 16) +
+                          (data[7] << 24))/10000000.0))
     if ID == frame_ids["GPS_LAT_FRAME_ID"]:
-        data_array[3] = float.fromhex(data[8:16]) + (float.fromhex(data[0:8]) / 10000000.0)
+        data_array[3] = (((data[0] << 0) +
+                         (data[1] << 8) +
+                         (data[2] << 16) +
+                         (data[3] << 24)) +
+                         (((data[4] << 0) +
+                          (data[5] << 8) +
+                          (data[6] << 16) +
+                          (data[7] << 24))/10000000.0))
     if ID == frame_ids["GPS_OTHER_FRAME_ID"]:
-        data_array[4] = float.fromhex(data[12:16]) / 100.0
-        data_array[5] = float.fromhex(data[8:12]) / 10.0
-        data_array[6] = float.fromhex(data[4:8]) / 100.0
+        data_array[4] = float((((data[0]) +
+                              (data[1] << 8))/100.0))
+        data_array[5] = float((((data[2]) +
+                              (data[3] << 8))/10.0))
+        data_array[6] = float((((data[4]) +
+                              (data[5] << 8))/100.0))
     if ID == frame_ids["SAILENCODER_FRAME_ID"]:
-        data_array[7] = float.fromhex(data[0:2])
+        data_array[7] = data[0]
     if ID == frame_ids["ACCEL_FRAME_ID"]:
-        data_array[8] = float.fromhex(data[12:16]) * 0.061 * (float.fromhex(data[0]) > 7.0 and -1.0 or 1.0)
-        data_array[9] = float.fromhex(data[8:12]) * 0.061 * (float.fromhex(data[0]) > 7.0 and -1.0 or 1.0)
-        data_array[10] = float.fromhex(data[4:8]) * 0.061 * (float.fromhex(data[0]) > 7.0 and -1.0 or 1.0)
+        data_array[8] = int((data[0] +
+                            (data[1] << 8)))
+        data_array[9] = int(((data[2] +
+                            (data[3] << 8))))
+        data_array[10] = int(((data[4] +
+                             (data[5] << 8))))
 
 
 def main():
