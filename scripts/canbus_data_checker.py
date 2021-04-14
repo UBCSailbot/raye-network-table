@@ -33,14 +33,14 @@ def wind_sensor_check(input_channel):
         if msg.arbitration_id in SID['wind']:
             print("got wind data")
             print(msg)
-			return True
-            #return motor_output_check(bus, 15)
+            return motor_output_check(bus, 15)
 
 
 def motor_output_check(bus, timeout):
     start = time.time()
     while True:
         msg = bus.recv()
+        # This is technically checking the rudder output
         if msg.arbitration_id in SID['motor']:
             print("motor output data received")
             print(msg)

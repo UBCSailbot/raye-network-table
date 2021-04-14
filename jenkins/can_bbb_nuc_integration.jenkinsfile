@@ -38,6 +38,7 @@ pipeline {
                         // Make sure canbus is enabled
                         dir("/home/debian/workspace/can_bbb_nuc_integration/") {
                             checkout scm
+                            sh 'git submodule sync'
                             sh 'git submodule update --init --recursive'
                             sh 'git clean -dff'
 
@@ -60,6 +61,7 @@ pipeline {
                         // specifically we want nuc_eth_listener
                         dir('/home/raye/workspace/can_bbb_nuc_integration') {
                             checkout scm
+                            sh 'git submodule sync'
                             sh 'git submodule update --init --recursive'
                             sh 'git clean -dff'
                             sh '''
@@ -79,8 +81,6 @@ pipeline {
                         dir('/home/raye/catkin_ws') {
                             sh '''
                                 set +x
-								cp -Rp /home/raye/workspace/can_bbb_nuc_integration/src/sailbot-msg/* src/sailbot-msg
-								cp -Rp /home/raye/workspace/can_bbb_nuc_integration/projects/boat_controller/* src/boat_controller
                                 source /opt/ros/melodic/setup.bash
                                 catkin_make clean
                                 catkin_make
@@ -97,6 +97,7 @@ pipeline {
                         // TODO: Make sure canbus is enabled
                         dir("/var/lib/jenkins/workspace/can_bbb_nuc_integration/") {
                             checkout scm
+                            sh 'git submodule sync'
                             sh 'git submodule update --init --recursive'
                             sh 'git clean -dff'
                             sh '''
