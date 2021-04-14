@@ -14,10 +14,10 @@ import sys
 
 # TODO: Get rid of this
 # its duplicated in idk how many places
-SID = {'bms': [0x08],
+SID = {'bms': [0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D],
        'gps': [0x11, 0x100, 0x101, 0x110],
        'sail': [0x0F],
-       'motor': [0xAB],
+       'motor': [0xAA, 0xAB],
        'wind': [0x0, 0x10, 0x111],
        'acc': [0xAC],
        'all': [0x08, 0x11, 0x100, 0x101,
@@ -33,13 +33,14 @@ def wind_sensor_check(input_channel):
         if msg.arbitration_id in SID['wind']:
             print("got wind data")
             print(msg)
-            return motor_output_check(bus, 5)
+            return motor_output_check(bus, 15)
 
 
 def motor_output_check(bus, timeout):
     start = time.time()
     while True:
         msg = bus.recv()
+        # This is technically checking the rudder output
         if msg.arbitration_id in SID['motor']:
             print("motor output data received")
             print(msg)

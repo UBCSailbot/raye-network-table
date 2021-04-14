@@ -23,3 +23,6 @@
 [submodule "projects/local-pathfinding"]
 	path = projects/local-pathfinding
 	url = git@github.com:UBCSailbot/local-pathfinding.git
+[submodule "projects/boat_controller"]
+	path = projects/boat_controller
+	url = https://github.com/UBCSailbot/boat_controller.git
