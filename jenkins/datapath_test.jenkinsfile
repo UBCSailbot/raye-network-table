@@ -1,0 +1,269 @@
+#!/usr/bin/env groovy
+
+pipeline {
+	options{
+		buildDiscarder(logRotator(numToKeepStr:'20'))
+	}
+	agent none
+
+	stages {
+		stage('Wait for other builds'){
+			options{
+				// lock resource (I'm not sure if this currently does anything since there aren't any lockable resources on jenkins)
+				lock('can_bbb_nuc') 
+			}				
+		
+		    agent none
+		    stages {
+		    	stage ('Force Cleanup'){
+
+		    		steps {
+		    			force_cleanup()
+		    		}
+		    	}
+		    	stage('Build BBB') {
+                    agent {
+                        label 'bbb'
+                    }
+                    steps {
+                        // Make sure canbus is enabled
+                        dir("/home/debian/workspace/datapath_tests_${env.BRANCH_NAME}/") {
+                            checkout scm
+                            sh 'git submodule sync'
+                            sh 'git submodule update --init --recursive'
+                            sh 'git clean -dff'
+
+                            sh '''
+                                mkdir -p build
+                                cd build
+                                cmake ..
+                                make
+                            '''
+                        }
+                    }
+                }
+
+                 stage('Build NUC') {
+                    agent {
+                        label 'nuc'
+                    }
+                    steps {
+                        // compile network table.
+                        // specifically we want nuc_eth_listener
+                        dir("/home/raye/workspace/datapath_tests_${env.BRANCH_NAME}/") {
+                            checkout scm
+                            sh 'git submodule sync'
+                            sh 'git submodule update --init --recursive'
+                            sh 'git clean -dff'
+                            sh '''
+                                set +x
+                                source /opt/ros/melodic/setup.bash
+                                mkdir -p build
+                                cd build
+                                cmake .. -DENABLE_ROS:BOOL=ON
+                                make clean
+                                make -j6
+                            '''
+                        }
+
+                            // compile bruces controller code & local-pathfinding.
+                            // TODO: This is not handled by git/jenkins at all. Changes
+                            // to this code will not appear here.
+                        dir('/home/raye/catkin_ws') {
+                                sh '''
+                                    set +x
+                                    source /opt/ros/melodic/setup.bash
+                                    catkin_make clean
+                                    catkin_make
+                                '''
+                        }
+                    }
+                }
+
+                stage('Build Land Server') {
+                    agent {
+                        label 'master'
+                    }
+                    steps {
+                        dir("/var/lib/jenkins/workspace/datapath_tests_${env.BRANCH_NAME}/") {
+                            checkout scm
+                            sh 'git submodule sync'
+                            sh 'git submodule update --init --recursive'
+                            sh 'git clean -dff'
+                            sh '''
+                                mkdir -p build
+                                cd build
+                                cmake ..
+                                make
+                            '''
+                        }
+                        // compile global pathfinding
+                        dir("/var/lib/jenkins/workspace/datapath_tests_${env.BRANCH_NAME}/projects/global-pathfinding/") {
+                            sh '''
+                                mkdir -p build
+                                cd build
+                                cmake ..
+                                make
+                            '''
+                        }
+		    		}      
+		    	}
+                
+                stage('Run BBB') {
+                    agent {
+                        label 'bbb'
+                    }
+                    steps {
+                        dir("/home/debian/workspace/datapath_tests_${env.BRANCH_NAME}/") {
+                            sh 'JENKINS_NODE_COOKIE=nokill nohup /usr/bin/socat -d -d pty,raw,echo=0,link=/tmp/serialport1 pty,raw,echo=0,link=/tmp/serialport2 &'
+                            sh 'JENKINS_NODE_COOKIE=nokill nohup ./build/bin/network_table_server &'
+                            sh 'JENKINS_NODE_COOKIE=nokill nohup ./build/bin/bbb_eth_listener 192.168.1.60 5555 &'
+                            sh 'JENKINS_NODE_COOKIE=nokill nohup ./build/bin/bbb_canbus_listener vcan0  &'
+                        }
+                    }
+                }
+
+                stage('Run NUC') {
+                    agent {
+                        label 'nuc'
+                    }
+                    steps {
+                        dir("/home/raye/workspace/datapath_tests_${env.BRANCH_NAME}") {
+                            sh '''
+                                set +x
+                                source /opt/ros/melodic/setup.bash
+                                JENKINS_NODE_COOKIE=nokill nohup /opt/ros/melodic/bin/roscore &
+                            '''
+                            // roscore takes a while to startup.
+                            // without this, nuc_eth_listener may get "failed to contact master"
+                            sleep(5)
+                            sh '''
+                                set +x
+                                source /opt/ros/melodic/setup.bash
+                                JENKINS_NODE_COOKIE=nokill nohup ./build/bin/nuc_eth_listener 192.168.1.60 5555 &
+                            '''
+                            sh '''
+                                set +x
+                                source /opt/ros/melodic/setup.bash
+                                source /home/raye/catkin_ws/devel/setup.sh
+                                JENKINS_NODE_COOKIE=nokill nohup /opt/ros/melodic/bin/rosrun boat_controller boat_controller_node &
+                            '''
+                            sh '''
+                                set +x
+                                source /opt/ros/melodic/setup.bash
+                                source /home/raye/catkin_ws/devel/setup.sh
+                                JENKINS_NODE_COOKIE=nokill nohup /opt/ros/melodic/bin/rosrun local_pathfinding main_loop.py &
+                            '''
+                        }
+                    }
+                }
+
+                stage('Run Land Server') {
+                    agent {
+                        label 'master'
+                    }
+                    steps {
+                        dir("/var/lib/jenkins/workspace/datapath_tests_${env.BRANCH_NAME}/") {
+                            sh 'JENKINS_NODE_COOKIE=nokill nohup ./build/bin/network_table_server > network_table_server.log &'
+                            sh './build/bin/init_gps_coords'
+                            sh 'JENKINS_NODE_COOKIE=nokill nohup ./projects/land_satellite_listener/land_satellite_listener.py -p 8000 -e http://10.0.0.3:8085 -f 5 -u SEC --bind 10.0.0.1 > land_satellite_listener.log &'
+                        }
+                        dir("/var/lib/jenkins/workspace/can_bbb_nuc_integration/projects/global-pathfinding/") {
+                            sh './build/bin/pathfinder_cli -p 8 --table --navigate 21 203 > global_pathfinding.log 2>&1'
+                        }
+                    }
+                }
+
+		    	stage('Run Unit Tests'){
+		    		agent {
+		    			label 'master'
+		    		}
+		    		steps {
+                        // IN final test, have if statement that alternates between the git branch and master
+                        script {
+                            if (env.BRANCH_NAME == 'master'){
+                                dir("/var/lib/jenkins/workspace/datapath_tests_${env.BRANCH_NAME}/test/datapath_tests") {
+                                    sh "python3 CAN_BBB_NUC_dp_test.py --config '/root/.config'"
+                                    echo "on master"
+                                }
+                            }
+                            else {
+		    				    dir("/var/lib/jenkins/workspace/datapath_tests_${env.BRANCH_NAME}/test/datapath_tests") { 
+                                    echo "on branch"
+                                    sh "python3 CAN_BBB_NUC_dp_test.py --config /var/lib/jenkins/config.ini"
+		    				    }
+		    			    }
+		    		    }
+		    	    }
+		        }
+	            stage ('Cleanup') {
+                    steps {
+                        cleanup()
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+def force_cleanup() {
+     // Cleanup processes on BBB
+     node('bbb') {
+         script {
+             sh 'pkill -f network_table_server || true'
+             sh 'pkill -f bbb_eth_listener || true'
+             sh 'pkill -f bbb_canbus_listener || true'
+             sh 'pkill -f bbb_satellite_listener || true'
+             sh 'pkill -f Iridium9602 || true'
+             sh 'pkill -f socat || true'
+			 sh 'rm -rf /tmp/sailbot/ || true'
+		}
+	}
+	node('nuc'){
+		script {
+			sh 'pkill -f roscore || true'
+			sh 'pkill -f nuc_eth_listener || true'
+			sh 'pkill -f boat_controller || true'
+			sh 'pkill -f main_loop || true'
+			}
+
+		}
+	node('master'){
+		script{
+			sh 'pkill -f network_table_server || true'
+			sh 'pkill -f land_satellite_listener || true'
+			}
+		}
+}
+
+def cleanup() {
+    // Cleanup processes on BBB
+    node('bbb') {
+        script {
+            sh 'pkill -f network_table_server || echo "error: failed to kill network_table_server"'
+            sh 'pkill -f bbb_eth_listener || echo "error: failed to kill bbb_eth_listener"'
+            sh 'pkill -f bbb_canbus_listener || echo "error: failed to kill bbb_canbus_listener"'
+            sh 'pkill -f bbb_satellite_listener || echo "error: failed to kill bbb_satellite_listener"'
+            sh 'pkill -f Iridium9602 || echo "error: failed to kill Iridium9602"'
+            sh 'pkill -f socat || echo "error: failed to kill socat"'
+            sh 'rm -r /tmp/sailbot/'
+        }
+    }
+    // Cleanup processes on NUC
+    node('nuc') {
+        script {
+            sh 'pkill -f roscore || echo "error: failed to kill roscore"'
+            sh 'pkill -f nuc_eth_listener || echo "error: failed to kill nuc_eth_listener"'
+            sh 'pkill -f boat_controller || echo "error: failed to kill boat_controller"'
+            sh 'pkill -f main_loop.py || echo "error: failed to kill main_loop.py"'
+        }
+    }
+    // Cleanup processes on Land Server
+    node('master') {
+        script {
+            sh 'pkill -f network_table_server || echo "error: failed to kill network_table_server"'
+            sh 'pkill -f land_satellite_listener || echo "error: failed to kill land_satellite_listener"'
+        }
+    }
+}
