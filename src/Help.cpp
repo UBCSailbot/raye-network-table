@@ -542,26 +542,26 @@ NetworkTable::Uccms NetworkTable::RootToUccms(NetworkTable::Node *root) {
     }
 
     try {
-        uccms.mutable_gps_0()->set_current(\
-                GetNode("/gps_0/uccm/current", root).value().int_data());
-        uccms.mutable_gps_0()->set_voltage(\
-                GetNode("/gps_0/uccm/voltage", root).value().int_data());
-        uccms.mutable_gps_0()->set_temperature(\
-                GetNode("/gps_0/uccm/temperature", root).value().int_data());
-        uccms.mutable_gps_0()->set_status(\
-                GetNode("/gps_0/uccm/status", root).value().string_data());
+        uccms.mutable_gps_can()->set_current(\
+                GetNode("/gps_can/uccm/current", root).value().int_data());
+        uccms.mutable_gps_can()->set_voltage(\
+                GetNode("/gps_can/uccm/voltage", root).value().int_data());
+        uccms.mutable_gps_can()->set_temperature(\
+                GetNode("/gps_can/uccm/temperature", root).value().int_data());
+        uccms.mutable_gps_can()->set_status(\
+                GetNode("/gps_can/uccm/status", root).value().string_data());
     } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
-        uccms.mutable_gps_1()->set_current(\
-                GetNode("/gps_1/uccm/current", root).value().int_data());
-        uccms.mutable_gps_1()->set_voltage(\
-                GetNode("/gps_1/uccm/voltage", root).value().int_data());
-        uccms.mutable_gps_1()->set_temperature(\
-                GetNode("/gps_1/uccm/temperature", root).value().int_data());
-        uccms.mutable_gps_1()->set_status(\
-                GetNode("/gps_1/uccm/status", root).value().string_data());
+        uccms.mutable_gps_ais()->set_current(\
+                GetNode("/gps_ais/uccm/current", root).value().int_data());
+        uccms.mutable_gps_ais()->set_voltage(\
+                GetNode("/gps_ais/uccm/voltage", root).value().int_data());
+        uccms.mutable_gps_ais()->set_temperature(\
+                GetNode("/gps_ais/uccm/temperature", root).value().int_data());
+        uccms.mutable_gps_ais()->set_status(\
+                GetNode("/gps_ais/uccm/status", root).value().string_data());
     } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
@@ -790,33 +790,33 @@ NetworkTable::Node NetworkTable::UccmsToRoot(const NetworkTable::Uccms &uccms) {
 
     try {
         val.set_type(NetworkTable::Value::INT);
-        val.set_int_data(uccms.gps_0().current());
-        SetNode("/gps_0/uccm/current", val, &root);
+        val.set_int_data(uccms.gps_can().current());
+        SetNode("/gps_can/uccm/current", val, &root);
         val.set_type(NetworkTable::Value::INT);
-        val.set_int_data(uccms.gps_0().voltage());
-        SetNode("/gps_0/uccm/voltage", val, &root);
+        val.set_int_data(uccms.gps_can().voltage());
+        SetNode("/gps_can/uccm/voltage", val, &root);
         val.set_type(NetworkTable::Value::INT);
-        val.set_int_data(uccms.gps_0().temperature());
-        SetNode("/gps_0/uccm/temperature", val, &root);
+        val.set_int_data(uccms.gps_can().temperature());
+        SetNode("/gps_can/uccm/temperature", val, &root);
         val.set_type(NetworkTable::Value::STRING);
-        val.set_string_data(uccms.gps_0().status());
-        SetNode("/gps_0/uccm/status", val, &root);
+        val.set_string_data(uccms.gps_can().status());
+        SetNode("/gps_can/uccm/status", val, &root);
     } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
         val.set_type(NetworkTable::Value::INT);
-        val.set_int_data(uccms.gps_1().current());
-        SetNode("/gps_1/uccm/current", val, &root);
+        val.set_int_data(uccms.gps_ais().current());
+        SetNode("/gps_ais/uccm/current", val, &root);
         val.set_type(NetworkTable::Value::INT);
-        val.set_int_data(uccms.gps_1().voltage());
-        SetNode("/gps_1/uccm/voltage", val, &root);
+        val.set_int_data(uccms.gps_ais().voltage());
+        SetNode("/gps_ais/uccm/voltage", val, &root);
         val.set_type(NetworkTable::Value::INT);
-        val.set_int_data(uccms.gps_1().temperature());
-        SetNode("/gps_1/uccm/temperature", val, &root);
+        val.set_int_data(uccms.gps_ais().temperature());
+        SetNode("/gps_ais/uccm/temperature", val, &root);
         val.set_type(NetworkTable::Value::STRING);
-        val.set_string_data(uccms.gps_1().status());
-        SetNode("/gps_1/uccm/status", val, &root);
+        val.set_string_data(uccms.gps_ais().status());
+        SetNode("/gps_ais/uccm/status", val, &root);
     } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
