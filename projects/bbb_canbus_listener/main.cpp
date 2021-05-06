@@ -72,7 +72,7 @@ void MotorCallback(NetworkTable::Node node, \
         bool is_self_reply) {
     struct can_frame frame;
     float angle = static_cast<float>(node.value().float_data());
-    frame.can_id = 0xAB;
+    frame.can_id = RUDDER_PORT_CMD_FRAME_ID;
     frame.can_dlc = 8;
 
     // Manually put split the float into bytes, and
@@ -82,7 +82,7 @@ void MotorCallback(NetworkTable::Node node, \
     frame.data[1] = angle_array[1];
     frame.data[2] = angle_array[2];
     frame.data[3] = angle_array[3];
-    // std::cout << "Sending angle:" << angle << std::endl;
+    std::cout << "Sending rudder angle:" << angle << std::endl;
     if (write(s, &frame, sizeof(struct can_frame)) != sizeof(struct can_frame)) {
         perror("Write");
         return;
