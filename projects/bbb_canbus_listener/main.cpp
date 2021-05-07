@@ -130,7 +130,7 @@ int main(int argc, char **argv) {
         read(s, &frame, sizeof(struct can_frame));
         std::cout << "Can ID = " << std::hex << frame.can_id << std::endl << std::dec;
         switch (frame.can_id) {
-            case WIND_SENS0_FRAME_ID : {
+            case WIND_SENS1_FRAME_ID : {
                 std::cout << "Received Wind Sensor 0 Frame" << std::endl;
                 int angle = GET_WIND_ANGLE(frame.data);
                 int speed = GET_WIND_SPEED(frame.data);
@@ -138,14 +138,14 @@ int main(int argc, char **argv) {
                 SetWindSensorData(angle, speed, "0");
                 break;
             }
-            case WIND_SENS1_FRAME_ID : {
+            case WIND_SENS2_FRAME_ID : {
                 std::cout << "Received Wind Sensor 1 Frame" << std::endl;
                 int angle = GET_WIND_ANGLE(frame.data);
                 int speed = GET_WIND_SPEED(frame.data);
                 SetWindSensorData(angle, speed, "1");
                 break;
             }
-            case WIND_SENS2_FRAME_ID : {
+            case WIND_SENS3_FRAME_ID : {
                 std::cout << "Received Wind Sensor 2 Frame" << std::endl;
                 int angle = GET_WIND_ANGLE(frame.data);
                 int speed = GET_WIND_SPEED(frame.data);
@@ -334,7 +334,7 @@ int main(int argc, char **argv) {
                 }
                 break;
             }
-            case BMS_FRAME_ID_1: {
+            case BMS1_FRAME_ID: {
                 std::cout << "Received BMS1 Frame:" << std::endl;
 
                 std::map<std::string, NetworkTable::Value> values;
