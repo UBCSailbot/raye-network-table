@@ -25,7 +25,8 @@ SID = {'bms': [0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3A,
 def wind_sensor_check(input_channel, timeout):
     start = time.time()
     bus = can.interface.Bus(bustype='socketcan',
-                            channel=input_channel, bitrate=250000)
+                            channel=input_channel,
+                            bitrate=250000)
     while True:
         msg = bus.recv()
         if msg.arbitration_id in SID['wind']:
@@ -41,7 +42,8 @@ def wind_sensor_check(input_channel, timeout):
 def acc_sensor_check(input_channel, timeout):
     start = time.time()
     bus = can.interface.Bus(bustype='socketcan',
-                            channel=input_channel, bitrate=250000)
+                            channel=input_channel,
+                            bitrate=250000)
     while True:
         msg = bus.recv()
         if msg.arbitration_id in SID['acc']:
@@ -57,7 +59,8 @@ def acc_sensor_check(input_channel, timeout):
 def gps_sensor_check(input_channel, timeout):
     start = time.time()
     bus = can.interface.Bus(bustype='socketcan',
-                            channel=input_channel, bitrate=250000)
+                            channel=input_channel,
+                            bitrate=250000)
     while True:
         msg = bus.recv()
         if msg.arbitration_id in SID['gps']:
@@ -73,7 +76,8 @@ def gps_sensor_check(input_channel, timeout):
 def rudder_output_check(input_channel, timeout):
     start = time.time()
     bus = can.interface.Bus(bustype='socketcan',
-                            channel=input_channel, bitrate=250000)
+                            channel=input_channel,
+                            bitrate=250000)
     while True:
         msg = bus.recv()
         if msg.arbitration_id in SID['motor']:
