@@ -334,8 +334,8 @@ int main(int argc, char **argv) {
                 }
                 break;
             }
-            case BMS1_FRAME_ID: {
-                std::cout << "Received BMS1 Frame:" << std::endl;
+            case BMS1_FRAME1_ID: {
+                std::cout << "Received BMS1 Frame1:" << std::endl;
 
                 std::map<std::string, NetworkTable::Value> values;
                 NetworkTable::Value bms_volt_data;
