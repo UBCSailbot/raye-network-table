@@ -114,6 +114,8 @@ class runClient(threading.Thread):
             pathfinding waypoints and sends changes to
             the boat via satellite
         """
+        import pdb
+        pdb.set_trace()
         prev_sat = self.init_waypoints()
         cur_sat = self.init_waypoints()
 
@@ -135,7 +137,9 @@ class runClient(threading.Thread):
                 if (node.value.type == Value_pb2.Value.Type.WAYPOINTS
                         and node.value != prev_sat.value):
                     cur_sat.value.CopyFrom(node.value)
-                    requests.post(self.ENDPOINT, params=security, data=cur_sat.SerializeToString())
+                    cur_sat_serial = cur_sat.SerializeToString()
+                    query = {"imei":"300234068129370","data":cur_sat_serial.hex(),"username":"captain@ubcsailbot.org","password":"raye2020"}
+                    requests.post(self.ENDPOINT, params=security, data=query)
                     prev_sat.value.CopyFrom(cur_sat.value)
 
                 time.sleep(self.poll_freq)

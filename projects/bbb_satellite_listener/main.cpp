@@ -10,6 +10,7 @@
 #include <boost/algorithm/string.hpp>
 #include <mutex>
 #include <stdexcept>
+#include <vector>
 
 #include "Connection.h"
 #include "Help.h"
@@ -103,6 +104,15 @@ void send(const std::string &data) {
     std::cout << readLine(serial) << std::endl;
 }
 
+std::vector<char> HexToBytes(const std::string& hex) {
+  std::vector<char> bytes;
+  for (unsigned int i = 0; i < hex.length(); i += 2) {
+    std::string byteString = hex.substr(i, 2);
+    char byte = (char) strtol(byteString.c_str(), NULL, 16);
+    bytes.push_back(byte);
+  }
+  return bytes;
+}
 /* Deserialize google protobuf message */
 std::string decodeMessage(boost::asio::serial_port &p /* NOLINT(runtime/references) */) {
     NetworkTable::Satellite satellite;
@@ -114,7 +124,12 @@ std::string decodeMessage(boost::asio::serial_port &p /* NOLINT(runtime/referenc
         data += c;
     }
 
-    satellite.ParseFromString(data);
+    std::vector<char> hex_data;
+    const std::string const_data = data;
+    hex_data = HexToBytes(const_data);
+    std::string str_data(hex_data.begin(),hex_data.end());
+
+    satellite.ParseFromString(str_data);
 
     if (satellite.type() == NetworkTable::Satellite::SENSORS) {
         std::cout << "SENSOR DATA" << std::endl;
