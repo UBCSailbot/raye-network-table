@@ -126,8 +126,12 @@ std::string decodeMessage(boost::asio::serial_port &p /* NOLINT(runtime/referenc
 
     std::vector<char> hex_data;
     const std::string const_data = data;
+    std::cout << "const_data= " << const_data << std::endl;
     hex_data = HexToBytes(const_data);
+    for (auto i = hex_data.begin(); i != hex_data.end(); ++i)
+        std::cout << *i << ' ';
     std::string str_data(hex_data.begin(),hex_data.end());
+    std::cout << "str_data= " << str_data << std::endl;
 
     satellite.ParseFromString(str_data);
 
@@ -141,6 +145,8 @@ std::string decodeMessage(boost::asio::serial_port &p /* NOLINT(runtime/referenc
                satellite.value().type() == NetworkTable::Value::WAYPOINTS) {
         std::cout << "WAYPOINT DATA" << std::endl;
         connection.SetValue("waypoints", satellite.value());
+
+        std::cout << "waypoint_data= " << satellite.DebugString() << std::endl;
         return satellite.DebugString();
     } else {
         throw std::runtime_error("Failed to decode satellite data");
