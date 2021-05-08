@@ -14,35 +14,74 @@ import sys
 
 # TODO: Get rid of this
 # its duplicated in idk how many places
-SID = {'bms': [0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D],
-       'gps': [0x11, 0x100, 0x101, 0x110],
-       'sail': [0x0F],
-       'motor': [0xAA, 0xAB],
-       'wind': [0x0, 0x10, 0x111],
-       'acc': [0xAC],
-       'all': [0x08, 0x11, 0x100, 0x101,
-               0x110, 0x0F, 0x0, 0x10,
-               0x111, 0xAC]}
+SID = {'bms': [0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3A, 0x3B, 0x3C],
+       'gps': [0x70, 0x71, 0x72, 0x73],
+       'sail': [0x52],
+       'motor': [0x60, 0x61, 0x62, 0x63],
+       'wind': [0x80, 0x81, 0x82],
+       'acc': [0x90]}
 
 
-def wind_sensor_check(input_channel):
+def wind_sensor_check(input_channel, timeout):
+    start = time.time()
     bus = can.interface.Bus(bustype='socketcan',
-                            channel=input_channel, bitrate=250000)
+                            channel=input_channel,
+                            bitrate=250000)
     while True:
         msg = bus.recv()
         if msg.arbitration_id in SID['wind']:
-            print("got wind data")
+            print("wind data received")
             print(msg)
-            return motor_output_check(bus, 15)
+            return True
+        else:
+            elapsed_time = (time.time() - start)
+            if elapsed_time > timeout:
+                return False
 
 
-def motor_output_check(bus, timeout):
+def acc_sensor_check(input_channel, timeout):
     start = time.time()
+    bus = can.interface.Bus(bustype='socketcan',
+                            channel=input_channel,
+                            bitrate=250000)
     while True:
         msg = bus.recv()
-        # This is technically checking the rudder output
+        if msg.arbitration_id in SID['acc']:
+            print("accelerator data received")
+            print(msg)
+            return True
+        else:
+            elapsed_time = (time.time() - start)
+            if elapsed_time > timeout:
+                return False
+
+
+def gps_sensor_check(input_channel, timeout):
+    start = time.time()
+    bus = can.interface.Bus(bustype='socketcan',
+                            channel=input_channel,
+                            bitrate=250000)
+    while True:
+        msg = bus.recv()
+        if msg.arbitration_id in SID['gps']:
+            print("accelerator data received")
+            print(msg)
+            return True
+        else:
+            elapsed_time = (time.time() - start)
+            if elapsed_time > timeout:
+                return False
+
+
+def rudder_output_check(input_channel, timeout):
+    start = time.time()
+    bus = can.interface.Bus(bustype='socketcan',
+                            channel=input_channel,
+                            bitrate=250000)
+    while True:
+        msg = bus.recv()
         if msg.arbitration_id in SID['motor']:
-            print("motor output data received")
+            print("rudder data received")
             print(msg)
             return True
         else:
@@ -57,14 +96,30 @@ if __name__ == "__main__":
         "-c", "--channel", help="Enter the canbus channel you want to record", default=None)
     args = parser.parse_args()
 
+    # TODO: add a flag once all the sensors are fully integrated with can
     if args.channel is None:
         print("Error: channel not specified")
         print("Example usage: 'python3 canbus_data_checker.py -c vcan0'")
         sys.exit(-1)
 
-    if wind_sensor_check(args.channel):
-        print("Detected motor outputs. Passed!")
-        sys.exit(0)
+    if acc_sensor_check(args.channel, 1):
+        print("Detected accelerometer. Passed!")
     else:
-        print("Failed to detect motor outputs. Failed.")
-        sys.exit(-1)
+        print("Failed to detect accelerometer.")
+
+    if wind_sensor_check(args.channel, 1):
+        print("Detected wind sensor. Passed!")
+    else:
+        print("Failed to detect wind sensor.")
+
+    if gps_sensor_check(args.channel, 1):
+        print("Detected gps sensor. Passed!")
+    else:
+        print("Failed to detect gps sensor.")
+
+    if rudder_output_check(args.channel, 1):
+        print("Detected rudder output. Passed!")
+    else:
+        print("Failed to detect rudder output.")
+
+    sys.exit(0)
