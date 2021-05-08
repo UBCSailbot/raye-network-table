@@ -8,15 +8,15 @@ NetworkTable::Logger::Logger() {
 }
 
 NetworkTable::Logger::Logger(std::string file_path) {
-    //nt_logging_ = nt_logging;
+    // nt_logging_ = nt_logging;
+
     nt_logging_ = true;
     Logger::Init(file_path);
 }
 
-void NetworkTable::Logger::Init(std::string file_path="../logs/temp.log") {
+void NetworkTable::Logger::Init(std::string file_path = "../logs/temp.log") {
     boost::log::add_common_attributes();
-
-    auto timeFmt = 
+    auto timeFmt = \
       boost::log::expressions::format_date_time<boost::posix_time::ptime>("TimeStamp", "%Y-%m-%d %H:%M");
 
     auto fmtSeverity = boost::log::expressions::
@@ -32,7 +32,7 @@ void NetworkTable::Logger::Init(std::string file_path="../logs/temp.log") {
             boost::log::keywords::scan_method = boost::log::sinks::file::scan_matching);
 
     fsSink->set_formatter(logFmt);
-                
+
     boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::trace);
 }
 
@@ -70,7 +70,7 @@ void NetworkTable::Logger::Fatal(std::string msg) {
 
 void NetworkTable::Logger::GenPBErr(std::string msg, Logger::Severity severity) {
     std::cout << msg << " " << severity << std::endl;
-    switch(severity) {
+    switch (severity) {
         case NetworkTable::Logger::TRACE:
         BOOST_LOG_TRIVIAL(trace) << msg;
         break;
@@ -95,8 +95,4 @@ void NetworkTable::Logger::GenPBErr(std::string msg, Logger::Severity severity) 
         BOOST_LOG_TRIVIAL(fatal) << msg;
         break;
     }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> File logging works. Separate mains log to different file names.

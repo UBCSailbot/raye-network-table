@@ -24,7 +24,6 @@
 #include <string>
 #include <iostream>
 #include <memory>
-<<<<<<< HEAD
 
 #include "Exceptions.h"
 #include "Connection.h"
@@ -85,8 +84,6 @@ class Logger {
 
 };
 }
-=======
->>>>>>> File logging works. Separate mains log to different file names.
 
 #include "Exceptions.h"
 #include "Connection.h"

@@ -14,3 +14,4 @@ int main() {
     logger.Fatal("Fatal from test client 1\n");
     return 0;
 }
+
