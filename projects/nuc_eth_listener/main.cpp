@@ -15,6 +15,7 @@
 #include "sailbot_msg/AISShip.h"
 #include "sailbot_msg/path.h"
 #include "sailbot_msg/latlon.h"
+#include "Uri.h"
 
 /*
  * Needed for communication over ethernet
@@ -189,7 +190,7 @@ int main(int argc, char** argv) {
     ais_msg_pub = n.advertise<sailbot_msg::AISMsg>("ais_msg", 100);
     waypoint_msg_pub = n.advertise<sailbot_msg::path>("globalPath", 100);
 
-    nt_sub = n.subscribe("/actuation_angles", 100, ActuationCallBack);
+    nt_sub = n.subscribe(ACTUATION, 100, ActuationCallBack);
     ros::spin();
 
     publish_sensor_data.join();
