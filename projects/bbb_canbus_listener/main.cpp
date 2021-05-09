@@ -20,6 +20,7 @@
 #include "Connection.h"
 #include "Value.pb.h"
 #include "Exceptions.h"
+#include "Uri.h"
 
 int s;
 NetworkTable::Connection connection;
@@ -39,10 +40,23 @@ void SetWindSensorData(int angle, int speed, const std::string &id) {
     speed_nt.set_int_data(static_cast<int>(speed));
 
     std::map<std::string, NetworkTable::Value> values;
-    values.insert((std::pair<std::string, NetworkTable::Value> \
-                ("wind_sensor_"+id+"/iimwv/wind_direction", angle_nt)));
-    values.insert((std::pair<std::string, NetworkTable::Value> \
-                ("wind_sensor_"+id+"/iimwv/wind_speed", speed_nt)));
+
+    if (id == "1") {
+        values.insert((std::pair<std::string, NetworkTable::Value> \
+                (WIND1_SPEED, speed_nt)));
+        values.insert((std::pair<std::string, NetworkTable::Value> \
+                (WIND1_ANGLE, angle_nt)));
+    } else if (id == "2") {
+        values.insert((std::pair<std::string, NetworkTable::Value> \
+                (WIND2_SPEED, speed_nt)));
+        values.insert((std::pair<std::string, NetworkTable::Value> \
+                (WIND2_ANGLE, angle_nt)));
+    } else if (id == "3") {
+        values.insert((std::pair<std::string, NetworkTable::Value> \
+                (WIND3_SPEED, speed_nt)));
+        values.insert((std::pair<std::string, NetworkTable::Value> \
+                (WIND3_ANGLE, angle_nt)));
+    }
 
     try {
         connection.SetValues(values);
@@ -134,22 +148,21 @@ int main(int argc, char **argv) {
                 std::cout << "Received Wind Sensor 0 Frame" << std::endl;
                 int angle = GET_WIND_ANGLE(frame.data);
                 int speed = GET_WIND_SPEED(frame.data);
-
-                SetWindSensorData(angle, speed, "0");
+                SetWindSensorData(angle, speed, "1");
                 break;
             }
             case WIND_SENS2_FRAME_ID : {
                 std::cout << "Received Wind Sensor 1 Frame" << std::endl;
                 int angle = GET_WIND_ANGLE(frame.data);
                 int speed = GET_WIND_SPEED(frame.data);
-                SetWindSensorData(angle, speed, "1");
+                SetWindSensorData(angle, speed, "2");
                 break;
             }
             case WIND_SENS3_FRAME_ID : {
                 std::cout << "Received Wind Sensor 2 Frame" << std::endl;
                 int angle = GET_WIND_ANGLE(frame.data);
                 int speed = GET_WIND_SPEED(frame.data);
-                SetWindSensorData(angle, speed, "2");
+                SetWindSensorData(angle, speed, "3");
                 break;
             }
             case SAILENCODER_FRAME_ID : {
@@ -160,7 +173,7 @@ int main(int argc, char **argv) {
                 boom_angle.set_type(NetworkTable::Value::INT);
                 boom_angle.set_int_data(static_cast<int>(angle));
                 values.insert(std::pair<std::string, NetworkTable::Value>\
-                        ("boom_angle_sensor/sensor_data/angle", boom_angle));
+                        (SAILENCODER_ANGLE, boom_angle));
                 try {
                     connection.SetValues(values);
                 } catch (NetworkTable::NotConnectedException) {
@@ -181,7 +194,7 @@ int main(int argc, char **argv) {
                 gps_longitude.set_type(NetworkTable::Value::INT);
                 gps_longitude.set_int_data(static_cast<int>(longitude));
                 values.insert(std::pair<std::string, NetworkTable::Value>\
-                        ("gps/gprmc/longitude", gps_longitude));
+                        (GPS_CAN_LON, gps_longitude));
                 try {
                     connection.SetValues(values);
                 } catch (NetworkTable::NotConnectedException) {
@@ -202,7 +215,7 @@ int main(int argc, char **argv) {
                 gps_latitude.set_type(NetworkTable::Value::INT);
                 gps_latitude.set_int_data(static_cast<int>(latitude));
                 values.insert(std::pair<std::string, NetworkTable::Value>\
-                        ("gps/gprmc/latitude", gps_latitude));
+                        (GPS_CAN_LAT, gps_latitude));
                 try {
                     connection.SetValues(values);
                 } catch (NetworkTable::NotConnectedException) {
@@ -223,7 +236,7 @@ int main(int argc, char **argv) {
                 gps_gndSpeed.set_type(NetworkTable::Value::INT);
                 gps_gndSpeed.set_int_data(static_cast<int>(gndSpeed));
                 values.insert(std::pair<std::string, NetworkTable::Value>\
-                        ("gps/gprmc/gndSpeed", gps_gndSpeed));
+                        (GPS_CAN_GNDSPEED, gps_gndSpeed));
                 std::cout << "gnd speed = " << gndSpeed << " " << std::endl;
 
                 NetworkTable::Value gps_magVar;
@@ -231,7 +244,7 @@ int main(int argc, char **argv) {
                 gps_magVar.set_type(NetworkTable::Value::INT);
                 gps_magVar.set_int_data(static_cast<int>(magVar));
                 values.insert((std::pair<std::string, NetworkTable::Value>\
-                        ("gps/gprmc/magVar", gps_magVar)));
+                        (GPS_CAN_MAGVAR, gps_magVar)));
                 std::cout << "mag var =  " << magVar << " " << std::endl;
 
                 NetworkTable::Value gps_TMG;
@@ -239,7 +252,7 @@ int main(int argc, char **argv) {
                 gps_TMG.set_type(NetworkTable::Value::INT);
                 gps_TMG.set_int_data(static_cast<int>(gpsTMG));
                 values.insert(std::pair<std::string, NetworkTable::Value>\
-                        ("gps/gprmc/TMG", gps_TMG));
+                        (GPS_CAN_TMG, gps_TMG));
                 std::cout << "gps tmg =  " << gpsTMG << " " << std::endl;
 
                 try {
@@ -343,15 +356,15 @@ int main(int argc, char **argv) {
                 bms_volt_data.set_type(NetworkTable::Value::INT);
                 bms_volt_data.set_int_data(volt_data);
                 values.insert(std::pair<std::string, NetworkTable::Value>\
-                        ("bms/uccm/voltage", bms_volt_data));
-
+                        (BMS1_VOLTAGE, bms_volt_data));
                 std::cout << "volt_data:" << volt_data << std::endl;
+
                 NetworkTable::Value bms_curr_data;
                 uint16_t curr_data = GET_BMS_CURR_DATA(frame.data);
                 bms_curr_data.set_type(NetworkTable::Value::INT);
                 bms_curr_data.set_int_data(curr_data);
                 values.insert(std::pair<std::string, NetworkTable::Value>\
-                        ("bms/uccm/current", bms_curr_data));
+                        (BMS1_CURRENT, bms_curr_data));
                 std::cout << "curr_data:" << curr_data << std::endl;
 
                 NetworkTable::Value bms_maxcell_data;
@@ -359,7 +372,7 @@ int main(int argc, char **argv) {
                 bms_maxcell_data.set_type(NetworkTable::Value::INT);
                 bms_maxcell_data.set_int_data(maxcell_data);
                 values.insert(std::pair<std::string, NetworkTable::Value>\
-                        ("bms/uccm/maxcell", bms_maxcell_data));
+                        (BMS1_MAXCELL, bms_maxcell_data));
                 std::cout << "maxcell_data:" << maxcell_data << std::endl;
 
                 NetworkTable::Value bms_mincell_data;
@@ -367,7 +380,7 @@ int main(int argc, char **argv) {
                 bms_mincell_data.set_type(NetworkTable::Value::INT);
                 bms_mincell_data.set_int_data(mincell_data);
                 values.insert(std::pair<std::string, NetworkTable::Value>\
-                        ("bms/uccm/mincell", bms_mincell_data));
+                        (BMS1_MINCELL, bms_mincell_data));
                 std::cout << "mincell_data:" << mincell_data << std::endl;
 
                 try {
@@ -387,7 +400,7 @@ int main(int argc, char **argv) {
                 accel_x_pos.set_type(NetworkTable::Value::INT);
                 accel_x_pos.set_int_data(static_cast<int>(x_pos));
                 values.insert(std::pair<std::string, NetworkTable::Value>\
-                        ("accelerometer/boat_orientation_data/x_axis_acceleration", accel_x_pos));
+                        (ACCELEROMETER_X, accel_x_pos));
                 std::cout << "x_pos " << x_pos << std::endl;
 
                 NetworkTable::Value accel_y_pos;
@@ -395,7 +408,7 @@ int main(int argc, char **argv) {
                 accel_y_pos.set_type(NetworkTable::Value::INT);
                 accel_y_pos.set_int_data(static_cast<int>(y_pos));
                 values.insert(std::pair<std::string, NetworkTable::Value>\
-                        ("accelerometer/boat_orientation_data/y_axis_acceleration", accel_y_pos));
+                        (ACCELEROMETER_Y, accel_y_pos));
                 std::cout << "y_pos " << y_pos << std::endl;
 
                 NetworkTable::Value accel_z_pos;
@@ -403,7 +416,7 @@ int main(int argc, char **argv) {
                 accel_z_pos.set_type(NetworkTable::Value::INT);
                 accel_z_pos.set_int_data(static_cast<int>(z_pos));
                 values.insert(std::pair<std::string, NetworkTable::Value>\
-                        ("accelerometer/boat_orientation_data/z_axis_acceleration", accel_z_pos));
+                        (ACCELEROMETER_Z, accel_z_pos));
                 std::cout << "z_pos " << z_pos << std::endl;
 
                 try {
