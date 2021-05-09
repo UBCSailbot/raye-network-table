@@ -30,7 +30,7 @@ GPS_AIS_LAT = "/gps_1/gprmc/latitude"
 GPS_AIS_LON = "/gps_1/gprmc/longitude"
 GPS_AIS_GNDSPEED = "/gps_1/gprmc/ground_speed"
 GPS_AIS_TMG = "/gps_1/gprmc/track_made_good"
-GPS_CAN_TRUE_HEADING = "/gps_1/gprmc/true_heading"
+GPS_AIS_TRUE_HEADING = "/gps_1/gprmc/true_heading"
 GPS_AIS_MAGVAR = "/gps_1/gprmc/magnetic_variation"
 
 # bms
