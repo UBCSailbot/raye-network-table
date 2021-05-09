@@ -9,6 +9,7 @@
 #include <iostream>
 #include <map>
 #include "Exceptions.h"
+#include "Uri.h"
 
 zmq::context_t context(1);
 zmq::socket_t eth_socket(context, ZMQ_PAIR);
@@ -119,9 +120,9 @@ int main(int argc, char *argv[]) {
 
             std::map<std::string, NetworkTable::Value> values;
             values.insert(std::pair<std::string, NetworkTable::Value>\
-                    ("actuation_angle/winch", winch_angle));
+                    (WINCH_MAIN_ANGLE, winch_angle));
             values.insert(std::pair<std::string, NetworkTable::Value>\
-                    ("rudder_angle/winch", rudder_angle));
+                    (RUDDER_PORT_ANGLE, rudder_angle));
 
             std::cout << "received rudder angle: " << actuation_angle.rudder_angle() \
                 << " winch angle: " << actuation_angle.winch_angle() << std::endl;

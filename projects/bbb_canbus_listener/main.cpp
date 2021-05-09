@@ -129,7 +129,7 @@ int main(int argc, char **argv) {
 
     while (!is_subscribed) {
         try {
-            connection.Subscribe("actuation_angle/winch", &MotorCallback);
+            connection.Subscribe("actuation_angle/rudder", &MotorCallback);
             is_subscribed = true;
         }
         catch (NetworkTable::NotConnectedException) {

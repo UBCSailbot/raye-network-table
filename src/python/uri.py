@@ -74,12 +74,11 @@ GYROSCOPE_X = "/gyroscope/x_velocity"
 GYROSCOPE_Y = "/gyroscope/y_velocity"
 GYROSCOPE_Z = "/gyroscope/z_velocity"
 
-# winch
-# TODO: add winch
-
-# rudder
-# TODO: add rudder
-
+# actuators 
+RUDDER_PORT_ANGLE = "/actuation_angle/rudder/rudder_port/angle"
+RUDDER_STBD_ANGLE = "/actuation_angle/rudder/rudder_stbd/angle"
+WINCH_MAIN_ANGLE = "/actuation_angle/winch/winch_main/angle"
+WINCH_JIB_ANGLE = "/actuation_angle/winch/winch_jib/angle"
 
 # UCCM
 # TODO: need to update these eventually
