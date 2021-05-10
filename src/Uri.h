@@ -68,6 +68,14 @@
 #define GYROSCOPE_Y "/gyroscope/y_velocity"
 #define GYROSCOPE_Z "/gyroscope/z_velocity"
 
-//TODO: Add Rudder, Winch, UCCM Uris
+#define ACTUATION "/actuation_angle"
+#define RUDDER "/actuation_angle/rudder"
+#define RUDDER_PORT_ANGLE "/actuation_angle/rudder/rudder_port/angle"
+#define RUDDER_STBD_ANGLE "/actuation_angle/rudder/rudder_stbd/angle"
+#define WINCH "/actuation_angle/winch"
+#define WINCH_MAIN_ANGLE "/actuation_angle/winch/winch_main/angle"
+#define WINCH_JIB_ANGLE "/actuation_angle/winch/winch_jib/angle"
+
+//TODO: Add UCCM Uris
 
 #endif  // URI_H_

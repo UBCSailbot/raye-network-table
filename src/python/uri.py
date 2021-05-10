@@ -30,7 +30,7 @@ GPS_AIS_LAT = "/gps_1/gprmc/latitude"
 GPS_AIS_LON = "/gps_1/gprmc/longitude"
 GPS_AIS_GNDSPEED = "/gps_1/gprmc/ground_speed"
 GPS_AIS_TMG = "/gps_1/gprmc/track_made_good"
-GPS_CAN_TRUE_HEADING = "/gps_1/gprmc/true_heading"
+GPS_AIS_TRUE_HEADING = "/gps_1/gprmc/true_heading"
 GPS_AIS_MAGVAR = "/gps_1/gprmc/magnetic_variation"
 
 # bms
@@ -74,12 +74,14 @@ GYROSCOPE_X = "/gyroscope/x_velocity"
 GYROSCOPE_Y = "/gyroscope/y_velocity"
 GYROSCOPE_Z = "/gyroscope/z_velocity"
 
-# winch
-# TODO: add winch
-
-# rudder
-# TODO: add rudder
-
+# actuators
+ACTUATION = "/actuation_angle"
+RUDDER = "/actuation_angle/rudder"
+RUDDER_PORT_ANGLE = "/actuation_angle/rudder/rudder_port/angle"
+RUDDER_STBD_ANGLE = "/actuation_angle/rudder/rudder_stbd/angle"
+WINCH = "/actuation_angle/winch"
+WINCH_MAIN_ANGLE = "/actuation_angle/winch/winch_main/angle"
+WINCH_JIB_ANGLE = "/actuation_angle/winch/winch_jib/angle"
 
 # UCCM
 # TODO: need to update these eventually
