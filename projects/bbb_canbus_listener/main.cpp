@@ -268,75 +268,48 @@ int main(int argc, char **argv) {
                 std::cout << "Received GPS Date Frame" << std::endl;
 
                 std::map<std::string, NetworkTable::Value> values;
-                NetworkTable::Value gps_date_hour;
-                int hour = GET_HOUR(frame.data);
-                gps_date_hour.set_type(NetworkTable::Value::INT);
-                gps_date_hour.set_int_data(hour);
+                NetworkTable::Value gps_timestamp;
+                std::string hour = std::to_string(GET_HOUR(frame.data));
+                std::string minute = std::to_string(GET_MINUTE(frame.data));
+                std::string second = std::to_string(GET_SECOND(frame.data));
+                std::string day = std::to_string(GET_DAY(frame.data));
+                std::string month = std::to_string(GET_MONTH(frame.data));
+                std::string year = std::to_string(GET_YEAR(frame.data));
+                std::string utc_timestamp = year + "/" + month + "/" + day + \
+                                            "-" + hour + ":" + minute + ":" + second;
+                gps_timestamp.set_type(NetworkTable::Value::STRING);
+                gps_timestamp.set_string_data(utc_timestamp);
                 values.insert(std::pair<std::string, NetworkTable::Value>\
-                        ("gps/gps_date/hour", gps_date_hour));
+                        (GPS_CAN_TIME, gps_timestamp));
 
-                NetworkTable::Value gps_date_minute;
-                int minute = GET_MINUTE(frame.data);
-                gps_date_minute.set_type(NetworkTable::Value::INT);
-                gps_date_hour.set_int_data(minute);
+
+                NetworkTable::Value gps_valid;
+                bool valid = GET_STATUS(frame.data);
+                gps_valid.set_type(NetworkTable::Value::BOOL);
+                gps_valid.set_bool_data(valid);
                 values.insert(std::pair<std::string, NetworkTable::Value>\
-                        ("gps/gps_date/minute", gps_date_minute));
+                        (GPS_CAN_VALID, gps_valid));
 
-                NetworkTable::Value gps_date_second;
-                int second = GET_SECOND(frame.data);
-                gps_date_second.set_type(NetworkTable::Value::INT);
-                gps_date_second.set_int_data(second);
-                values.insert(std::pair<std::string, NetworkTable::Value>\
-                        ("gps/gps_date/second", gps_date_second));
-
-                NetworkTable::Value gps_date_day;
-                int day = GET_DAY(frame.data);
-                gps_date_day.set_type(NetworkTable::Value::INT);
-                gps_date_day.set_int_data(day);
-                values.insert(std::pair<std::string, NetworkTable::Value>\
-                        ("gps/gps_date/day", gps_date_day));
-
-                NetworkTable::Value gps_date_month;
-                int month = GET_MONTH(frame.data);
-                gps_date_month.set_type(NetworkTable::Value::INT);
-                gps_date_month.set_int_data(month);
-                values.insert(std::pair<std::string, NetworkTable::Value>\
-                        ("gps/gps_date/day", gps_date_day));
-
-                NetworkTable::Value gps_date_year;
-                int year = GET_YEAR(frame.data);
-                gps_date_year.set_type(NetworkTable::Value::INT);
-                gps_date_year.set_int_data(year);
-                values.insert(std::pair<std::string, NetworkTable::Value>\
-                        ("gps/gps_date/year", gps_date_year));
-
-                NetworkTable::Value gps_date_status;
-                bool status = GET_STATUS(frame.data);
-                gps_date_status.set_type(NetworkTable::Value::BOOL);
-                gps_date_status.set_bool_data(status);
-                values.insert(std::pair<std::string, NetworkTable::Value>\
-                        ("gps/gps_date/status", gps_date_status));
-
-                NetworkTable::Value gps_date_varWest;
+                NetworkTable::Value gps_varWest;
                 bool var_west = GET_VAR_WEST(frame.data);
-                gps_date_varWest.set_type(NetworkTable::Value::BOOL);
-                gps_date_varWest.set_bool_data(var_west);
+                gps_varWest.set_type(NetworkTable::Value::BOOL);
+                gps_varWest.set_bool_data(var_west);
                 values.insert(std::pair<std::string, NetworkTable::Value>\
-                        ("gps/gps_date/var_west", gps_date_varWest));
+                        (GPS_CAN_VARWEST, gps_varWest));
 
-                NetworkTable::Value gps_date_varNorth;
-                bool var_north = GET_VAR_NORTH(frame.data);
-                gps_date_varNorth.set_type(NetworkTable::Value::BOOL);
-                gps_date_varWest.set_bool_data(var_north);
+                NetworkTable::Value gps_latNorth;
+                bool lat_north = GET_VAR_NORTH(frame.data);
+                gps_latNorth.set_type(NetworkTable::Value::BOOL);
+                gps_latNorth.set_bool_data(lat_north);
                 values.insert(std::pair<std::string, NetworkTable::Value>\
-                        ("gps/gps_date/var_north", gps_date_varNorth));
+                        (GPS_CAN_LATNORTH, gps_latNorth));
 
-                NetworkTable::Value gps_date_varLongWest;
+                NetworkTable::Value gps_lonWest;
                 bool var_long_west = GET_LONG_WEST(frame.data);
-                gps_date_varLongWest.set_type(NetworkTable::Value::BOOL);
-                gps_date_varLongWest.set_bool_data(var_long_west);
+                gps_lonWest.set_type(NetworkTable::Value::BOOL);
+                gps_lonWest.set_bool_data(var_long_west);
                 values.insert(std::pair<std::string, NetworkTable::Value>\
-                        ("gps/gps_date/long_west", gps_date_varLongWest));
+                        (GPS_CAN_LONWEST, gps_lonWest));
 
                 try {
                     connection.SetValues(values);
