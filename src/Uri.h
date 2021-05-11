@@ -22,6 +22,11 @@
 #define GPS_CAN_TRUE_HEADING "/gps_0/gprmc/true_heading"
 #define GPS_CAN_MAGVAR "/gps_0/gprmc/magnetic_variation"
 
+#define GPS_CAN_VALID "/gps_0/gprmc/valid"
+#define GPS_CAN_VARWEST "/gps_0/gprmc/var_west"
+#define GPS_CAN_LATNORTH "/gps_0/gprmc/lat_north"
+#define GPS_CAN_LONWEST "/gps_0/gprmc/lon_west"
+
 #define GPS_AIS_TIME "/gps_1/gprmc/utc_timestamp"
 #define GPS_AIS_LAT "/gps_1/gprmc/latitude"
 #define GPS_AIS_LON "/gps_1/gprmc/longitude"
