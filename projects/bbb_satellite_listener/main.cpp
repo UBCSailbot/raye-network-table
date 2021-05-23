@@ -11,6 +11,9 @@
 #include <mutex>
 #include <stdexcept>
 #include <vector>
+#include <sstream>
+#include <iomanip>
+#include <cstdio>
 
 #include "Connection.h"
 #include "Help.h"
@@ -155,14 +158,69 @@ std::string decodeMessage(boost::asio::serial_port &p /* NOLINT(runtime/referenc
 
 std::string receive_message(const std::string &status) {
     std::string response;
+    std::stringstream hexdata;
+    std::string s2;
+    NetworkTable::Satellite satellite;
+    char temp[100];
+    int temp_hex;
     if (status == "1") {
         // Command to receive binary MT message
         std::string msg = "AT+SBDRB\r";
         boost::asio::write(serial, boost::asio::buffer(msg.c_str(), msg.size()));
-        std::cout << readLine(serial) << std::endl;
+        std::string data= readLine(serial);
+        std::cout << data << std::endl;
+        std::string message = data.substr(10);
+        std::cout << message << std::endl;
         std::cout << readLine(serial) << std::endl;
 
-        response = decodeMessage(serial);
+        std::cout << "INT: ";
+        for (const auto &item : message) {
+            std::cout << int(item) << " "; 
+        }
+        std::cout << "HEX: ";
+        int i = 0;
+        for (const auto &item : message) {
+            std::cout << int(item); 
+            hexdata << std::hex << int(item);
+            //temp_hex = std::hex << int(item);
+            std::sprintf(&temp[i*2], "%02x", int(item)); 
+            i++;
+        }
+        std::cout << "========= PRINTING BUFFER =============" << std::endl;
+        for (int i = 0 ; i < receive_size*2+1; i++) {
+            std::cout << temp[i];
+        }
+        std::cout << std::endl;
+        std::cout << std::endl;
+        s2 = hexdata.str();
+        std::cout << s2 << std::endl;
+
+        std::vector<char> hex_data = HexToBytes(std::string(temp));
+        for (auto i = hex_data.begin(); i != hex_data.end(); ++i)
+            std::cout << *i;
+        std::cout << "\n";
+        std::string str_data(hex_data.begin(),hex_data.end());
+        std::cout << "str_data= " << str_data << std::endl;
+
+        satellite.ParseFromString(str_data);
+
+        if (satellite.type() == NetworkTable::Satellite::SENSORS) {
+            std::cout << "SENSOR DATA" << std::endl;
+            return satellite.DebugString();
+        } else if (satellite.type() == NetworkTable::Satellite::UCCMS) {
+            std::cout << "UCCM DATA" << std::endl;
+            return satellite.DebugString();
+        } else if (satellite.type() == NetworkTable::Satellite::VALUE &&
+                   satellite.value().type() == NetworkTable::Value::WAYPOINTS) {
+            std::cout << "WAYPOINT DATA" << std::endl;
+            connection.SetValue("waypoints", satellite.value());
+
+            std::cout << "waypoint_data= " << satellite.DebugString() << std::endl;
+            return satellite.DebugString();
+        } else {
+            throw std::runtime_error("Failed to decode satellite data");
+        }
+        /*response = decodeMessage(serial); */
         std::cout << readLine(serial) << std::endl;
         std::cout << readLine(serial) << std::endl;
         std::cout << readLine(serial) << std::endl;
