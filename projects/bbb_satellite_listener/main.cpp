@@ -116,49 +116,13 @@ std::vector<char> HexToBytes(const std::string& hex) {
   }
   return bytes;
 }
-///* Deserialize google protobuf message */
-//std::string decodeMessage(boost::asio::serial_port &p /* NOLINT(runtime/references) */) {
-//    NetworkTable::Satellite satellite;
-//    std::string data;
-//    char c;
-//
-//    for (unsigned int i = 0; i < receive_size; i++) {
-//        boost::asio::read(p, boost::asio::buffer(&c, 1));
-//        data += c;
-//    }
-//
-//    std::vector<char> hex_data;
-//    const std::string const_data = data;
-//    std::cout << "const_data= " << const_data << std::endl;
-//    hex_data = HexToBytes(const_data);
-//    for (auto i = hex_data.begin(); i != hex_data.end(); ++i)
-//        std::cout << *i << ' ';
-//    std::string str_data(hex_data.begin(),hex_data.end());
-//    std::cout << "str_data= " << str_data << std::endl;
-//
-//    satellite.ParseFromString(str_data);
-//
-//    if (satellite.type() == NetworkTable::Satellite::SENSORS) {
-//        std::cout << "SENSOR DATA" << std::endl;
-//        return satellite.DebugString();
-//    } else if (satellite.type() == NetworkTable::Satellite::UCCMS) {
-//        std::cout << "UCCM DATA" << std::endl;
-//        return satellite.DebugString();
-//    } else if (satellite.type() == NetworkTable::Satellite::VALUE &&
-//               satellite.value().type() == NetworkTable::Value::WAYPOINTS) {
-//        std::cout << "WAYPOINT DATA" << std::endl;
-//        connection.SetValue("waypoints", satellite.value());
-//
-//        std::cout << "waypoint_data= " << satellite.DebugString() << std::endl;
-//        return satellite.DebugString();
-//    } else {
-//        throw std::runtime_error("Failed to decode satellite data");
-//    }
-//}
+
 
 std::string decodeMessage(std::string message) {
     NetworkTable::Satellite satellite;
-	std::vector<char> hex_message;
+	//std::vector<char> hex_message;
+    char hex_message[100];
+
     int i = 0;
     for (const auto &item : message) {
         //std::sprintf(&temp[i*2], "%02x", int(item)); 
@@ -167,17 +131,12 @@ std::string decodeMessage(std::string message) {
     }
     std::cout << "========= PRINTING BUFFER =============" << std::endl;
     for (int i = 0 ; i < receive_size*2+1; i++) {
-        //std::cout << temp[i];
         std::cout << hex_message[i];
     }
     std::cout << std::endl;
     std::cout << std::endl;
 
-    //std::vector<char> hex_data = HexToBytes(std::string(temp));
-    std::vector<char> byte_message = HexToBytes(std::string(hex_message.begin(), hex_message.end()));
-    for (auto i = byte_message.begin(); i != byte_message.end(); ++i)
-        std::cout << *i;
-    std::cout << "\n";
+    std::vector<char> byte_message = HexToBytes(std::string(hex_message));
 
     std::string str_data(byte_message.begin(), byte_message.end());
     satellite.ParseFromString(str_data);
@@ -212,16 +171,17 @@ std::string receive_message(const std::string &status) {
 		// Response includes embedded payload
 		// AT+SBDRB__<str_payload>
         std::string response = readLine(serial);
+        std::cout << response;
         std::string str_payload = response.substr(10);
         std::cout << readLine(serial) << std::endl;
 
 		message = decodeMessage(str_payload);
-		std::cout << message << std::endl;
 
-        /*response = decodeMessage(serial); */
+        // TODO: Check if there is anything to read from serial port at this point
         std::cout << readLine(serial) << std::endl;
         std::cout << readLine(serial) << std::endl;
         std::cout << readLine(serial) << std::endl;
+
     } else if (status == "2") {
         message = "Error checking mailbox";
     } else if (status == "0") {
@@ -365,6 +325,8 @@ int main(int argc, char **argv) {
 
     while (!is_subscribed) {
         try {
+            // TODO: Satellite will try to send back received waypoint data
+            //       This is an unecessary use of credits
             connection.Subscribe("/", &RootCallback);
             is_subscribed = true;
         }
