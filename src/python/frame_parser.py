@@ -18,7 +18,7 @@ on the CAN bus (eg. GET_WIND_ANGLE and GET_WIND_SPEED)
 '''
 
 import math
-
+import struct
 
 UCCM1_CMD_FRAME_ID = 0x00000000
 UCCM2_CMD_FRAME_ID = 0x00000001
@@ -202,12 +202,14 @@ def twos_complement(val, bits):
 
 
 # WIND SENSORS
+# ENDIANNESS IS SWAPPED HERE
 def GET_WIND_SPEED(data=None):
     new_data = ((get_byte(data, 0) << 24) +
                 (get_byte(data, 1) << 16) +
                 (get_byte(data, 2) << 8) +
                 (get_byte(data, 3) << 0))
-    return math.floor(twos_complement(new_data, 32)/10)
+    new_data = twos_complement(new_data, 32)/10
+    return math.ceil(new_data) if new_data < 0 else math.floor(new_data)
 
 
 def GET_WIND_ANGLE(data=None):
@@ -215,7 +217,18 @@ def GET_WIND_ANGLE(data=None):
                 (get_byte(data, 5) << 16) +
                 (get_byte(data, 6) << 8) +
                 (get_byte(data, 7) << 0))
-    return math.floor(twos_complement(new_data, 32))
+    return twos_complement(new_data, 32)
+
+
+# This function takes in a string of hex and swaps its endianness then converts it to float
+def GET_RUDDER_PORT_ANGLE(can_msg=None):
+    can_msg = "".join(can_msg.strip().split()[-8:])
+    can_msg = can_msg[:len(can_msg)//2]
+    can_msg = bytearray.fromhex(can_msg)
+    can_msg.reverse()
+    new_msg = ''.join(format(x, '02x') for x in can_msg)
+    can_msg = struct.unpack('!f', bytes.fromhex(new_msg.upper()))[0]
+    return can_msg
 
 
 # TODO: Process the rest of these functions so we can convert the

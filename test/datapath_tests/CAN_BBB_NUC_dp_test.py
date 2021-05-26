@@ -30,22 +30,45 @@ from nt_connection.CAN_to_URI_to_ROStopic import \
     CAN_to_URI_to_ROStopic, CAN_bus_sensor
 from nt_connection.SSH_Connection import SSH_Connection
 from dummy_data import Test_Data, make_dummy_tests
+from nt_connection import uri
+from nt_connection.frame_parser import *
 
 
-# These are needed in order to not read an empty URI
+# These are needed in order to not read an empty URI from the NT
 CAN_producer = threading.Semaphore(0)
 CAN_consumer = threading.Semaphore(1)
 
+# Due to the latency of reading from URIs, the NUC
+# listener must wait for the CAN listener to be ready
+CAN_Listener_ready = threading.Semaphore(0)
+
+# Loopback semaphores to not read empty URIs from the NT
+NUC_producer = threading.Semaphore(0)
+NUC_consumer = threading.Semaphore(1)
+
+# Time intervals to send CAN data
 SETUP_TIME = 2
-CAN_SEND_INTERVAL = 5
+CAN_SEND_INTERVAL = 15
+
+# actuation angle set 1,2 for testing (hard coded for now)
+aa_set1 = 0.78
+aa_set2 = 0.78
 
 # These commands are used in the test_nuc_eth_listener thread exclusively
 setup_bash_cmd = "source /opt/ros/melodic/setup.bash"
 setup_sh_cmd = "source /home/raye/catkin_ws/devel/setup.sh"
-get_sensor_cmd = "/opt/ros/melodic/bin/rostopic echo /sensors/{} -n 1"
+get_sensor_cmd = "/opt/ros/melodic/bin/rostopic echo /sensors/{}"
+stop_iter_1 = " -n 1"
 
-# This command is to be used in the test_can_listener thread exclusively
-command = "python3 workspace/datapath_tests_NAV-194/test/datapath_tests/connection_values.py -u \'{}\'"
+# hard coded command to send actuation angles from the nuc
+send_angle_cmd = \
+    "/opt/ros/melodic/bin/rostopic pub /actuation_angle sailbot_msg/actuation_angle {} {} -1".format(aa_set1, aa_set2)
+
+# This command is to be used in the test_bbb_can_listener thread exclusively
+read_nt_cmd = "python3 workspace/datapath_tests_NAV-194/test/datapath_tests/connection_values.py -u {}"
+
+# This command is to be used in the test_bbb_can thread exclusively
+candump_cmd = 'candump vcan0'
 
 
 def test_nuc_eth_listener(nuc, test_data_dict):
@@ -60,21 +83,37 @@ def test_nuc_eth_listener(nuc, test_data_dict):
 
     print("NUC ETH Listener test")
     for test in test_data_dict:
-        published_sensor_cmd = setup_bash_cmd + ";" + setup_sh_cmd + ";" + \
-            get_sensor_cmd.format(test_data_dict[test]['rostopic'])
+        sensor_list = []
+        published_sensor_cmd = setup_bash_cmd + ";" + setup_sh_cmd + ";"
+        for topic in test_data_dict[test]['rostopic']:
+            sensor_list.append(get_sensor_cmd.format(topic) + stop_iter_1)
+
+        new_sensor_cmd = " & ".join(sensor_list)
+        published_sensor_cmd += new_sensor_cmd
+        print("NUC Listener - Published sensor command:", published_sensor_cmd)
         stdin, stdout, stderr = nuc.exec_command(published_sensor_cmd)
-        NUC_data = stdout.readline()
-        CAN_data = test_data_dict[test]['parsed_data']
-        print("NUC LISTENER TEST - NUC ROS data:", NUC_data)
-        print("NUC LISTENER TEST - CAN data:", CAN_data)
+        NUC_data = stdout.read().decode('utf-8')
+        NUC_data = list(filter(None, NUC_data.split("\n---\n")))
+        CAN_data = list(map(str, test_data_dict[test]['parsed_data']))
+        print("NUC LISTENER TEST - NUC ROS Sensor Data:", NUC_data)
+        print("NUC LISTENER TEST - BBB CAN Sensor Data:", CAN_data)
         try:
-            assert(NUC_data == CAN_data)
-            print("NUC LISTENER TEST - DATA PASSED")
+            assert(sorted(NUC_data) == sorted(CAN_data))
+            print("PASS - NUC LISTENER TEST - SENSOR DATA PASSED")
         except AssertionError:
-            print("NUC LISTENER TEST - NUC ETH Listener data not received correctly")
-            print("NUC data:", NUC_data)
-            print("CAN data:", CAN_data)
+            print("ERROR - NUC LISTENER TEST - NUC SENSOR DATA FAILED")
+
+        # Waits for the CAN Listener thread to become ready after reading from the NT
+        CAN_Listener_ready.acquire()
+        print("---------\nNUC<>BBB<>CAN Loopback starting\n-----------")
+        NUC_consumer.acquire()
+        send_angle_sensor_cmd = setup_bash_cmd + ";" + setup_sh_cmd + ";" + send_angle_cmd
+        print("NUC LISTENER TEST - NUC SEND ANGLE COMMAND:", send_angle_sensor_cmd)
+        print("NUC LISTENER TEST - SENDING MOTOR ANGLE FROM NUC")
+        stdin, stdout, stderr = nuc.exec_command(send_angle_sensor_cmd)
+        NUC_producer.release()
         print("=====")
+
     return
 
 
@@ -82,36 +121,6 @@ def test_nuc_eth_listener(nuc, test_data_dict):
 # through ethernet
 def test_bbb_eth_listener(bbb, data):
     assert True
-    return
-
-
-def test_bbb_can(bbb, test_data_dict):
-    '''
-    Canbus test thread (Runs on BBB)
-
-    Runs CAN dump to see if data is transmitted correctly
-    into the canbus listener
-    NOTE: stdout.readline() will hang but we need
-    it to until it receives data from main
-    '''
-
-    print("BBB Virtual CAN Test")
-    for test in test_data_dict:
-        CAN_consumer.acquire()
-        stdin, stdout, stderr = bbb.exec_command('candump vcan0')
-        can_msg = stdout.readline()
-        # we extract the last 8 characters this way because
-        # the format of candump is weird
-        can_msg = "".join(can_msg.strip().split()[-8:])
-        CAN_producer.release()
-        print("CAN TEST - CAN Test message", can_msg)
-        print("CAN TEST - Sent CAN message", test_data_dict[test]['data'])
-        try:
-            assert(can_msg == test_data_dict[test]['data'])
-            print("CAN TEST - DATA PASSED")
-        except AssertionError:
-            print("CAN TEST - CAN Data not received correctly")
-        print("*****")
     return
 
 
@@ -133,22 +142,85 @@ def test_bbb_can_listener(bbb, test_data_dict):
 
     print("BBB CAN Listener Test")
     for test in test_data_dict:
-        test_command = command.format(test_data_dict[test]['uri'])
+        # since the test data dictionary is a list, we need to convert to string
+        SS_uri = ' '.join(test_data_dict[test]['uri'])
+        test_command = read_nt_cmd.format(SS_uri)
+        print("CAN LISTENER TEST - TEST COMMAND", test_command)
         CAN_producer.acquire()
         stdin, stdout, stderr = bbb.exec_command(test_command)
-        NT_data = stdout.readline()
+        # reformat string to be a list again
+        NT_data = stdout.readline()[1:-2].split(", ")  # white space returned at end so need -2
         CAN_consumer.release()
-        NT_data = int(NT_data)
-        CAN_data = test_data_dict[test]['parsed_data']
-        print("CAN LISTENER TEST - CAN NT value:", NT_data)
-        print("CAN LISTENER TEST - CAN Transmitted value:",
-              test_data_dict[test]['parsed_data'])
+        # converts the CAN data parsed data int list to a str list
+        # this is needed to make the right string comparisons
+        CAN_data = list(map(str, test_data_dict[test]['parsed_data']))
+        print("CAN LISTENER TEST - BBB NT data:", NT_data)
+        print("CAN LISTENER TEST - BBB CAN data:", CAN_data)
         try:
-            assert(NT_data == CAN_data)
+            assert(sorted(NT_data) == sorted(CAN_data))
             print("CAN LISTENER TEST - DATA PASSED")
         except AssertionError:
             print("CAN LISTENER TEST - BBB CAN Bus Listener data not received correctly through virtual CAN")
         print("-----")
+        # CAN Listener will have read the URIs in the first data propagation at this point
+        CAN_Listener_ready.release()
+        test_command = read_nt_cmd.format(uri.RUDDER_PORT_ANGLE)
+        print("CAN LISTENER TEST - MOTOR CHECK COMMAND:", test_command)
+        NUC_producer.acquire()
+        stdin, stdout, stderr = bbb.exec_command(test_command)
+        NT_data = stdout.readline()[1:-2].split(", ")
+        NUC_consumer.release()
+        motor_NT_data = float(NT_data[0])
+        print("CAN LISTENER TEST - BBB NT Motor Data:", motor_NT_data)
+        print("CAN LISTENER TEST - NUC ROS Motor Data:", aa_set1)
+        try:
+            assert math.isclose(motor_NT_data, aa_set1, rel_tol=0.1)
+            print("PASS - CAN LISTENER TEST - MOTOR DATA PASSED")
+        except AssertionError:
+            print("ERROR - CAN LISTENER TEST - MOTOR DATA FAILED")
+        print("-----")
+    return
+
+
+def test_bbb_can(bbb, test_data_dict):
+    '''
+    Canbus test thread (Runs on BBB)
+
+    Runs CAN dump to see if data is transmitted correctly
+    into the canbus listener
+    NOTE: stdout.readline() will hang but we need
+    it to until it receives data from main
+    '''
+
+    print("BBB Virtual CAN Test")
+    for test in test_data_dict:
+        CAN_consumer.acquire()
+        stdin, stdout, stderr = bbb.exec_command(candump_cmd)
+        can_msg = stdout.readline()
+        # we extract the last 8 characters this way because
+        # the format of candump is weird
+        VCAN_data = "".join(can_msg.strip().split()[-8:])
+        CAN_producer.release()
+        CAN_data = test_data_dict[test]['data']
+        print("CAN TEST - BBB CAN Sensor Data", VCAN_data)
+        print("CAN TEST - BBB VCAN Sensor Data:", CAN_data)
+        try:
+            assert(VCAN_data == CAN_data)
+            print("CAN TEST - COMMAND SEND DATA PASSED")
+        except AssertionError:
+            print("ERROR - CAN TEST - CAN Data not received correctly")
+        print("*****")
+        stdin, stdout, stderr = bbb.exec_command(candump_cmd)
+        can_motor_msg = stdout.readline()
+        can_motor_msg = GET_RUDDER_PORT_ANGLE(can_motor_msg)
+        print("CAN TEST - NUC ROS Motor Data:", aa_set1)
+        print("CAN TEST - BBB CAN Motor Data:", can_motor_msg)
+        try:
+            assert math.isclose(can_motor_msg, aa_set1, rel_tol=0.1)
+            print("PASS - CAN TEST - MOTOR DATA PASSED")
+        except AssertionError:
+            print("ERROR - CAN TEST - MOTOR DATA FAILED")
+        print("*****")
     return
 
 
@@ -216,8 +288,8 @@ def main():
     bbb_canbus_listener_test_thread.start()
     nuc_eth_listener_test_thread.start()
 
-    # THIS SLEEP IS NEEDED SO THAT ALL THE THREADS CAN DO PROPER SETUP
-    time.sleep(SETUP_TIME)
+    # # THIS SLEEP IS NEEDED SO THAT ALL THE THREADS CAN DO PROPER SETUP
+    # time.sleep(SETUP_TIME)
 
     # Virtual CAN bus emulation loop
     for test in my_data:

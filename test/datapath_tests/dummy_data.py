@@ -22,8 +22,8 @@ def make_dummy_tests(can_filter, dummy_data, CAN_URI_ROS):
         sensor = random.choice(list(filtered_dict))
         dummy_tests[key] = filtered_dict[sensor]
         dummy_tests[key]['data'] = value
-        dummy_tests[key]['parsed_data'] = \
-            dummy_tests[key]['parser'](int(value, 16))
+        for i in range(len(dummy_tests[key]['parser'])):
+            dummy_tests[key]['parsed_data'].append(dummy_tests[key]['parser'][i](int(value, 16)))
     return dummy_tests
 
 

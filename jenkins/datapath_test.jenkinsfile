@@ -26,99 +26,179 @@ pipeline {
                         label 'bbb'
                     }
                     steps {
-                        // Make sure canbus is enabled
-                        dir("/home/debian/workspace/datapath_tests_${env.BRANCH_NAME}/") {
-                            checkout scm
-                            sh 'git submodule sync'
-                            sh 'git submodule update --init --recursive'
-                            sh 'git clean -dff'
+                        script{
+                            if (env.BRANCH_NAME == 'master'){
+                                // Make sure canbus is enabled
+                                dir("/home/debian/workspace/datapath_tests/") {
+                                    checkout scm
+                                    sh 'git submodule sync'
+                                    sh 'git submodule update --init --recursive'
+                                    sh 'git clean -dff'
 
-                            sh '''
-                                mkdir -p build
-                                cd build
-                                cmake ..
-                                make
-                            '''
+                                    sh '''
+                                        mkdir -p build
+                                        cd build
+                                        cmake ..
+                                        make
+                                    '''
+                                }    
+                            }
+                            else {
+                                dir("/home/debian/workspace/datapath_tests_${env.BRANCH_NAME}/") {
+                                    checkout scm
+                                    sh 'git submodule sync'
+                                    sh 'git submodule update --init --recursive'
+                                    sh 'git clean -dff'
+
+                                    sh '''
+                                        mkdir -p build
+                                        cd build
+                                        cmake ..
+                                        make
+                                    '''
+                                }    
+                            }
                         }
                     }
                 }
-
                  stage('Build NUC') {
                     agent {
                         label 'nuc'
                     }
                     steps {
-                        // compile network table.
-                        // specifically we want nuc_eth_listener
-                        dir("/home/raye/workspace/datapath_tests_${env.BRANCH_NAME}/") {
-                            checkout scm
-                            sh 'git submodule sync'
-                            sh 'git submodule update --init --recursive'
-                            sh 'git clean -dff'
-                            sh '''
-                                set +x
-                                source /opt/ros/melodic/setup.bash
-                                mkdir -p build
-                                cd build
-                                cmake .. -DENABLE_ROS:BOOL=ON
-                                make clean
-                                make -j6
-                            '''
-                        }
+                        script{
+                            if (env.BRANCH_NAME == 'master'){
+                                // compile network table.
+                                // specifically we want nuc_eth_listener
+                                dir("/home/raye/workspace/datapath_tests/") {
+                                    checkout scm
+                                    sh 'git submodule sync'
+                                    sh 'git submodule update --init --recursive'
+                                    sh 'git clean -dff'
+                                    sh '''
+                                        set +x
+                                        source /opt/ros/melodic/setup.bash
+                                        mkdir -p build
+                                        cd build
+                                        cmake .. -DENABLE_ROS:BOOL=ON
+                                        make clean
+                                        make -j6
+                                    '''
+                                }
+                            }
+                            else{
+                                // compile network table.
+                                // specifically we want nuc_eth_listener
+                                dir("/home/raye/workspace/datapath_tests_${env.BRANCH_NAME}/") {
+                                    checkout scm
+                                    sh 'git submodule sync'
+                                    sh 'git submodule update --init --recursive'
+                                    sh 'git clean -dff'
+                                    sh '''
+                                        set +x
+                                        source /opt/ros/melodic/setup.bash
+                                        mkdir -p build
+                                        cd build
+                                        cmake .. -DENABLE_ROS:BOOL=ON
+                                        make clean
+                                        make -j6
+                                    '''
+                                }
+                            }
 
-                            // compile bruces controller code & local-pathfinding.
-                            // TODO: This is not handled by git/jenkins at all. Changes
-                            // to this code will not appear here.
-                        dir('/home/raye/catkin_ws') {
+                                    // compile bruces controller code & local-pathfinding.
+                                    // TODO: This is not handled by git/jenkins at all. Changes
+                                    // to this code will not appear here.
+                            dir('/home/raye/catkin_ws') {
                                 sh '''
                                     set +x
                                     source /opt/ros/melodic/setup.bash
                                     catkin_make clean
                                     catkin_make
                                 '''
+                            }
                         }
                     }
                 }
-
+                
                 stage('Build Land Server') {
                     agent {
                         label 'master'
                     }
                     steps {
-                        dir("/var/lib/jenkins/workspace/datapath_tests_${env.BRANCH_NAME}/") {
-                            checkout scm
-                            sh 'git submodule sync'
-                            sh 'git submodule update --init --recursive'
-                            sh 'git clean -dff'
-                            sh '''
-                                mkdir -p build
-                                cd build
-                                cmake ..
-                                make
-                            '''
+                        script{
+                            if (env.BRANCH_NAME == 'master'){
+                                dir("/var/lib/jenkins/workspace/datapath_tests/") {
+                                    checkout scm
+                                    sh 'git submodule sync'
+                                    sh 'git submodule update --init --recursive'
+                                    sh 'git clean -dff'
+                                    sh '''
+                                        mkdir -p build
+                                        cd build
+                                        cmake ..
+                                        make
+                                    '''
+                                }
+                                // compile global pathfinding
+                                dir("/var/lib/jenkins/workspace/datapath_tests/projects/global-pathfinding/") {
+                                    sh '''
+                                        mkdir -p build
+                                        cd build
+                                        cmake ..
+                                        make
+                                    '''
+                                }
+		    		        }
+                            else{
+                                dir("/var/lib/jenkins/workspace/datapath_tests_${env.BRANCH_NAME}/") {
+                                    checkout scm
+                                    sh 'git submodule sync'
+                                    sh 'git submodule update --init --recursive'
+                                    sh 'git clean -dff'
+                                    sh '''
+                                        mkdir -p build
+                                        cd build
+                                        cmake ..
+                                        make
+                                    '''
+                                }
+                                // compile global pathfinding
+                                dir("/var/lib/jenkins/workspace/datapath_tests_${env.BRANCH_NAME}/projects/global-pathfinding/") {
+                                    sh '''
+                                        mkdir -p build
+                                        cd build
+                                        cmake ..
+                                        make
+                                    '''
+                                }             
+		    	            }
                         }
-                        // compile global pathfinding
-                        dir("/var/lib/jenkins/workspace/datapath_tests_${env.BRANCH_NAME}/projects/global-pathfinding/") {
-                            sh '''
-                                mkdir -p build
-                                cd build
-                                cmake ..
-                                make
-                            '''
-                        }
-		    		}      
-		    	}
+                    }
+                }
                 
                 stage('Run BBB') {
                     agent {
                         label 'bbb'
                     }
                     steps {
-                        dir("/home/debian/workspace/datapath_tests_${env.BRANCH_NAME}/") {
-                            sh 'JENKINS_NODE_COOKIE=nokill nohup /usr/bin/socat -d -d pty,raw,echo=0,link=/tmp/serialport1 pty,raw,echo=0,link=/tmp/serialport2 &'
-                            sh 'JENKINS_NODE_COOKIE=nokill nohup ./build/bin/network_table_server &'
-                            sh 'JENKINS_NODE_COOKIE=nokill nohup ./build/bin/bbb_eth_listener 192.168.1.60 5555 &'
-                            sh 'JENKINS_NODE_COOKIE=nokill nohup ./build/bin/bbb_canbus_listener vcan0  &'
+                        script{
+                            if (env.BRANCH_NAME == 'master'){
+                                dir("/home/debian/workspace/datapath_tests/") {
+                                    sh 'JENKINS_NODE_COOKIE=nokill nohup /usr/bin/socat -d -d pty,raw,echo=0,link=/tmp/serialport1 pty,raw,echo=0,link=/tmp/serialport2 &'
+                                    sh 'JENKINS_NODE_COOKIE=nokill nohup ./build/bin/network_table_server &'
+                                    sh 'JENKINS_NODE_COOKIE=nokill nohup ./build/bin/bbb_eth_listener 192.168.1.60 5555 &'
+                                    sh 'JENKINS_NODE_COOKIE=nokill nohup ./build/bin/bbb_canbus_listener vcan0  &'
+                                }
+                            }
+                            else {
+                                dir("/home/debian/workspace/datapath_tests_${env.BRANCH_NAME}/") {
+                                    sh 'JENKINS_NODE_COOKIE=nokill nohup /usr/bin/socat -d -d pty,raw,echo=0,link=/tmp/serialport1 pty,raw,echo=0,link=/tmp/serialport2 &'
+                                    sh 'JENKINS_NODE_COOKIE=nokill nohup ./build/bin/network_table_server &'
+                                    sh 'JENKINS_NODE_COOKIE=nokill nohup ./build/bin/bbb_eth_listener 192.168.1.60 5555 &'
+                                    sh 'JENKINS_NODE_COOKIE=nokill nohup ./build/bin/bbb_canbus_listener vcan0  &'
+                                }
+                            }
                         }
                     }
                 }
@@ -128,32 +208,66 @@ pipeline {
                         label 'nuc'
                     }
                     steps {
-                        dir("/home/raye/workspace/datapath_tests_${env.BRANCH_NAME}") {
-                            sh '''
-                                set +x
-                                source /opt/ros/melodic/setup.bash
-                                JENKINS_NODE_COOKIE=nokill nohup /opt/ros/melodic/bin/roscore &
-                            '''
-                            // roscore takes a while to startup.
-                            // without this, nuc_eth_listener may get "failed to contact master"
-                            sleep(5)
-                            sh '''
-                                set +x
-                                source /opt/ros/melodic/setup.bash
-                                JENKINS_NODE_COOKIE=nokill nohup ./build/bin/nuc_eth_listener 192.168.1.60 5555 &
-                            '''
-                            sh '''
-                                set +x
-                                source /opt/ros/melodic/setup.bash
-                                source /home/raye/catkin_ws/devel/setup.sh
-                                JENKINS_NODE_COOKIE=nokill nohup /opt/ros/melodic/bin/rosrun boat_controller boat_controller_node &
-                            '''
-                            sh '''
-                                set +x
-                                source /opt/ros/melodic/setup.bash
-                                source /home/raye/catkin_ws/devel/setup.sh
-                                JENKINS_NODE_COOKIE=nokill nohup /opt/ros/melodic/bin/rosrun local_pathfinding main_loop.py &
-                            '''
+                        script{
+                            if (env.BRANCH_NAME == 'master'){
+                                dir("/home/raye/workspace/datapath_tests") {
+                                    sh '''
+                                        set +x
+                                        source /opt/ros/melodic/setup.bash
+                                        JENKINS_NODE_COOKIE=nokill nohup /opt/ros/melodic/bin/roscore &
+                                    '''
+                                    // roscore takes a while to startup.
+                                    // without this, nuc_eth_listener may get "failed to contact master"
+                                    sleep(5)
+                                    sh '''
+                                        set +x
+                                        source /opt/ros/melodic/setup.bash
+                                        JENKINS_NODE_COOKIE=nokill nohup ./build/bin/nuc_eth_listener 192.168.1.60 5555 &
+                                    '''
+                                    sh '''
+                                        set +x
+                                        source /opt/ros/melodic/setup.bash
+                                        source /home/raye/catkin_ws/devel/setup.sh
+                                        JENKINS_NODE_COOKIE=nokill nohup /opt/ros/melodic/bin/rosrun boat_controller boat_controller_node &
+                                    '''
+                                    sh '''
+                                        set +x
+                                        source /opt/ros/melodic/setup.bash
+                                        source /home/raye/catkin_ws/devel/setup.sh
+                                        JENKINS_NODE_COOKIE=nokill nohup /opt/ros/melodic/bin/rosrun local_pathfinding main_loop.py &
+                                    '''
+                                }             
+                            }
+
+                            else {
+                                dir("/home/raye/workspace/datapath_tests_${env.BRANCH_NAME}") {
+                                    sh '''
+                                        set +x
+                                        source /opt/ros/melodic/setup.bash
+                                        JENKINS_NODE_COOKIE=nokill nohup /opt/ros/melodic/bin/roscore &
+                                    '''
+                                    // roscore takes a while to startup.
+                                    // without this, nuc_eth_listener may get "failed to contact master"
+                                    sleep(5)
+                                    sh '''
+                                        set +x
+                                        source /opt/ros/melodic/setup.bash
+                                        JENKINS_NODE_COOKIE=nokill nohup ./build/bin/nuc_eth_listener 192.168.1.60 5555 &
+                                    '''
+                                    sh '''
+                                        set +x
+                                        source /opt/ros/melodic/setup.bash
+                                        source /home/raye/catkin_ws/devel/setup.sh
+                                        JENKINS_NODE_COOKIE=nokill nohup /opt/ros/melodic/bin/rosrun boat_controller boat_controller_node &
+                                    '''
+                                    sh '''
+                                        set +x
+                                        source /opt/ros/melodic/setup.bash
+                                        source /home/raye/catkin_ws/devel/setup.sh
+                                        JENKINS_NODE_COOKIE=nokill nohup /opt/ros/melodic/bin/rosrun local_pathfinding main_loop.py &
+                                    '''
+                                }             
+                            }
                         }
                     }
                 }
@@ -163,13 +277,28 @@ pipeline {
                         label 'master'
                     }
                     steps {
-                        dir("/var/lib/jenkins/workspace/datapath_tests_${env.BRANCH_NAME}/") {
-                            sh 'JENKINS_NODE_COOKIE=nokill nohup ./build/bin/network_table_server > network_table_server.log &'
-                            sh './build/bin/init_gps_coords'
-                            sh 'JENKINS_NODE_COOKIE=nokill nohup ./projects/land_satellite_listener/land_satellite_listener.py -p 8000 -e http://10.0.0.3:8085 -f 5 -u SEC --bind 10.0.0.1 > land_satellite_listener.log &'
-                        }
-                        dir("/var/lib/jenkins/workspace/can_bbb_nuc_integration/projects/global-pathfinding/") {
-                            sh './build/bin/pathfinder_cli -p 8 --table --navigate 21 203 > global_pathfinding.log 2>&1'
+                        script{
+                            if (env.BRANCH_NAME == 'master'){
+                                dir("/var/lib/jenkins/workspace/datapath_tests/") {
+                                    sh 'JENKINS_NODE_COOKIE=nokill nohup ./build/bin/network_table_server > network_table_server.log &'
+                                    sh './build/bin/init_gps_coords'
+                                    sh 'JENKINS_NODE_COOKIE=nokill nohup ./projects/land_satellite_listener/land_satellite_listener.py -p 8000 -e http://10.0.0.3:8085 -f 5 -u SEC --bind 10.0.0.1 > land_satellite_listener.log &'
+                                }
+                                dir("/var/lib/jenkins/workspace/can_bbb_nuc_integration/projects/global-pathfinding/") {
+                                    sh './build/bin/pathfinder_cli -p 8 --table --navigate 21 203 > global_pathfinding.log 2>&1'
+                                } 
+                            }
+                            
+                            else {
+                                dir("/var/lib/jenkins/workspace/datapath_tests_${env.BRANCH_NAME}/") {
+                                    sh 'JENKINS_NODE_COOKIE=nokill nohup ./build/bin/network_table_server > network_table_server.log &'
+                                    sh './build/bin/init_gps_coords'
+                                    sh 'JENKINS_NODE_COOKIE=nokill nohup ./projects/land_satellite_listener/land_satellite_listener.py -p 8000 -e http://10.0.0.3:8085 -f 5 -u SEC --bind 10.0.0.1 > land_satellite_listener.log &'
+                                }
+                                dir("/var/lib/jenkins/workspace/can_bbb_nuc_integration/projects/global-pathfinding/") {
+                                    sh './build/bin/pathfinder_cli -p 8 --table --navigate 21 203 > global_pathfinding.log 2>&1'
+                                } 
+                            }
                         }
                     }
                 }
@@ -182,9 +311,9 @@ pipeline {
                         // IN final test, have if statement that alternates between the git branch and master
                         script {
                             if (env.BRANCH_NAME == 'master'){
-                                dir("/var/lib/jenkins/workspace/datapath_tests_${env.BRANCH_NAME}/test/datapath_tests") {
-                                    sh "python3 CAN_BBB_NUC_dp_test.py --config '/root/.config'"
+                                dir("/var/lib/jenkins/workspace/datapath_tests/test"){
                                     echo "on master"
+                                    sh "python3 CAN_BBB_NUC_dp_test.py --config /var/lib/jenkins/config.ini"
                                 }
                             }
                             else {
@@ -196,6 +325,7 @@ pipeline {
 		    		    }
 		    	    }
 		        }
+
 	            stage ('Cleanup') {
                     steps {
                         cleanup()
