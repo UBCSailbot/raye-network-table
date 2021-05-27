@@ -71,21 +71,34 @@ void MotorCallback(NetworkTable::Node node, \
         const std::map<std::string, NetworkTable::Value> &diffs, \
         bool is_self_reply) {
     struct can_frame frame;
-    float angle = static_cast<float>(node.value().float_data());
-    frame.can_id = RUDDER_PORT_CMD_FRAME_ID;
     frame.can_dlc = 8;
+    float angle;
 
-    // Manually put split the float into bytes, and
-    // put each byte into the frame.data array
-    uint8_t const *angle_array = reinterpret_cast<uint8_t *>(&angle);
-    frame.data[0] = angle_array[0];
-    frame.data[1] = angle_array[1];
-    frame.data[2] = angle_array[2];
-    frame.data[3] = angle_array[3];
-    std::cout << "Sending rudder angle:" << angle << std::endl;
-    if (write(s, &frame, sizeof(struct can_frame)) != sizeof(struct can_frame)) {
-        perror("Write");
-        return;
+    for (const auto& uris : diffs) {
+        std::string uri = uris.first;
+        if (uri == RUDDER_PORT_ANGLE) {
+            frame.can_id = RUDDER_PORT_CMD_FRAME_ID;
+            angle = static_cast<float>(node.children().at("rudder_port").children().at("angle").value().float_data());
+        } else if (uri == RUDDER_STBD_ANGLE) {
+            frame.can_id = RUDDER_STBD_CMD_FRAME_ID;
+            angle = static_cast<float>(node.children().at("rudder_stbd").children().at("angle").value().float_data());
+        } else {
+            break;
+        }
+
+        std::cout << uris.first << std::endl;
+        // Manually put split the float into bytes, and
+        // put each byte into the frame.data array
+        uint8_t const *angle_array = reinterpret_cast<uint8_t *>(&angle);
+        frame.data[0] = angle_array[0];
+        frame.data[1] = angle_array[1];
+        frame.data[2] = angle_array[2];
+        frame.data[3] = angle_array[3];
+        std::cout << "Sending port rudder angle:" << angle << std::endl;
+        if (write(s, &frame, sizeof(struct can_frame)) != sizeof(struct can_frame)) {
+            perror("Write");
+            return;
+        }
     }
 }
 
