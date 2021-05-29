@@ -81,6 +81,8 @@
 #define WINCH_MAIN_ANGLE "/actuation_angle/winch/winch_main/angle"
 #define WINCH_JIB_ANGLE "/actuation_angle/winch/winch_jib/angle"
 
+#define WAYPOINTS_GP "/waypoints"
+
 //TODO: Add UCCM Uris
 
 #endif  // URI_H_

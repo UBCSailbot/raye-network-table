@@ -22,6 +22,7 @@
 #include "Satellite.pb.h"
 #include "Value.pb.h"
 #include "Exceptions.h"
+#include "Uri.h"
 
 // Stores serialized sensor and uccm data to send to rockblock
 std::string latest_sensors_satellite_string;  // NOLINT(runtime/string)
@@ -60,6 +61,16 @@ std::string readLine(boost::asio::serial_port &p) {  // NOLINT(runtime/reference
                 result += c;
         }
     }
+}
+
+std::vector<char> HexToBytes(const std::string& hex) {
+  std::vector<char> bytes;
+  for (unsigned int i = 0; i < hex.length(); i += 2) {
+    std::string byteString = hex.substr(i, 2);
+    char byte = (char) strtol(byteString.c_str(), NULL, 16);
+    bytes.push_back(byte);
+  }
+  return bytes;
 }
 
 void send(const std::string &data) {
@@ -107,74 +118,24 @@ void send(const std::string &data) {
     std::cout << readLine(serial) << std::endl;
 }
 
-std::vector<char> HexToBytes(const std::string& hex) {
-  std::vector<char> bytes;
-  for (unsigned int i = 0; i < hex.length(); i += 2) {
-    std::string byteString = hex.substr(i, 2);
-    char byte = (char) strtol(byteString.c_str(), NULL, 16);
-    bytes.push_back(byte);
-  }
-  return bytes;
-}
-///* Deserialize google protobuf message */
-//std::string decodeMessage(boost::asio::serial_port &p /* NOLINT(runtime/references) */) {
-//    NetworkTable::Satellite satellite;
-//    std::string data;
-//    char c;
-//
-//    for (unsigned int i = 0; i < receive_size; i++) {
-//        boost::asio::read(p, boost::asio::buffer(&c, 1));
-//        data += c;
-//    }
-//
-//    std::vector<char> hex_data;
-//    const std::string const_data = data;
-//    std::cout << "const_data= " << const_data << std::endl;
-//    hex_data = HexToBytes(const_data);
-//    for (auto i = hex_data.begin(); i != hex_data.end(); ++i)
-//        std::cout << *i << ' ';
-//    std::string str_data(hex_data.begin(),hex_data.end());
-//    std::cout << "str_data= " << str_data << std::endl;
-//
-//    satellite.ParseFromString(str_data);
-//
-//    if (satellite.type() == NetworkTable::Satellite::SENSORS) {
-//        std::cout << "SENSOR DATA" << std::endl;
-//        return satellite.DebugString();
-//    } else if (satellite.type() == NetworkTable::Satellite::UCCMS) {
-//        std::cout << "UCCM DATA" << std::endl;
-//        return satellite.DebugString();
-//    } else if (satellite.type() == NetworkTable::Satellite::VALUE &&
-//               satellite.value().type() == NetworkTable::Value::WAYPOINTS) {
-//        std::cout << "WAYPOINT DATA" << std::endl;
-//        connection.SetValue("waypoints", satellite.value());
-//
-//        std::cout << "waypoint_data= " << satellite.DebugString() << std::endl;
-//        return satellite.DebugString();
-//    } else {
-//        throw std::runtime_error("Failed to decode satellite data");
-//    }
-//}
-
-std::string decodeMessage(std::string message) {
+std::string decode_message(std::string message) {
     NetworkTable::Satellite satellite;
-	std::vector<char> hex_message;
+	//std::vector<char> hex_message;
+	char hex_message[100];
     int i = 0;
     for (const auto &item : message) {
-        //std::sprintf(&temp[i*2], "%02x", int(item)); 
         std::sprintf(&hex_message[i*2], "%02x", int(item)); 
         i++;
     }
     std::cout << "========= PRINTING BUFFER =============" << std::endl;
     for (int i = 0 ; i < receive_size*2+1; i++) {
-        //std::cout << temp[i];
         std::cout << hex_message[i];
     }
     std::cout << std::endl;
     std::cout << std::endl;
 
-    //std::vector<char> hex_data = HexToBytes(std::string(temp));
-    std::vector<char> byte_message = HexToBytes(std::string(hex_message.begin(), hex_message.end()));
+    //std::vector<char> byte_message = HexToBytes(std::string(hex_message.begin(), hex_message.end()));
+    std::vector<char> byte_message = HexToBytes(std::string(hex_message));
     for (auto i = byte_message.begin(); i != byte_message.end(); ++i)
         std::cout << *i;
     std::cout << "\n";
@@ -215,10 +176,11 @@ std::string receive_message(const std::string &status) {
         std::string str_payload = response.substr(10);
         std::cout << readLine(serial) << std::endl;
 
-		message = decodeMessage(str_payload);
+		message = decode_message(str_payload);
 		std::cout << message << std::endl;
 
-        /*response = decodeMessage(serial); */
+		// TODO: Check if there are other response messages sent from Rockblock
+		// May cause the system to hang if there no other messages
         std::cout << readLine(serial) << std::endl;
         std::cout << readLine(serial) << std::endl;
         std::cout << readLine(serial) << std::endl;
@@ -276,25 +238,31 @@ void RootCallback(NetworkTable::Node node, \
     const std::map<std::string, NetworkTable::Value> &diffs, \
     bool is_self_reply) {
 
-    // Store updated network table data
-    NetworkTable::Satellite sensors_satellite;
-    NetworkTable::Satellite uccms_satellite;
-    sensors_satellite.set_type(NetworkTable::Satellite::SENSORS);
-    uccms_satellite.set_type(NetworkTable::Satellite::UCCMS);
+    for (const auto& uris : diffs) {
+        std::string uri = uris.first;
+		// We do Not want to send back waypoint data that was just received
+        if (uri != WAYPOINTS_GP) {
+    		// Store updated network table data
+    		NetworkTable::Satellite sensors_satellite;
+    		NetworkTable::Satellite uccms_satellite;
+    		sensors_satellite.set_type(NetworkTable::Satellite::SENSORS);
+    		uccms_satellite.set_type(NetworkTable::Satellite::UCCMS);
 
-    NetworkTable::Sensors sensors = NetworkTable::RootToSensors(&node);
-    NetworkTable::Uccms uccms = NetworkTable::RootToUccms(&node);
+    		NetworkTable::Sensors sensors = NetworkTable::RootToSensors(&node);
+    		NetworkTable::Uccms uccms = NetworkTable::RootToUccms(&node);
 
-    // TODO(alex): I don't think this is a memory leak,
-    // but should test with valgrind
-    // This creates an extra object (one on the stack and one on the heap)
-    // but it shouldnt matter much. The stack one is going to get deallocated
-    // pretty soon
-    sensors_satellite.set_allocated_sensors(new NetworkTable::Sensors(sensors));
-    uccms_satellite.set_allocated_uccms(new NetworkTable::Uccms(uccms));
+    		// TODO(alex): I don't think this is a memory leak,
+    		// but should test with valgrind
+    		// This creates an extra object (one on the stack and one on the heap)
+    		// but it shouldnt matter much. The stack one is going to get deallocated
+    		// pretty soon
+    		sensors_satellite.set_allocated_sensors(new NetworkTable::Sensors(sensors));
+    		uccms_satellite.set_allocated_uccms(new NetworkTable::Uccms(uccms));
 
-    sensors_satellite.SerializeToString(&latest_sensors_satellite_string);
-    uccms_satellite.SerializeToString(&latest_uccms_satellite_string);
+    		sensors_satellite.SerializeToString(&latest_sensors_satellite_string);
+    		uccms_satellite.SerializeToString(&latest_uccms_satellite_string);
+		}
+	}
 }
 
 /* Send most recent sensor data */
