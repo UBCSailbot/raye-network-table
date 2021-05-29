@@ -311,7 +311,7 @@ pipeline {
                         // IN final test, have if statement that alternates between the git branch and master
                         script {
                             if (env.BRANCH_NAME == 'master'){
-                                dir("/var/lib/jenkins/workspace/datapath_tests/test"){
+                                dir("/var/lib/jenkins/workspace/datapath_tests/test/datapath_tests"){
                                     echo "on master"
                                     sh "python3 CAN_BBB_NUC_dp_test.py --config /var/lib/jenkins/config.ini"
                                 }
