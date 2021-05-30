@@ -160,7 +160,6 @@ std::string receive_message(const std::string &status) {
         std::cout << readLine(serial) << std::endl;
 
 		message = decode_message(str_payload);
-		std::cout << message << std::endl;
 
 		// TODO: Check if there are other response messages sent from Rockblock
 		// May cause the system to hang if there no other messages
@@ -187,8 +186,10 @@ void receive() {
     // Execute Ring Indicator Status command
     std::string alertInit("AT+CRIS\r");
     boost::asio::write(serial, boost::asio::buffer(alertInit.c_str(), alertInit.size()));
+    std::cout << readLine(serial) << std::endl;
     std::string alertStatus(readLine(serial));
     std::cout << alertStatus <<std::endl;
+    std::cout << readLine(serial) << std::endl;
 
     // Break up ring alert check response
     std::vector<std::string> alert_split;
@@ -196,6 +197,7 @@ void receive() {
 
     for (unsigned int i = 0; i < alert_split.size(); i++) {
         boost::algorithm::trim(alert_split[i]);
+        std::cout << alert_split[i] << std::endl;
     }
 
     int sri = std::stoul(alert_split[1], NULL, 0);
@@ -204,6 +206,7 @@ void receive() {
         std::string sbdInit("AT+SBDIXA\r");
         boost::asio::write(serial, boost::asio::buffer(sbdInit.c_str(), sbdInit.size()));
 
+        std::cout << readLine(serial) << std::endl;
         std::cout << readLine(serial) << std::endl;
         std::string response(readLine(serial));
         std::cout << response << std::endl;
@@ -357,6 +360,7 @@ int main(int argc, char **argv) {
 
     // Enable ring alerts
     boost::asio::write(serial, boost::asio::buffer("AT+SBDMTA=1\r", 12));
+    std::cout << readLine(serial) << std::endl;
     std::cout << readLine(serial) << std::endl;
 
     std::thread sensorThread(sendSensorData);
