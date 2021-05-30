@@ -184,7 +184,7 @@ void receive() {
     std::cout << "Receiving Data" << std::endl;
 
     // Execute Ring Indicator Status command
-    std::string alertInit("AT+CRIS\r");
+    std::string alertInit("AT+CRISX\r");
     boost::asio::write(serial, boost::asio::buffer(alertInit.c_str(), alertInit.size()));
     std::cout << readLine(serial) << std::endl;
     std::string alertStatus(readLine(serial));
