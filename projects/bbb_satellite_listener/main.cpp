@@ -10,8 +10,6 @@
 #include <boost/algorithm/string.hpp>
 #include <mutex>
 #include <stdexcept>
-#include <vector>
-#include <sstream>
 #include <cstdio>
 
 #include "Connection.h"
