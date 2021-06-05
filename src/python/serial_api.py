@@ -6,10 +6,11 @@ def flushBuffer(ser):
     ser.flushOutput()
 
 def writeBuffer(ser, message):
-    ser.write(message)
+    ser.write(message.encode("utf-8"))
 
 def readBuffer(ser):
-    ser.readline() 
+    while True:
+        print(ser.readline()) 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Working with the serial port.")
