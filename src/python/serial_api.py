@@ -12,6 +12,9 @@ def readBuffer(ser):
     while True:
         print(ser.readline()) 
 
+def closePort(ser):
+    ser.close()
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Working with the serial port.")
 
@@ -20,7 +23,7 @@ if __name__ == '__main__':
                         metavar='FUNCTIONALITY',
                         type=str,
                         help='desired functionality',
-                        choices = ['FLUSH', 'WRITE', 'READ'],
+                        choices = ['FLUSH', 'WRITE', 'READ', 'CLOSE'],
                         required=True)
 
     parser.add_argument('-s',
@@ -49,7 +52,9 @@ if __name__ == '__main__':
     elif function == 'WRITE':
         writeBuffer(ser, message)
     elif function == 'READ':
-        readBuffer(ser) 
+        readBuffer(ser)
+    elif function == 'CLOSE':
+        closePort(ser)
 
 
 
