@@ -65,7 +65,7 @@ send_angle_cmd = \
     "/opt/ros/melodic/bin/rostopic pub /actuation_angle sailbot_msg/actuation_angle {} {} -1".format(aa_set1, aa_set2)
 
 # This command is to be used in the test_bbb_can_listener thread exclusively
-read_nt_cmd = "python3 workspace/datapath_tests_NAV-194/test/datapath_tests/connection_values.py -u {}"
+read_nt_cmd = "python3 workspace/datapath_tests/test/datapath_tests/connection_values.py -u {}"
 
 # This command is to be used in the test_bbb_can thread exclusively
 candump_cmd = 'candump vcan0'
@@ -305,7 +305,6 @@ def main():
     bbb_can_test_thread.join()
     bbb_canbus_listener_test_thread.join()
     nuc_eth_listener_test_thread.join()
-
     ssh_connection.close_SSH()
 
 
