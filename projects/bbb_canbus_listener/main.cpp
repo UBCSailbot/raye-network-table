@@ -102,6 +102,38 @@ void MotorCallback(NetworkTable::Node node, \
     }
 }
 
+void PowerControllerCallback(NetworkTable::Node node, \
+        const std::map<std::string, NetworkTable::Value> &diffs, \
+        bool is_self_reply) {
+    struct can_frame frame;
+    frame.can_dlc = 8;
+    int power_data;
+
+    for (const auto& uris : diffs) {
+        std::string uri = uris.first;
+        if (uri == POWER_CONTROLLER) {
+            frame.can_id = BMS_CMD_FRAME_ID;
+            power_data = static_cast<float>(node.children().at("battery_state").value().int_data());
+        } else {
+            break;
+        }
+
+        std::cout << uris.first << std::endl;
+        // Manually put split the float into bytes, and
+        // put each byte into the frame.data array
+        uint8_t const *power_array = reinterpret_cast<uint8_t *>(&power_data);
+        frame.data[0] = power_array[0];
+        frame.data[1] = power_array[1];
+        frame.data[2] = power_array[2];
+        frame.data[3] = power_array[3];
+        std::cout << "Sending Power Controller state: " << power_data << std::endl;
+        if (write(s, &frame, sizeof(struct can_frame)) != sizeof(struct can_frame)) {
+            perror("Write");
+            return;
+        }
+    }
+}
+
 int main(int argc, char **argv) {
     if (argc != 2) {
         printf("Please provide the name of the canbus interface. \n");
@@ -151,6 +183,18 @@ int main(int argc, char **argv) {
         }
     }
 
+    is_subscribed = false;
+
+    while (!is_subscribed) {
+        try {
+            connection.Subscribe(POWER, &PowerControllerCallback);
+            is_subscribed = true;
+        }
+        catch (NetworkTable::NotConnectedException) {
+            std::cout << "Failed to subscribe to Power Controller" << std::endl;
+            sleep(1);
+        }
+    }
     // Keep on reading the wind sensor data off canbus, and
     // placing the latest data in the network table.
     while (true) {

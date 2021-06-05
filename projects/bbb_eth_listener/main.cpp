@@ -2,6 +2,8 @@
 
 #include "Connection.h"
 #include "ActuationAngle.pb.h"
+#include "PowerController.pb.h"
+#include "Controller.pb.h"
 #include "Value.pb.h"
 #include "Help.h"
 #include <zmq.hpp>
@@ -50,7 +52,7 @@ void RootCallback(NetworkTable::Node node, \
 
 void PrintUsage() {
     std::cout << "Provide the ip address and port to bind to. ex\n"
-        "./bbb_eth_listener 10.0.0.8 5555" << std::endl;
+        "./bbb_eth_listener 192.168.1.60 5555" << std::endl;
 }
 
 /*
@@ -106,26 +108,56 @@ int main(int argc, char *argv[]) {
         if (rc > 0) {
             std::string message_serialized( \
                 static_cast<char*>(message.data()), message.size());
-            NetworkTable::ActuationAngle actuation_angle;
-            actuation_angle.ParseFromString(message_serialized);
+            NetworkTable::Controller controller_data;
 
-            NetworkTable::Value winch_angle;
-            NetworkTable::Value rudder_angle;
-            winch_angle.set_type(
-                    NetworkTable::Value::FLOAT);
-            rudder_angle.set_type(
-                    NetworkTable::Value::FLOAT);
-            winch_angle.set_float_data(actuation_angle.winch_angle());
-            rudder_angle.set_float_data(actuation_angle.rudder_angle());
+            std::cout << message_serialized << std::endl;
+            controller_data.ParseFromString(message_serialized);
 
             std::map<std::string, NetworkTable::Value> values;
-            values.insert(std::pair<std::string, NetworkTable::Value>\
-                    (WINCH_MAIN_ANGLE, winch_angle));
-            values.insert(std::pair<std::string, NetworkTable::Value>\
-                    (RUDDER_PORT_ANGLE, rudder_angle));
 
-            std::cout << "received rudder angle: " << actuation_angle.rudder_angle() \
-                << " winch angle: " << actuation_angle.winch_angle() << std::endl;
+            if (controller_data.type() == NetworkTable::Controller::ACTUATION_DATA) {
+                NetworkTable::Value winch_angle;
+                NetworkTable::Value rudder_angle;
+                winch_angle.set_type(
+                        NetworkTable::Value::FLOAT);
+                rudder_angle.set_type(
+                        NetworkTable::Value::FLOAT);
+                winch_angle.set_float_data(controller_data.actuation_angle_data().winch_angle());
+                rudder_angle.set_float_data(controller_data.actuation_angle_data().rudder_angle());
+
+                values.insert(std::pair<std::string, NetworkTable::Value>\
+                        (WINCH_MAIN_ANGLE, winch_angle));
+                values.insert(std::pair<std::string, NetworkTable::Value>\
+                        (RUDDER_PORT_ANGLE, rudder_angle));
+
+                std::cout << "received rudder angle: " << controller_data.actuation_angle_data().rudder_angle() \
+                    << " winch angle: " << controller_data.actuation_angle_data().winch_angle() << std::endl;
+            } else if (controller_data.type() == NetworkTable::Controller::POWER_DATA) {
+                NetworkTable::Value pv_mppt;
+                NetworkTable::Value pwr;
+                NetworkTable::Value mppt;
+                pv_mppt.set_type(NetworkTable::Value::INT);
+                pwr.set_type(NetworkTable::Value::INT);
+                mppt.set_type(NetworkTable::Value::INT);
+
+                pv_mppt.set_int_data(controller_data.power_controller_data().pv_mppt_engage());
+                pwr.set_int_data(controller_data.power_controller_data().pwr_engage());
+                mppt.set_int_data(controller_data.power_controller_data().mppt_engage());
+
+                values.insert(std::pair<std::string, NetworkTable::Value>\
+                        (POWER_PV_MPPT, pv_mppt));
+                values.insert(std::pair<std::string, NetworkTable::Value>\
+                        (POWER_PWR, pwr));
+                values.insert(std::pair<std::string, NetworkTable::Value>\
+                        (POWER_MPPT, mppt));
+
+                std::cout << "received power_pv_mppt: " << controller_data.power_controller_data().pv_mppt_engage() \
+                    << "received power_pwt: " << controller_data.power_controller_data().pwr_engage() \
+                    << "received mppt: " << controller_data.power_controller_data().mppt_engage() << std::endl;
+            } else {
+                std::cout << "*ERROR*: Actuation Angle or Power Controller data not found" << std::endl;
+                return 0;
+            }
 
             try {
                 connection.SetValues(values);

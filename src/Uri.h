@@ -37,6 +37,12 @@
 #define GPS_AIS_TRUE_HEADING "/gps_ais/gprmc/true_heading"
 #define GPS_AIS_MAGVAR "/gps_ais/gprmc/magnetic_variation"
 
+#define POWER "/bms"
+#define POWER_CONTROLLER "/bms/battery_state"
+#define POWER_PV_MPPT "/bms/battery_state/pv_mppt_engage" 
+#define POWER_PWR "/bms/battery_state/pwr_engage" 
+#define POWER_MPPT "/bms/battery_state/mppt_engage" 
+
 #define BMS1_CURRENT "/bms_1/battery_pack_data/current"
 #define BMS1_VOLTAGE "/bms_1/battery_pack_data/total_voltage"
 #define BMS1_MAXCELL "/bms_1/battery_pack_data/max_cell"

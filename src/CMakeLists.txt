@@ -32,6 +32,7 @@ set(NT_CLIENT_HDRS
 # on the BBB is already slow enough
 protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS
     protofiles/network_table/ActuationAngle.proto
+    protofiles/network_table/PowerController.proto
     protofiles/network_table/Node.proto
     protofiles/network_table/Reply.proto
     protofiles/network_table/Request.proto
@@ -46,6 +47,7 @@ protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS
     protofiles/network_table/UnsubscribeRequest.proto
     protofiles/network_table/Value.proto
     protofiles/network_table/ErrorReply.proto
+    protofiles/network_table/Controller.proto
     )
 
 add_library(nt_server STATIC ${NT_SERVER_SRCS} ${NT_SERVER_HDRS} ${PROTO_SRCS} ${PROTO_HDRS})
