@@ -203,9 +203,15 @@ int main(int argc, char **argv) {
 
                 std::map<std::string, NetworkTable::Value> values;
                 NetworkTable::Value gps_longitude;
-                double longitude = GET_GPS_LONG(frame.data);
-                gps_longitude.set_type(NetworkTable::Value::INT);
-                gps_longitude.set_int_data(static_cast<int>(longitude));
+
+                // Perform a unit conversion from decimal degrees minutes to degrees.
+                double longitudeDDM = GET_GPS_LONG(frame.data);
+                int longitudeDD = longitudeDDM / 100;
+                double longitudeM = longitudeDDM - (longitudeDD * 100);
+                double longitude_degrees = longitudeDD + (longitudeM / 60);
+
+                gps_longitude.set_type(NetworkTable::Value::FLOAT);
+                gps_longitude.set_float_data(static_cast<float>(longitude_degrees));
                 values.insert(std::pair<std::string, NetworkTable::Value>\
                         (GPS_CAN_LON, gps_longitude));
                 try {
@@ -216,7 +222,7 @@ int main(int argc, char **argv) {
                     std::cout << "Timeout" << std::endl;
                 }
 
-                std::cout << "longitude = " << longitude << " " << std::endl;
+                std::cout << "longitude = " << longitude_degrees << " " << std::endl;
                 break;
             }
             case GPS_LAT_FRAME_ID : {
@@ -224,9 +230,15 @@ int main(int argc, char **argv) {
 
                 std::map<std::string, NetworkTable::Value> values;
                 NetworkTable::Value gps_latitude;
-                double latitude = GET_GPS_LAT(frame.data);
-                gps_latitude.set_type(NetworkTable::Value::INT);
-                gps_latitude.set_int_data(static_cast<int>(latitude));
+
+                // Perform a unit conversion from decimal degrees minutes to degrees
+                double latitudeDDM = GET_GPS_LAT(frame.data);
+                int latitudeDD = latitudeDDM / 100;
+                double latitudeM = latitudeDDM - (latitudeDD * 100);
+                double latitude_degrees = latitudeDD + (latitudeM / 60);
+
+                gps_latitude.set_type(NetworkTable::Value::FLOAT);
+                gps_latitude.set_float_data(static_cast<float>(latitude_degrees));
                 values.insert(std::pair<std::string, NetworkTable::Value>\
                         (GPS_CAN_LAT, gps_latitude));
                 try {
@@ -237,7 +249,7 @@ int main(int argc, char **argv) {
                     std::cout << "Timeout" << std::endl;
                 }
 
-                std::cout << "latitude = " << latitude << " " << std::endl;
+                std::cout << "latitude = " << latitude_degrees << " " << std::endl;
                 break;
             }
             case GPS_OTHER_FRAME_ID : {
