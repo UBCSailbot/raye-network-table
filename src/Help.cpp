@@ -161,105 +161,105 @@ NetworkTable::Sensors NetworkTable::RootToSensors(NetworkTable::Node *root) {
     }
 
     try {
-        sensors.mutable_wind_sensor_0()->mutable_iimwv()->set_wind_speed(\
+        sensors.mutable_wind_sensor_1()->mutable_iimwv()->set_wind_speed(\
                 GetNode(WIND1_SPEED, root).value().int_data());
-        sensors.mutable_wind_sensor_0()->mutable_iimwv()->set_wind_direction(\
+        sensors.mutable_wind_sensor_1()->mutable_iimwv()->set_wind_direction(\
                 GetNode(WIND1_ANGLE, root).value().int_data());
     } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
-        sensors.mutable_wind_sensor_1()->mutable_iimwv()->set_wind_speed(\
+        sensors.mutable_wind_sensor_2()->mutable_iimwv()->set_wind_speed(\
                 GetNode(WIND2_SPEED, root).value().int_data());
-        sensors.mutable_wind_sensor_1()->mutable_iimwv()->set_wind_direction(\
+        sensors.mutable_wind_sensor_2()->mutable_iimwv()->set_wind_direction(\
                 GetNode(WIND2_ANGLE, root).value().int_data());
     } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
-        sensors.mutable_wind_sensor_2()->mutable_iimwv()->set_wind_speed(\
+        sensors.mutable_wind_sensor_3()->mutable_iimwv()->set_wind_speed(\
                 GetNode(WIND3_SPEED, root).value().int_data());
-        sensors.mutable_wind_sensor_2()->mutable_iimwv()->set_wind_direction(\
+        sensors.mutable_wind_sensor_3()->mutable_iimwv()->set_wind_direction(\
                 GetNode(WIND3_ANGLE, root).value().int_data());
     } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
-        sensors.mutable_gps_0()->mutable_gprmc()->set_utc_timestamp(\
+        sensors.mutable_gps_can()->mutable_gprmc()->set_utc_timestamp(\
                 GetNode(GPS_CAN_TIME, root).value().string_data());
-        sensors.mutable_gps_0()->mutable_gprmc()->set_latitude(\
+        sensors.mutable_gps_can()->mutable_gprmc()->set_latitude(\
                 GetNode(GPS_CAN_LAT, root).value().float_data());
-        sensors.mutable_gps_0()->mutable_gprmc()->set_longitude(\
+        sensors.mutable_gps_can()->mutable_gprmc()->set_longitude(\
                 GetNode(GPS_CAN_LON, root).value().float_data());
-        sensors.mutable_gps_0()->mutable_gprmc()->set_ground_speed(\
+        sensors.mutable_gps_can()->mutable_gprmc()->set_ground_speed(\
                 GetNode(GPS_CAN_GNDSPEED, root).value().int_data());
-        sensors.mutable_gps_0()->mutable_gprmc()->set_track_made_good(\
+        sensors.mutable_gps_can()->mutable_gprmc()->set_track_made_good(\
                 GetNode(GPS_CAN_TMG, root).value().int_data());
-        sensors.mutable_gps_0()->mutable_gprmc()->set_magnetic_variation(\
+        sensors.mutable_gps_can()->mutable_gprmc()->set_magnetic_variation(\
                     GetNode(GPS_CAN_MAGVAR, root).value().int_data());
     } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
-        sensors.mutable_gps_1()->mutable_gprmc()->set_utc_timestamp(\
+        sensors.mutable_gps_ais()->mutable_gprmc()->set_utc_timestamp(\
                 GetNode(GPS_AIS_TIME, root).value().string_data());
-        sensors.mutable_gps_1()->mutable_gprmc()->set_latitude(\
+        sensors.mutable_gps_ais()->mutable_gprmc()->set_latitude(\
                 GetNode(GPS_AIS_LAT, root).value().int_data());
-        sensors.mutable_gps_1()->mutable_gprmc()->set_longitude(\
+        sensors.mutable_gps_ais()->mutable_gprmc()->set_longitude(\
                 GetNode(GPS_AIS_LON, root).value().int_data());
-        sensors.mutable_gps_1()->mutable_gprmc()->set_ground_speed(\
+        sensors.mutable_gps_ais()->mutable_gprmc()->set_ground_speed(\
                 GetNode(GPS_AIS_GNDSPEED, root).value().int_data());
-        sensors.mutable_gps_1()->mutable_gprmc()->set_track_made_good(\
+        sensors.mutable_gps_ais()->mutable_gprmc()->set_track_made_good(\
                 GetNode(GPS_AIS_TMG, root).value().int_data());
-        sensors.mutable_gps_1()->mutable_gprmc()->set_magnetic_variation(\
+        sensors.mutable_gps_ais()->mutable_gprmc()->set_magnetic_variation(\
                 GetNode(GPS_AIS_MAGVAR, root).value().int_data());
     } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
-        sensors.mutable_bms_0()->mutable_battery_pack_data()->set_current(\
+        sensors.mutable_bms_1()->mutable_battery_pack_data()->set_current(\
                 GetNode(BMS1_CURRENT, root).value().int_data());
-        sensors.mutable_bms_0()->mutable_battery_pack_data()->set_total_voltage(\
+        sensors.mutable_bms_1()->mutable_battery_pack_data()->set_total_voltage(\
                 GetNode(BMS1_VOLTAGE, root).value().int_data());
     } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
-        sensors.mutable_bms_1()->mutable_battery_pack_data()->set_current(\
+        sensors.mutable_bms_2()->mutable_battery_pack_data()->set_current(\
                 GetNode(BMS2_CURRENT, root).value().int_data());
-        sensors.mutable_bms_1()->mutable_battery_pack_data()->set_total_voltage(\
+        sensors.mutable_bms_2()->mutable_battery_pack_data()->set_total_voltage(\
                 GetNode(BMS2_VOLTAGE, root).value().int_data());
     } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
-        sensors.mutable_bms_2()->mutable_battery_pack_data()->set_current(\
+        sensors.mutable_bms_3()->mutable_battery_pack_data()->set_current(\
                 GetNode(BMS3_CURRENT, root).value().int_data());
-        sensors.mutable_bms_2()->mutable_battery_pack_data()->set_total_voltage(\
+        sensors.mutable_bms_3()->mutable_battery_pack_data()->set_total_voltage(\
                 GetNode(BMS3_VOLTAGE, root).value().int_data());
     } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
-        sensors.mutable_bms_3()->mutable_battery_pack_data()->set_current(\
+        sensors.mutable_bms_4()->mutable_battery_pack_data()->set_current(\
                 GetNode(BMS4_CURRENT, root).value().int_data());
-        sensors.mutable_bms_3()->mutable_battery_pack_data()->set_total_voltage(\
+        sensors.mutable_bms_4()->mutable_battery_pack_data()->set_total_voltage(\
                 GetNode(BMS4_VOLTAGE, root).value().int_data());
     } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
-        sensors.mutable_bms_4()->mutable_battery_pack_data()->set_current(\
+        sensors.mutable_bms_5()->mutable_battery_pack_data()->set_current(\
                 GetNode(BMS5_CURRENT, root).value().int_data());
-        sensors.mutable_bms_4()->mutable_battery_pack_data()->set_total_voltage(\
+        sensors.mutable_bms_5()->mutable_battery_pack_data()->set_total_voltage(\
                 GetNode(BMS5_VOLTAGE, root).value().int_data());
     } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
-        sensors.mutable_bms_5()->mutable_battery_pack_data()->set_current(\
+        sensors.mutable_bms_6()->mutable_battery_pack_data()->set_current(\
                 GetNode(BMS6_CURRENT, root).value().int_data());
-        sensors.mutable_bms_5()->mutable_battery_pack_data()->set_total_voltage(\
+        sensors.mutable_bms_6()->mutable_battery_pack_data()->set_total_voltage(\
                 GetNode(BMS6_VOLTAGE, root).value().int_data());
     } catch (const NetworkTable::NodeNotFoundException &e) {
     }
@@ -294,134 +294,134 @@ NetworkTable::Node NetworkTable::SensorsToRoot(const NetworkTable::Sensors &sens
 
     try {
         val.set_type(NetworkTable::Value::INT);
-        val.set_int_data(sensors.wind_sensor_0().iimwv().wind_speed());
+        val.set_int_data(sensors.wind_sensor_1().iimwv().wind_speed());
         SetNode(WIND1_SPEED, val, &root);
         val.set_type(NetworkTable::Value::INT);
-        val.set_int_data(sensors.wind_sensor_0().iimwv().wind_direction());
+        val.set_int_data(sensors.wind_sensor_1().iimwv().wind_direction());
         SetNode(WIND1_ANGLE, val, &root);
     } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
         val.set_type(NetworkTable::Value::INT);
-        val.set_int_data(sensors.wind_sensor_1().iimwv().wind_speed());
+        val.set_int_data(sensors.wind_sensor_2().iimwv().wind_speed());
         SetNode(WIND2_SPEED, val, &root);
         val.set_type(NetworkTable::Value::INT);
-        val.set_int_data(sensors.wind_sensor_1().iimwv().wind_direction());
+        val.set_int_data(sensors.wind_sensor_2().iimwv().wind_direction());
         SetNode(WIND2_ANGLE, val, &root);
     } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
         val.set_type(NetworkTable::Value::INT);
-        val.set_int_data(sensors.wind_sensor_2().iimwv().wind_speed());
+        val.set_int_data(sensors.wind_sensor_3().iimwv().wind_speed());
         SetNode(WIND3_SPEED, val, &root);
         val.set_type(NetworkTable::Value::INT);
-        val.set_int_data(sensors.wind_sensor_2().iimwv().wind_direction());
+        val.set_int_data(sensors.wind_sensor_3().iimwv().wind_direction());
         SetNode(WIND3_ANGLE, val, &root);
     } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
         val.set_type(NetworkTable::Value::STRING);
-        val.set_string_data(sensors.gps_0().gprmc().utc_timestamp());
+        val.set_string_data(sensors.gps_can().gprmc().utc_timestamp());
         SetNode(GPS_CAN_TIME, val, &root);
         val.set_type(NetworkTable::Value::FLOAT);
-        val.set_float_data(sensors.gps_0().gprmc().latitude());
+        val.set_float_data(sensors.gps_can().gprmc().latitude());
         SetNode(GPS_CAN_LAT, val, &root);
         val.set_type(NetworkTable::Value::FLOAT);
-        val.set_float_data(sensors.gps_0().gprmc().longitude());
+        val.set_float_data(sensors.gps_can().gprmc().longitude());
         SetNode(GPS_CAN_LON, val, &root);
         val.set_type(NetworkTable::Value::INT);
-        val.set_int_data(sensors.gps_0().gprmc().ground_speed());
+        val.set_int_data(sensors.gps_can().gprmc().ground_speed());
         SetNode(GPS_CAN_GNDSPEED, val, &root);
         val.set_type(NetworkTable::Value::INT);
-        val.set_int_data(sensors.gps_0().gprmc().track_made_good());
+        val.set_int_data(sensors.gps_can().gprmc().track_made_good());
         SetNode(GPS_CAN_TMG, val, &root);
         val.set_type(NetworkTable::Value::INT);
-        val.set_int_data(sensors.gps_0().gprmc().magnetic_variation());
+        val.set_int_data(sensors.gps_can().gprmc().magnetic_variation());
         SetNode(GPS_CAN_MAGVAR, val, &root);
     } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
         val.set_type(NetworkTable::Value::STRING);
-        val.set_string_data(sensors.gps_1().gprmc().utc_timestamp());
+        val.set_string_data(sensors.gps_ais().gprmc().utc_timestamp());
         SetNode(GPS_AIS_TIME, val, &root);
         val.set_type(NetworkTable::Value::INT);
-        val.set_int_data(sensors.gps_1().gprmc().latitude());
+        val.set_int_data(sensors.gps_ais().gprmc().latitude());
         SetNode(GPS_AIS_LAT, val, &root);
         val.set_type(NetworkTable::Value::INT);
-        val.set_int_data(sensors.gps_1().gprmc().longitude());
+        val.set_int_data(sensors.gps_ais().gprmc().longitude());
         SetNode(GPS_AIS_LON, val, &root);
         val.set_type(NetworkTable::Value::INT);
-        val.set_int_data(sensors.gps_1().gprmc().ground_speed());
+        val.set_int_data(sensors.gps_ais().gprmc().ground_speed());
         SetNode(GPS_AIS_GNDSPEED, val, &root);
         val.set_type(NetworkTable::Value::INT);
-        val.set_int_data(sensors.gps_1().gprmc().track_made_good());
+        val.set_int_data(sensors.gps_ais().gprmc().track_made_good());
         SetNode(GPS_AIS_TMG, val, &root);
         val.set_type(NetworkTable::Value::INT);
-        val.set_int_data(sensors.gps_1().gprmc().magnetic_variation());
+        val.set_int_data(sensors.gps_ais().gprmc().magnetic_variation());
         SetNode(GPS_AIS_MAGVAR, val, &root);
     } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
         val.set_type(NetworkTable::Value::INT);
-        val.set_int_data(sensors.bms_0().battery_pack_data().current());
+        val.set_int_data(sensors.bms_1().battery_pack_data().current());
         SetNode(BMS1_CURRENT, val, &root);
         val.set_type(NetworkTable::Value::INT);
-        val.set_int_data(sensors.bms_0().battery_pack_data().total_voltage());
+        val.set_int_data(sensors.bms_1().battery_pack_data().total_voltage());
         SetNode(BMS1_VOLTAGE, val, &root);
     } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
         val.set_type(NetworkTable::Value::INT);
-        val.set_int_data(sensors.bms_1().battery_pack_data().current());
+        val.set_int_data(sensors.bms_2().battery_pack_data().current());
         SetNode(BMS2_CURRENT, val, &root);
         val.set_type(NetworkTable::Value::INT);
-        val.set_int_data(sensors.bms_1().battery_pack_data().total_voltage());
+        val.set_int_data(sensors.bms_2().battery_pack_data().total_voltage());
         SetNode(BMS2_VOLTAGE, val, &root);
     } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
         val.set_type(NetworkTable::Value::INT);
-        val.set_int_data(sensors.bms_2().battery_pack_data().current());
+        val.set_int_data(sensors.bms_3().battery_pack_data().current());
         SetNode(BMS3_CURRENT, val, &root);
         val.set_type(NetworkTable::Value::INT);
-        val.set_int_data(sensors.bms_2().battery_pack_data().total_voltage());
+        val.set_int_data(sensors.bms_3().battery_pack_data().total_voltage());
         SetNode(BMS3_VOLTAGE, val, &root);
     } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
         val.set_type(NetworkTable::Value::INT);
-        val.set_int_data(sensors.bms_3().battery_pack_data().current());
+        val.set_int_data(sensors.bms_4().battery_pack_data().current());
         SetNode(BMS4_CURRENT, val, &root);
         val.set_type(NetworkTable::Value::INT);
-        val.set_int_data(sensors.bms_3().battery_pack_data().total_voltage());
+        val.set_int_data(sensors.bms_4().battery_pack_data().total_voltage());
         SetNode(BMS4_VOLTAGE, val, &root);
     } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
         val.set_type(NetworkTable::Value::INT);
-        val.set_int_data(sensors.bms_4().battery_pack_data().current());
+        val.set_int_data(sensors.bms_5().battery_pack_data().current());
         SetNode(BMS5_CURRENT, val, &root);
         val.set_type(NetworkTable::Value::INT);
-        val.set_int_data(sensors.bms_4().battery_pack_data().total_voltage());
+        val.set_int_data(sensors.bms_5().battery_pack_data().total_voltage());
         SetNode(BMS5_VOLTAGE, val, &root);
     } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
     try {
         val.set_type(NetworkTable::Value::INT);
-        val.set_int_data(sensors.bms_5().battery_pack_data().current());
+        val.set_int_data(sensors.bms_6().battery_pack_data().current());
         SetNode(BMS6_CURRENT, val, &root);
         val.set_type(NetworkTable::Value::INT);
-        val.set_int_data(sensors.bms_5().battery_pack_data().total_voltage());
+        val.set_int_data(sensors.bms_6().battery_pack_data().total_voltage());
         SetNode(BMS6_VOLTAGE, val, &root);
     } catch (const NetworkTable::NodeNotFoundException &e) {
     }
