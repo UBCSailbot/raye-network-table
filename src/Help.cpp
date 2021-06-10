@@ -155,7 +155,7 @@ NetworkTable::Sensors NetworkTable::RootToSensors(NetworkTable::Node *root) {
     NetworkTable::Sensors sensors;
 
     try {
-        sensors.mutable_boom_angle_sensor()->mutable_sensor_data()->set_angle(\
+        sensors.mutable_sailencoder_sensor()->mutable_boom_angle_data()->set_angle(\
                 GetNode(SAILENCODER_ANGLE, root).value().int_data());
     } catch (const NetworkTable::NodeNotFoundException &e) {
     }
@@ -287,7 +287,7 @@ NetworkTable::Node NetworkTable::SensorsToRoot(const NetworkTable::Sensors &sens
 
     try {
         val.set_type(NetworkTable::Value::INT);
-        val.set_int_data(sensors.boom_angle_sensor().sensor_data().angle());
+        val.set_int_data(sensors.sailencoder_sensor().boom_angle_data().angle());
         SetNode(SAILENCODER_ANGLE, val, &root);
     } catch (const NetworkTable::NodeNotFoundException &e) {
     }
