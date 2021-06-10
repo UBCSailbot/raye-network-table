@@ -45,8 +45,8 @@ void ActuationCallBack(const sailbot_msg::actuation_angle ros_actuation_angle) {
     if (ros::ok()) {
         // Both angles are in radians (CONFIRM WITH BRUCE)
         NetworkTable::ActuationAngle nt_actuation_angle;
-        nt_actuation_angle.set_rudder_angle(ros_actuation_angle.rudder);
-        nt_actuation_angle.set_winch_angle(ros_actuation_angle.winch);
+        nt_actuation_angle.set_rudder_angle(ros_actuation_angle.rudder_angle_degrees);
+        nt_actuation_angle.set_winch_angle(ros_actuation_angle.abs_sail_angle_degrees);
 
         std::string serialized_nt_actuation_angle;
         nt_actuation_angle.SerializeToString(&serialized_nt_actuation_angle);
@@ -112,11 +112,11 @@ void PublishSensorData() {
 
             sensors.sailencoder_degrees = proto_sensors.sailencoder_sensor().boom_angle_data().angle();
             sensors.wind_sensor_1_speed_knots = proto_sensors.wind_sensor_1().iimwv().wind_speed();
-            sensors.wind_sensor_1_direction_degrees = proto_sensors.wind_sensor_1().iimwv().wind_direction();
+            sensors.wind_sensor_1_angle_degrees = proto_sensors.wind_sensor_1().iimwv().wind_direction();
             sensors.wind_sensor_2_speed_knots = proto_sensors.wind_sensor_2().iimwv().wind_speed();
-            sensors.wind_sensor_2_direction_degrees = proto_sensors.wind_sensor_2().iimwv().wind_direction();
+            sensors.wind_sensor_2_angle_degrees = proto_sensors.wind_sensor_2().iimwv().wind_direction();
             sensors.wind_sensor_3_speed_knots = proto_sensors.wind_sensor_3().iimwv().wind_speed();
-            sensors.wind_sensor_3_direction_degrees = proto_sensors.wind_sensor_3().iimwv().wind_direction();
+            sensors.wind_sensor_3_angle_degrees = proto_sensors.wind_sensor_3().iimwv().wind_direction();
 
             sensors.gps_can_timestamp_utc = proto_sensors.gps_can().gprmc().utc_timestamp();
             sensors.gps_can_latitude_degrees = proto_sensors.gps_can().gprmc().latitude();
@@ -143,8 +143,8 @@ void PublishSensorData() {
             ais_msg_pub.publish(ais_msg);
             waypoint_msg_pub.publish(waypoint_msg);
 
-            std::cout << "Publishing sensor data. ex: wind_sensor_0 speed: " \
-                << sensors.wind_sensor_0_speed << std::endl;
+            std::cout << "Publishing sensor data. ex: wind_sensor_1 speed: " \
+                << sensors.wind_sensor_1_speed_knots << std::endl;
 
         } else {
             std::cout << "Failed to send ros message" << std::endl;
