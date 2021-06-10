@@ -144,7 +144,7 @@ void PublishSensorData() {
             waypoint_msg_pub.publish(waypoint_msg);
 
             std::cout << "Publishing sensor data. ex: wind_sensor_1 speed: " \
-                << sensors.wind_sensor_1_speed << std::endl;
+                << sensors.wind_sensor_1_speed_knots << std::endl;
 
         } else {
             std::cout << "Failed to send ros message" << std::endl;
