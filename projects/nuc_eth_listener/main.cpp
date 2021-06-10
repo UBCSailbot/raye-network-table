@@ -118,12 +118,19 @@ void PublishSensorData() {
             sensors.wind_sensor_3_speed_knots = proto_sensors.wind_sensor_3().iimwv().wind_speed();
             sensors.wind_sensor_3_direction_degrees = proto_sensors.wind_sensor_3().iimwv().wind_direction();
 
-            sensors.gps_timestamp_utc = proto_sensors.gps_can().gprmc().utc_timestamp();
-            sensors.gps_latitude_degrees = proto_sensors.gps_can().gprmc().latitude();
-            sensors.gps_longitude_degrees = proto_sensors.gps_can().gprmc().longitude();
-            sensors.gps_groundspeed_knots = proto_sensors.gps_can().gprmc().ground_speed();
-            sensors.gps_track_made_good_degrees = proto_sensors.gps_can().gprmc().track_made_good();
-            sensors.gps_magnetic_variation_degrees = proto_sensors.gps_can().gprmc().magnetic_variation();
+            sensors.gps_can_timestamp_utc = proto_sensors.gps_can().gprmc().utc_timestamp();
+            sensors.gps_can_latitude_degrees = proto_sensors.gps_can().gprmc().latitude();
+            sensors.gps_can_longitude_degrees = proto_sensors.gps_can().gprmc().longitude();
+            sensors.gps_can_groundspeed_knots = proto_sensors.gps_can().gprmc().ground_speed();
+            sensors.gps_can_track_made_good_degrees = proto_sensors.gps_can().gprmc().track_made_good();
+            sensors.gps_can_magnetic_variation_degrees = proto_sensors.gps_can().gprmc().magnetic_variation();
+
+            sensors.gps_ais_timestamp_utc = proto_sensors.gps_can().gprmc().utc_timestamp();
+            sensors.gps_ais_latitude_degrees = proto_sensors.gps_can().gprmc().latitude();
+            sensors.gps_ais_longitude_degrees = proto_sensors.gps_can().gprmc().longitude();
+            sensors.gps_ais_groundspeed_knots = proto_sensors.gps_can().gprmc().ground_speed();
+            sensors.gps_ais_track_made_good_degrees = proto_sensors.gps_can().gprmc().track_made_good();
+            sensors.gps_ais_magnetic_variation_degrees = proto_sensors.gps_can().gprmc().magnetic_variation();
 
             sensors.accelerometer_x_force_millig = \
                 proto_sensors.accelerometer().boat_orientation_data().x_axis_acceleration();
