@@ -134,9 +134,9 @@ void PublishSensorData() {
 
             sensors.accelerometer_x_force_millig = \
                 proto_sensors.accelerometer().boat_orientation_data().x_axis_acceleration();
-            sensors.accelerometer_y_axis_acceleration = \
+            sensors.accelerometer_y_force_millig = \
             proto_sensors.accelerometer().boat_orientation_data().y_axis_acceleration();
-            sensors.accelerometer_z_axis_acceleration = \
+            sensors.accelerometer_z_force_millig = \
             proto_sensors.accelerometer().boat_orientation_data().z_axis_acceleration();
 
             sensors_pub.publish(sensors);
