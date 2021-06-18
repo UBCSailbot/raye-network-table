@@ -280,6 +280,14 @@ int main(int argc, char **argv) {
                         (GPS_CAN_TMG, gps_TMG));
                 std::cout << "gps tmg =  " << gpsTMG << " " << std::endl;
 
+                NetworkTable::Value gps_true_heading;
+                float true_heading = GET_GPS_TRUE_HEADING(frame.data);
+                gps_true_heading.set_type(NetworkTable::Value::FLOAT);
+                gps_true_heading.set_float_data(static_cast<float>(true_heading));
+                values.insert(std::pair<std::string, NetworkTable::Value>\
+                        (GPS_CAN_TRUE_HEADING, gps_true_heading));
+                std::cout << "gps true heading =  " << true_heading << " " << std::endl;
+
                 try {
                     connection.SetValues(values);
                 } catch (NetworkTable::NotConnectedException) {

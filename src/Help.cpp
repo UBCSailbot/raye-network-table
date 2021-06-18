@@ -196,7 +196,9 @@ NetworkTable::Sensors NetworkTable::RootToSensors(NetworkTable::Node *root) {
         sensors.mutable_gps_can()->mutable_gprmc()->set_track_made_good(\
                 GetNode(GPS_CAN_TMG, root).value().int_data());
         sensors.mutable_gps_can()->mutable_gprmc()->set_magnetic_variation(\
-                    GetNode(GPS_CAN_MAGVAR, root).value().int_data());
+                GetNode(GPS_CAN_MAGVAR, root).value().int_data());
+        sensors.mutable_gps_can()->mutable_gprmc()->set_true_heading(\
+                GetNode(GPS_CAN_TRUE_HEADING, root).value().float_data());
     } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
@@ -213,6 +215,8 @@ NetworkTable::Sensors NetworkTable::RootToSensors(NetworkTable::Node *root) {
                 GetNode(GPS_AIS_TMG, root).value().int_data());
         sensors.mutable_gps_ais()->mutable_gprmc()->set_magnetic_variation(\
                 GetNode(GPS_AIS_MAGVAR, root).value().int_data());
+        sensors.mutable_gps_ais()->mutable_gprmc()->set_true_heading(\
+                GetNode(GPS_AIS_TRUE_HEADING, root).value().float_data());
     } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
@@ -341,6 +345,9 @@ NetworkTable::Node NetworkTable::SensorsToRoot(const NetworkTable::Sensors &sens
         val.set_type(NetworkTable::Value::INT);
         val.set_int_data(sensors.gps_can().gprmc().magnetic_variation());
         SetNode(GPS_CAN_MAGVAR, val, &root);
+        val.set_type(NetworkTable::Value::FLOAT);
+        val.set_float_data(sensors.gps_can().gprmc().true_heading());
+        SetNode(GPS_CAN_TRUE_HEADING, val, &root);
     } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
@@ -363,6 +370,9 @@ NetworkTable::Node NetworkTable::SensorsToRoot(const NetworkTable::Sensors &sens
         val.set_type(NetworkTable::Value::INT);
         val.set_int_data(sensors.gps_ais().gprmc().magnetic_variation());
         SetNode(GPS_AIS_MAGVAR, val, &root);
+        val.set_type(NetworkTable::Value::FLOAT);
+        val.set_float_data(sensors.gps_ais().gprmc().true_heading());
+        SetNode(GPS_AIS_TRUE_HEADING, val, &root);
     } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
