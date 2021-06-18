@@ -51,7 +51,7 @@ std::string readLine(boost::asio::serial_port &p) {  // NOLINT(runtime/reference
         try {
             boost::asio::read(p, boost::asio::buffer(&c, 1));
             switch (c) {
-        	    case '\r':
+                case '\r':
                     break;
                 case '\n':
                     return result;
@@ -59,10 +59,9 @@ std::string readLine(boost::asio::serial_port &p) {  // NOLINT(runtime/reference
                     result += c;
             }
         }
-        catch (std::exception& e)
-        {
-            std::string error("ERROR");
-			return error + e.what();
+        catch (std::exception& e) {
+            std::string error("ERROR - ");
+            return error + e.what();
         }
     }
 }
@@ -180,7 +179,7 @@ void receive() {
     // Initiate an Extended SBD Session
     std::string sbdInit("AT+SBDIX\r");
     boost::asio::write(serial, boost::asio::buffer(sbdInit.c_str(), sbdInit.size()));
-    std::cout << readLine(serial); << std::endl;
+    std::cout << readLine(serial) << std::endl;
 
     std::string response(readLine(serial));
     std::cout << response << std::endl;
@@ -322,7 +321,7 @@ int main(int argc, char **argv) {
 
     serial.set_option(boost::asio::serial_port_base::baud_rate(19200));
 
-	// Clear SBD Message buffers
+    // Clear SBD Message buffers
     boost::asio::write(serial, boost::asio::buffer("AT+SBDD2\r", 9));
     std::cout << readLine(serial) << std::endl;
     std::cout << readLine(serial) << std::endl;
