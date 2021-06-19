@@ -28,16 +28,16 @@ int main() {
     lon_val.set_type(NetworkTable::Value::INT);
     lat_val.set_int_data(lat);
     lon_val.set_int_data(lon);
-    connection.SetValue("gps/gprmc/longitude", lon_val);
-    connection.SetValue("gps/gprmc/latitude", lat_val);
+    connection.SetValue("gps_can/gprmc/longitude", lon_val);
+    connection.SetValue("gps_can/gprmc/latitude", lat_val);
     while (true) {
         NetworkTable::Value value;
         value.set_type(NetworkTable::Value::INT);
         value.set_int_data(val++);
 
-        connection.SetValue("/wind_sensor_0/iimwv/wind_speed", value);
+        connection.SetValue("/wind_sensor_1/iimwv/wind_speed", value);
 
-        std::cout << "Set /wind_sensor_0/iimwv/wind_speed to " << val << std::endl;
+        std::cout << "Set /wind_sensor_1/iimwv/wind_speed to " << val << std::endl;
         sleep(1);
 
         if (val > 10) {

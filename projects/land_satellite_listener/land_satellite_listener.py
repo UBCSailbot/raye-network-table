@@ -28,11 +28,13 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             print("Handling post request")
             content_len = int(self.headers['Content-Length'])
             body = self.rfile.read(content_len)
+            # Need to extract hex data from received message, then convert to string, then back to bytes
+            data = bytes(bytes.fromhex((str(body).split("data=", 1)[1])[:-1]).decode('utf-8'), 'utf-8')
             sat = Satellite_pb2.Satellite()
             helper = Help()
 
             try:
-                sat.ParseFromString(body)
+                sat.ParseFromString(data)
                 if sat.type == Satellite_pb2.Satellite.Type.SENSORS:
                     print("Receiving Sensor Data")
                     values = helper.sensors_to_root(sat.sensors)
@@ -49,7 +51,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
 
                 else:
                     print("Did Not receive Sensor or UCCM data")
-                    print(body)
+                    print(data)
 
                 self.send_response(200)
                 self.end_headers()
