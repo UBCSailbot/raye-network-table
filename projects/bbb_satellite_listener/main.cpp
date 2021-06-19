@@ -214,31 +214,36 @@ void RootCallback(NetworkTable::Node node, \
     const std::map<std::string, NetworkTable::Value> &diffs, \
     bool is_self_reply) {
 
+    bool is_waypoint = false;
     for (const auto& uris : diffs) {
         std::string uri = uris.first;
         std::cout << uri << std::endl;
-        // We do Not want to send back waypoint data that was just received
-        if (uri != WAYPOINTS_GP) {
-            // Store updated network table data
-            NetworkTable::Satellite sensors_satellite;
-            NetworkTable::Satellite uccms_satellite;
-            sensors_satellite.set_type(NetworkTable::Satellite::SENSORS);
-            uccms_satellite.set_type(NetworkTable::Satellite::UCCMS);
-
-            NetworkTable::Sensors sensors = NetworkTable::RootToSensors(&node);
-            NetworkTable::Uccms uccms = NetworkTable::RootToUccms(&node);
-
-            // TODO(alex): I don't think this is a memory leak,
-            // but should test with valgrind
-            // This creates an extra object (one on the stack and one on the heap)
-            // but it shouldnt matter much. The stack one is going to get deallocated
-            // pretty soon
-            sensors_satellite.set_allocated_sensors(new NetworkTable::Sensors(sensors));
-            uccms_satellite.set_allocated_uccms(new NetworkTable::Uccms(uccms));
-
-            sensors_satellite.SerializeToString(&latest_sensors_satellite_string);
-            uccms_satellite.SerializeToString(&latest_uccms_satellite_string);
+        if (uri == WAYPOINTS_GP) {
+            is_waypoint = true;
         }
+    }
+
+    // We do Not want to send back waypoint data that was just received
+    if (!is_waypoint) {
+        // Store updated network table data
+        NetworkTable::Satellite sensors_satellite;
+        NetworkTable::Satellite uccms_satellite;
+        sensors_satellite.set_type(NetworkTable::Satellite::SENSORS);
+        uccms_satellite.set_type(NetworkTable::Satellite::UCCMS);
+
+        NetworkTable::Sensors sensors = NetworkTable::RootToSensors(&node);
+        NetworkTable::Uccms uccms = NetworkTable::RootToUccms(&node);
+
+        // TODO(alex): I don't think this is a memory leak,
+        // but should test with valgrind
+        // This creates an extra object (one on the stack and one on the heap)
+        // but it shouldnt matter much. The stack one is going to get deallocated
+        // pretty soon
+        sensors_satellite.set_allocated_sensors(new NetworkTable::Sensors(sensors));
+        uccms_satellite.set_allocated_uccms(new NetworkTable::Uccms(uccms));
+
+        sensors_satellite.SerializeToString(&latest_sensors_satellite_string);
+        uccms_satellite.SerializeToString(&latest_uccms_satellite_string);
     }
 }
 
