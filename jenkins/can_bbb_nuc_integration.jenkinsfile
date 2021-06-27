@@ -299,6 +299,7 @@ def force_cleanup() {
         script {
             sh 'pkill -f network_table_server || true'
             sh 'pkill -f land_satellite_listener || true'
+            sh 'rm -r /tmp/sailbot/ || true'
         }
     }
 }
@@ -330,6 +331,7 @@ def cleanup() {
         script {
             sh 'pkill -f network_table_server || echo "error: failed to kill network_table_server"'
             sh 'pkill -f land_satellite_listener || echo "error: failed to kill land_satellite_listener"'
+            sh 'rm -r /tmp/sailbot/'
         }
     }
 }

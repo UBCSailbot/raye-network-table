@@ -338,33 +338,34 @@ pipeline {
 
 
 def force_cleanup() {
-     // Cleanup processes on BBB
-     node('bbb') {
-         script {
-             sh 'pkill -f network_table_server || true'
-             sh 'pkill -f bbb_eth_listener || true'
-             sh 'pkill -f bbb_canbus_listener || true'
-             sh 'pkill -f bbb_satellite_listener || true'
-             sh 'pkill -f Iridium9602 || true'
-             sh 'pkill -f socat || true'
-			 sh 'rm -rf /tmp/sailbot/ || true'
-		}
-	}
-	node('nuc'){
-		script {
-			sh 'pkill -f roscore || true'
-			sh 'pkill -f nuc_eth_listener || true'
-			sh 'pkill -f boat_controller || true'
-			sh 'pkill -f main_loop || true'
-			}
-
-		}
-	node('master'){
-		script{
-			sh 'pkill -f network_table_server || true'
-			sh 'pkill -f land_satellite_listener || true'
-			}
-		}
+    // Cleanup processes on BBB
+    node('bbb') {
+        script {
+            sh 'pkill -f network_table_server || true'
+            sh 'pkill -f bbb_eth_listener || true'
+            sh 'pkill -f bbb_canbus_listener || true'
+            sh 'pkill -f bbb_satellite_listener || true'
+            sh 'pkill -f Iridium9602 || true'
+            sh 'pkill -f socat || true'
+            sh 'rm -rf /tmp/sailbot/ || true'
+        }
+    }
+    node('nuc'){
+        script {
+            sh 'pkill -f roscore || true'
+            sh 'pkill -f nuc_eth_listener || true'
+            sh 'pkill -f boat_controller || true'
+            sh 'pkill -f main_loop || true'
+        }
+        
+    }
+    node('master'){
+        script {
+            sh 'pkill -f network_table_server || true'
+            sh 'pkill -f land_satellite_listener || true'
+            sh 'rm -rf /tmp/sailbot/ || true'
+        }
+    }
 }
 
 def cleanup() {
@@ -394,6 +395,7 @@ def cleanup() {
         script {
             sh 'pkill -f network_table_server || echo "error: failed to kill network_table_server"'
             sh 'pkill -f land_satellite_listener || echo "error: failed to kill land_satellite_listener"'
+            sh 'rm -rf /tmp/sailbot/'
         }
     }
 }
