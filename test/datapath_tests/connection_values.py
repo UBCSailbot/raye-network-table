@@ -44,6 +44,8 @@ def main():
             node_list.append(node.value.string_data)
         elif 'latitude' in item or 'longitude' in item or 'rudder' in item or 'winch' in item:
             node_list.append(node.value.float_data)
+        elif 'gyroscope' in item:
+            node_list.append(node.value.float_data)
         else:
             node_list.append(node.value.int_data)
 

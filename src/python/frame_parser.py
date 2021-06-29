@@ -112,82 +112,101 @@ def get_byte(val, byte):
 
 
 # THIS IS NOT REALLY FRAME_PARSER.H
-# def GET_GPS_LONG(data):
-#     return (((get_byte(data, 0) << 0) +
-#             (get_byte(data, 1) << 8) +
-#             (get_byte(data, 2) << 16) +
-#             (get_byte(data, 3) << 24)) +
-#             (get_byte(data, 4) << 0) +
-#             (get_byte(data, 5) << 8) +
-#             (get_byte(data, 6) << 16) +
-#             (get_byte(data, 7) << 24)/10000000.0)
-#
-#
-# def GET_GPS_LAT(data):
-#     return (((get_byte(data, 0) << 0) +
-#             (get_byte(data, 1) << 8) +
-#             (get_byte(data, 2) << 16) +
-#             (get_byte(data, 3) << 24)) +
-#             (get_byte(data, 4) << 0) +
-#             (get_byte(data, 5) << 8) +
-#             (get_byte(data, 6) << 16) +
-#             (get_byte(data, 7) << 24)/10000000.0)
-#
-#
-# def GET_GPS_GND_SPEED(data):
-#     return float((get_byte(data, 0) +
-#                  (get_byte(data, 1) << 8))/100.0)
-#
-#
-# def GET_GPS_MAG_VAR(data):
-#     return float((get_byte(data, 2) +
-#                  (get_byte(data, 3) << 8))/10.0)
-#
-#
-# def GET_GPS_TMG(data):
-#     return float((get_byte(data, 4) +
-#                  (get_byte(data, 5) << 8))/100.0)
-#
-#
-# def GET_HOUR(data):
-#     return get_byte(data, 0)
-#
-#
-# def GET_MINUTE(data):
-#     return get_byte(data, 1)
-#
-#
-# def GET_SECOND(data):
-#     return ((get_byte(data, 2)) +
-#             (get_byte(data, 3) << 8))/100
-#
-#
-# def GET_DAY(data):
-#     return get_byte(data, 4)
-#
-#
-# def GET_MONTH(data):
-#     return get_byte(data, 5)
-#
-#
-# def GET_YEAR(data):
-#     return get_byte(data, 6)
-#
-#
-# def GET_STATUS(data):
-#     return get_byte(data, 7) & 0b0001
-#
-#
-# def GET_VAR_WEST(data):
-#     return get_byte(data, 7) & 0b0010
-#
-#
-# def GET_VAR_NORTH(data):
-#     return get_byte(data, 7) & 0b0100
-#
-#
-# def GET_LONG_WEST(data):
-#     return get_byte(data, 7) & 0b1000
+def GET_GPS_LONG(data):
+    upper = twos_complement((get_byte(data, 7) << 24) +
+                            (get_byte(data, 6) << 16) +
+                            (get_byte(data, 5) << 8) +
+                            (get_byte(data, 4) << 0), 32)
+
+    lower = twos_complement((get_byte(data, 3) << 24) +
+                            (get_byte(data, 2) << 16) +
+                            (get_byte(data, 1) << 8) +
+                            (get_byte(data, 0) << 0), 32)/10000000.0
+    # performs a unit conversion from decimal degree minutes to degrees
+    lon_ddm = upper + lower
+    lon_dd = lon_ddm / 100
+    lon_m = lon_ddm - (lon_dd*100)
+    lon_deg = lon_dd + (lon_m / 60)
+    return lon_deg
+
+
+def GET_GPS_LAT(data):
+    upper = twos_complement((get_byte(data, 7) << 24) +
+                            (get_byte(data, 6) << 16) +
+                            (get_byte(data, 5) << 8) +
+                            (get_byte(data, 4) << 0), 32)
+
+    lower = twos_complement((get_byte(data, 3) << 24) +
+                            (get_byte(data, 2) << 16) +
+                            (get_byte(data, 1) << 8) +
+                            (get_byte(data, 0) << 0), 32)/10000000.0
+    # performs a unit conversion from decimal degree minutes to degrees
+    lat_ddm = upper + lower
+    lat_dd = lat_ddm / 100
+    lat_m = lat_ddm - (lat_dd*100)
+    lat_deg = lat_dd + (lat_m / 60)
+    return lat_deg
+
+
+def GET_GPS_GND_SPEED(data):
+    return ((get_byte(data, 7) +
+            (get_byte(data, 6) << 8))/100.0)
+
+
+def GET_GPS_MAG_VAR(data):
+    return (get_byte(data, 5) +
+            (get_byte(data, 4) << 8))/10.0
+
+
+def GET_GPS_TMG(data):
+    return (get_byte(data, 3) +
+            (get_byte(data, 2) << 8))/100.0
+
+
+def GET_GPS_TRUE_HEADING(data):
+    return (get_byte(data, 1) +
+            (get_byte(data, 0) << 8))/100.0
+
+
+def GET_HOUR(data):
+    return get_byte(data, 7)
+
+
+def GET_MINUTE(data):
+    return get_byte(data, 6)
+
+
+def GET_SECOND(data):
+    return math.floor(((get_byte(data, 5)) +
+                       (get_byte(data, 4) << 8))/100)
+
+
+def GET_DAY(data):
+    return get_byte(data, 3)
+
+
+def GET_MONTH(data):
+    return get_byte(data, 2)
+
+
+def GET_YEAR(data):
+    return get_byte(data, 1)
+
+
+def GET_STATUS(data):
+    return get_byte(data, 0) & 0b0001
+
+
+def GET_VAR_WEST(data):
+    return get_byte(data, 0) & 0b0010
+
+
+def GET_VAR_NORTH(data):
+    return get_byte(data, 0) & 0b0100
+
+
+def GET_LONG_WEST(data):
+    return get_byte(data, 0) & 0b1000
 
 
 def twos_complement(val, bits):
@@ -234,29 +253,53 @@ def GET_RUDDER_PORT_ANGLE(can_msg=None):
 # TODO: Process the rest of these functions so we can convert the
 # sent data into parsed data for that frame
 
-# def GET_ACCEL_X_DATA(data):
-#     return get_byte(data, 0) + get_byte(data, 1) << 8
-#
-#
-# def GET_ACCEL_Y_DATA(data):
-#     return get_byte(data, 2) + get_byte(data, 3) << 8
-#
-#
-# def GET_ACCEL_Z_DATA(data):
-#     return get_byte(data, 4) + get_byte(data, 5) << 8
+def GET_ACCEL_X_DATA(data):
+    up = get_byte(data, 7)
+    low = get_byte(data, 6) << 8
+    return twos_complement(up + low, 16)
+
+
+def GET_ACCEL_Y_DATA(data):
+    up = get_byte(data, 5)
+    low = get_byte(data, 4) << 8
+    return twos_complement(up + low, 16)
+
+
+def GET_ACCEL_Z_DATA(data):
+    up = get_byte(data, 3)
+    low = get_byte(data, 2) << 8
+    return twos_complement(up + low, 16)
+
+
+def GET_GYRO_X_DATA(data):
+    up = get_byte(data, 7)
+    low = get_byte(data, 6) << 8
+    return twos_complement(up + low, 32)/1000.0
+
+
+def GET_GYRO_Y_DATA(data):
+    up = get_byte(data, 5)
+    low = get_byte(data, 4) << 8
+    return twos_complement(up + low, 32)/1000.0
+
+
+def GET_GYRO_Z_DATA(data):
+    up = get_byte(data, 3)
+    low = get_byte(data, 2) << 8
+    return twos_complement(up + low, 32)/1000.0
+
 
 # BMS
 # TODO(anyone): this is assuming voltage,
 # current, etc cannot be negative.
 # is that true?
-# #define GET_BMS_VOLT_DATA(data) {\
-#    static_cast<uint16_t>((data[0] + (data[1] << 8)) / 100.0) \
-# }
+# def GET_BMS_VOLT_DATA(data):
+#     return int(data[0] + (data[1] << 8))
 #
-# #define GET_BMS_CURR_DATA(data) {\
-#    static_cast<uint16_t>((data[2] + (data[3] << 8)) / 100.0) \
-# }
 #
+# def GET_BMS_CURR_DATA(data):
+#     return (data[2] + (data[3] << 8) / 100.0)
+
 # #define GET_BMS_MAXCELL_DATA(data) {\
 #    static_cast<uint16_t>(data[4] + (data[5] << 8)) \
 # }
@@ -264,3 +307,4 @@ def GET_RUDDER_PORT_ANGLE(can_msg=None):
 # #define GET_BMS_MINCELL_DATA(data) {\
 #    static_cast<uint16_t>(data[6] + (data[7] << 8)) \
 # }
+#
