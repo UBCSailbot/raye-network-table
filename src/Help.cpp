@@ -221,6 +221,26 @@ NetworkTable::Sensors NetworkTable::RootToSensors(NetworkTable::Node *root) {
     }
 
     try {
+        sensors.mutable_accelerometer()->mutable_boat_orientation_data()->set_x_axis_acceleration(\
+                GetNode(ACCELEROMETER_X, root).value().int_data());
+        sensors.mutable_accelerometer()->mutable_boat_orientation_data()->set_y_axis_acceleration(\
+                GetNode(ACCELEROMETER_Y, root).value().int_data());
+        sensors.mutable_accelerometer()->mutable_boat_orientation_data()->set_z_axis_acceleration(\
+                GetNode(ACCELEROMETER_Z, root).value().int_data());
+    } catch (const NetworkTable::NodeNotFoundException &e) {
+    }
+
+    try {
+        sensors.mutable_gyroscope()->mutable_angular_motion_data()->set_x_angular_velocity(\
+                GetNode(GYROSCOPE_X, root).value().float_data());
+        sensors.mutable_gyroscope()->mutable_angular_motion_data()->set_y_angular_velocity(\
+                GetNode(GYROSCOPE_Y, root).value().float_data());
+        sensors.mutable_gyroscope()->mutable_angular_motion_data()->set_z_angular_velocity(\
+                GetNode(GYROSCOPE_Z, root).value().float_data());
+    } catch (const NetworkTable::NodeNotFoundException &e) {
+    }
+
+    try {
         sensors.mutable_bms_1()->mutable_battery_pack_data()->set_current(\
                 GetNode(BMS1_CURRENT, root).value().int_data());
         sensors.mutable_bms_1()->mutable_battery_pack_data()->set_total_voltage(\
@@ -265,16 +285,6 @@ NetworkTable::Sensors NetworkTable::RootToSensors(NetworkTable::Node *root) {
                 GetNode(BMS6_CURRENT, root).value().int_data());
         sensors.mutable_bms_6()->mutable_battery_pack_data()->set_total_voltage(\
                 GetNode(BMS6_VOLTAGE, root).value().int_data());
-    } catch (const NetworkTable::NodeNotFoundException &e) {
-    }
-
-    try {
-        sensors.mutable_accelerometer()->mutable_boat_orientation_data()->set_x_axis_acceleration(\
-                GetNode(ACCELEROMETER_X, root).value().int_data());
-        sensors.mutable_accelerometer()->mutable_boat_orientation_data()->set_y_axis_acceleration(\
-                GetNode(ACCELEROMETER_Y, root).value().int_data());
-        sensors.mutable_accelerometer()->mutable_boat_orientation_data()->set_z_axis_acceleration(\
-                GetNode(ACCELEROMETER_Z, root).value().int_data());
     } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
@@ -378,6 +388,32 @@ NetworkTable::Node NetworkTable::SensorsToRoot(const NetworkTable::Sensors &sens
 
     try {
         val.set_type(NetworkTable::Value::INT);
+        val.set_int_data(sensors.accelerometer().boat_orientation_data().x_axis_acceleration());
+        SetNode(ACCELEROMETER_X, val, &root);
+        val.set_type(NetworkTable::Value::INT);
+        val.set_int_data(sensors.accelerometer().boat_orientation_data().y_axis_acceleration());
+        SetNode(ACCELEROMETER_Y, val, &root);
+        val.set_type(NetworkTable::Value::INT);
+        val.set_int_data(sensors.accelerometer().boat_orientation_data().z_axis_acceleration());
+        SetNode(ACCELEROMETER_Z, val, &root);
+    } catch (const NetworkTable::NodeNotFoundException &e) {
+    }
+
+    try {
+        val.set_type(NetworkTable::Value::FLOAT);
+        val.set_float_data(sensors.gyroscope().angular_motion_data().x_angular_velocity());
+        SetNode(GYROSCOPE_X, val, &root);
+        val.set_type(NetworkTable::Value::FLOAT);
+        val.set_float_data(sensors.gyroscope().angular_motion_data().y_angular_velocity());
+        SetNode(GYROSCOPE_Y, val, &root);
+        val.set_type(NetworkTable::Value::FLOAT);
+        val.set_float_data(sensors.gyroscope().angular_motion_data().z_angular_velocity());
+        SetNode(GYROSCOPE_Z, val, &root);
+    } catch (const NetworkTable::NodeNotFoundException &e) {
+    }
+
+    try {
+        val.set_type(NetworkTable::Value::INT);
         val.set_int_data(sensors.bms_1().battery_pack_data().current());
         SetNode(BMS1_CURRENT, val, &root);
         val.set_type(NetworkTable::Value::INT);
@@ -433,19 +469,6 @@ NetworkTable::Node NetworkTable::SensorsToRoot(const NetworkTable::Sensors &sens
         val.set_type(NetworkTable::Value::INT);
         val.set_int_data(sensors.bms_6().battery_pack_data().total_voltage());
         SetNode(BMS6_VOLTAGE, val, &root);
-    } catch (const NetworkTable::NodeNotFoundException &e) {
-    }
-
-    try {
-        val.set_type(NetworkTable::Value::INT);
-        val.set_int_data(sensors.accelerometer().boat_orientation_data().x_axis_acceleration());
-        SetNode(ACCELEROMETER_X, val, &root);
-        val.set_type(NetworkTable::Value::INT);
-        val.set_int_data(sensors.accelerometer().boat_orientation_data().y_axis_acceleration());
-        SetNode(ACCELEROMETER_Y, val, &root);
-        val.set_type(NetworkTable::Value::INT);
-        val.set_int_data(sensors.accelerometer().boat_orientation_data().z_axis_acceleration());
-        SetNode(ACCELEROMETER_Z, val, &root);
     } catch (const NetworkTable::NodeNotFoundException &e) {
     }
 
