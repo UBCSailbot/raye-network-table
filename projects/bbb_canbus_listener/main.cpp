@@ -353,6 +353,34 @@ int main(int argc, char **argv) {
                 }
                 break;
             }
+            case GYRO_FRAME_ID: {
+                std::cout << "Received Gyroscope Frame" << std::endl;
+                std::map<std::string, NetworkTable::Value> values;
+
+                NetworkTable::Value gyro_x_data;
+                float x_gyro = GET_GYRO_X_DATA(frame.data);
+                gyro_x_data.set_type(NetworkTable::Value::FLOAT);
+                gyro_x_data.set_float_data(x_gyro);
+                values.insert(std::pair<std::string, NetworkTable::Value>\
+                        (GYROSCOPE_X, gyro_x_data));
+                std::cout << "gyro_x_data:" << x_gyro << std::endl;
+
+                NetworkTable::Value gyro_y_data;
+                float y_gyro = GET_GYRO_Y_DATA(frame.data);
+                gyro_y_data.set_type(NetworkTable::Value::FLOAT);
+                gyro_y_data.set_float_data(y_gyro);
+                values.insert(std::pair<std::string, NetworkTable::Value>\
+                        (GYROSCOPE_Y, gyro_y_data));
+                std::cout << "gyro_y_data:" << y_gyro << std::endl;
+
+                NetworkTable::Value gyro_z_data;
+                float z_gyro = GET_GYRO_Z_DATA(frame.data);
+                gyro_z_data.set_type(NetworkTable::Value::FLOAT);
+                gyro_z_data.set_float_data(z_gyro);
+                values.insert(std::pair<std::string, NetworkTable::Value>\
+                        (GYROSCOPE_Z, gyro_z_data));
+                std::cout << "gyro_z_data:" << z_gyro << std::endl;
+            }
             case BMS1_FRAME1_ID: {
                 std::cout << "Received BMS1 Frame1:" << std::endl;
 

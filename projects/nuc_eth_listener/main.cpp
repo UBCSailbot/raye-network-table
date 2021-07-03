@@ -110,7 +110,10 @@ void PublishSensorData() {
             NetworkTable::Sensors proto_sensors = NetworkTable::RootToSensors(&node);
             sailbot_msg::Sensors sensors;
 
+            // Sailencoder
             sensors.sailencoder_degrees = proto_sensors.sailencoder_sensor().boom_angle_data().angle();
+
+            // Wind Sensors
             sensors.wind_sensor_1_speed_knots = proto_sensors.wind_sensor_1().iimwv().wind_speed();
             sensors.wind_sensor_1_angle_degrees = proto_sensors.wind_sensor_1().iimwv().wind_direction();
             sensors.wind_sensor_2_speed_knots = proto_sensors.wind_sensor_2().iimwv().wind_speed();
@@ -118,26 +121,36 @@ void PublishSensorData() {
             sensors.wind_sensor_3_speed_knots = proto_sensors.wind_sensor_3().iimwv().wind_speed();
             sensors.wind_sensor_3_angle_degrees = proto_sensors.wind_sensor_3().iimwv().wind_direction();
 
+            // GPS
             sensors.gps_can_timestamp_utc = proto_sensors.gps_can().gprmc().utc_timestamp();
-            sensors.gps_can_latitude_degreeMinutes = proto_sensors.gps_can().gprmc().latitude();
-            sensors.gps_can_longitude_degreeMinutes = proto_sensors.gps_can().gprmc().longitude();
+            sensors.gps_can_latitude_degrees = proto_sensors.gps_can().gprmc().latitude();
+            sensors.gps_can_longitude_degrees = proto_sensors.gps_can().gprmc().longitude();
             sensors.gps_can_groundspeed_knots = proto_sensors.gps_can().gprmc().ground_speed();
             sensors.gps_can_track_made_good_degrees = proto_sensors.gps_can().gprmc().track_made_good();
             sensors.gps_can_magnetic_variation_degrees = proto_sensors.gps_can().gprmc().magnetic_variation();
 
             sensors.gps_ais_timestamp_utc = proto_sensors.gps_can().gprmc().utc_timestamp();
-            sensors.gps_ais_latitude_degreeMinutes = proto_sensors.gps_can().gprmc().latitude();
-            sensors.gps_ais_longitude_degreeMinutes = proto_sensors.gps_can().gprmc().longitude();
+            sensors.gps_ais_latitude_degrees = proto_sensors.gps_can().gprmc().latitude();
+            sensors.gps_ais_longitude_degrees = proto_sensors.gps_can().gprmc().longitude();
             sensors.gps_ais_groundspeed_knots = proto_sensors.gps_can().gprmc().ground_speed();
             sensors.gps_ais_track_made_good_degrees = proto_sensors.gps_can().gprmc().track_made_good();
             sensors.gps_ais_magnetic_variation_degrees = proto_sensors.gps_can().gprmc().magnetic_variation();
 
+            // Accelerometer
             sensors.accelerometer_x_force_millig = \
                 proto_sensors.accelerometer().boat_orientation_data().x_axis_acceleration();
             sensors.accelerometer_y_force_millig = \
-            proto_sensors.accelerometer().boat_orientation_data().y_axis_acceleration();
+                proto_sensors.accelerometer().boat_orientation_data().y_axis_acceleration();
             sensors.accelerometer_z_force_millig = \
-            proto_sensors.accelerometer().boat_orientation_data().z_axis_acceleration();
+                proto_sensors.accelerometer().boat_orientation_data().z_axis_acceleration();
+
+            // Gyroscope
+            sensors.gyroscope_x_velocity_millidegreesps = \
+                proto_sensors.gyroscope().angular_motion_data().x_angular_velocity();
+            sensors.gyroscope_y_velocity_millidegreesps = \
+                proto_sensors.gyroscope().angular_motion_data().y_angular_velocity();
+            sensors.gyroscope_z_velocity_millidegreesps = \
+                proto_sensors.gyroscope().angular_motion_data().z_angular_velocity();
 
             sensors_pub.publish(sensors);
             ais_msg_pub.publish(ais_msg);
