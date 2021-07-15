@@ -380,6 +380,15 @@ int main(int argc, char **argv) {
                 values.insert(std::pair<std::string, NetworkTable::Value>\
                         (GYROSCOPE_Z, gyro_z_data));
                 std::cout << "gyro_z_data:" << z_gyro << std::endl;
+
+                try {
+                    connection.SetValues(values);
+                } catch (NetworkTable::NotConnectedException) {
+                    std::cout << "Failed to set value" << std::endl;
+                } catch (NetworkTable::TimeoutException) {
+                    std::cout << "Timeout" << std::endl;
+                }
+                break;
             }
             case BMS1_FRAME1_ID: {
                 std::cout << "Received BMS1 Frame1:" << std::endl;
