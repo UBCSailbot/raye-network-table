@@ -32,6 +32,7 @@ from nt_connection.SSH_Connection import SSH_Connection
 from dummy_data import Test_Data, make_dummy_tests
 from nt_connection import uri
 from nt_connection.frame_parser import *
+import re
 
 
 # These are needed in order to not read an empty URI from the NT
@@ -45,6 +46,8 @@ CAN_Listener_ready = threading.Semaphore(0)
 # Loopback semaphores to not read empty URIs from the NT
 NUC_producer = threading.Semaphore(0)
 NUC_consumer = threading.Semaphore(1)
+
+CAN_listen_sem = threading.Semaphore(1)
 
 # Time intervals to send CAN data
 SETUP_TIME = 2
@@ -93,12 +96,17 @@ def test_nuc_eth_listener(nuc, test_data_dict):
         print("NUC Listener - Published sensor command:", published_sensor_cmd)
         stdin, stdout, stderr = nuc.exec_command(published_sensor_cmd)
         NUC_data = stdout.read().decode('utf-8')
-        NUC_data = list(filter(None, NUC_data.split("\n---\n")))
+        NUC_data = list(filter(None, NUC_data.split('\n---\n')))
         CAN_data = list(map(str, test_data_dict[test]['parsed_data']))
         print("NUC LISTENER TEST - NUC ROS Sensor Data:", NUC_data)
         print("NUC LISTENER TEST - BBB CAN Sensor Data:", CAN_data)
         try:
-            assert(sorted(NUC_data) == sorted(CAN_data))
+            NUC_data = sorted(NUC_data)
+            CAN_data = sorted(CAN_data)
+            for i in range(len(NUC_data)):
+                NUC_i = float(re.sub(r'[^-+\d.]', '', NUC_data[i]))
+                CAN_i = float(re.sub(r'[^-+\d.]', '', CAN_data[i]))
+                assert math.isclose(NUC_i, CAN_i, rel_tol=0.9)
             print("PASS - NUC LISTENER TEST - SENSOR DATA PASSED")
         except AssertionError:
             print("ERROR - NUC LISTENER TEST - NUC SENSOR DATA FAILED")
@@ -157,10 +165,17 @@ def test_bbb_can_listener(bbb, test_data_dict):
         print("CAN LISTENER TEST - BBB NT data:", NT_data)
         print("CAN LISTENER TEST - BBB CAN data:", CAN_data)
         try:
-            assert(sorted(NT_data) == sorted(CAN_data))
+            # GPS DATE FRAME IS STORED AS A STRING
+            NT_data = sorted(NT_data)
+            CAN_data = sorted(CAN_data)
+            for i in range(len(NT_data)):
+                NT_i = float(re.sub(r'[^-+\d.]', '', NT_data[i]))
+                CAN_i = float(re.sub(r'[^-+\d.]', '', CAN_data[i]))
+                assert math.isclose(NT_i, CAN_i, rel_tol=1)
             print("CAN LISTENER TEST - DATA PASSED")
         except AssertionError:
             print("CAN LISTENER TEST - BBB CAN Bus Listener data not received correctly through virtual CAN")
+
         print("-----")
         # CAN Listener will have read the URIs in the first data propagation at this point
         CAN_Listener_ready.release()
@@ -173,6 +188,7 @@ def test_bbb_can_listener(bbb, test_data_dict):
         motor_NT_data = float(NT_data[0])
         print("CAN LISTENER TEST - BBB NT Motor Data:", motor_NT_data)
         print("CAN LISTENER TEST - NUC ROS Motor Data:", aa_set1)
+        CAN_listen_sem.release()
         try:
             assert math.isclose(motor_NT_data, aa_set1, rel_tol=0.1)
             print("PASS - CAN LISTENER TEST - MOTOR DATA PASSED")
@@ -262,6 +278,10 @@ def main():
                                Test_Data,
                                CAN_to_URI_to_ROStopic)
 
+    # for test in my_data:
+    #     for topic in my_data[test]['rostopic']:
+    #         print(topic)
+    # print(my_data)
     # Start all threads
     bbb_can_test_thread = threading.Thread(name='test_bbb_can',
                                            target=test_bbb_can,
@@ -282,8 +302,9 @@ def main():
                          target=test_nuc_eth_listener,
                          args=(nuc_client, my_data))
 
+    print("=============================")
     print("Beginning CAN-BBB-NUC DP test")
-
+    print("=============================")
     bbb_can_test_thread.start()
     bbb_canbus_listener_test_thread.start()
     nuc_eth_listener_test_thread.start()
@@ -294,6 +315,7 @@ def main():
     # Virtual CAN bus emulation loop
     for test in my_data:
         time.sleep(CAN_SEND_INTERVAL)
+        CAN_listen_sem.acquire()
         print("MAIN - Sending command:",
               "cansend vcan0 " +
               '{:03x}'.format(my_data[test]['id'], "x")
