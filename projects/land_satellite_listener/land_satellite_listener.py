@@ -28,11 +28,13 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             print("Handling post request")
             content_len = int(self.headers['Content-Length'])
             body = self.rfile.read(content_len)
+            # Need to extract hex data from received message, then convert to string, then back to bytes
+            data = bytes(bytes.fromhex((str(body).split("data=", 1)[1])[:-1]).decode('utf-8'), 'utf-8')
             sat = Satellite_pb2.Satellite()
             helper = Help()
 
             try:
-                sat.ParseFromString(body)
+                sat.ParseFromString(data)
                 if sat.type == Satellite_pb2.Satellite.Type.SENSORS:
                     print("Receiving Sensor Data")
                     values = helper.sensors_to_root(sat.sensors)
@@ -49,7 +51,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
 
                 else:
                     print("Did Not receive Sensor or UCCM data")
-                    print(body)
+                    print(data)
 
                 self.send_response(200)
                 self.end_headers()
@@ -118,8 +120,6 @@ class runClient(threading.Thread):
             pathfinding waypoints and sends changes to
             the boat via satellite
         """
-        import pdb
-        #pdb.set_trace()
         prev_sat = self.init_waypoints()
         cur_sat = self.init_waypoints()
 
@@ -133,20 +133,21 @@ class runClient(threading.Thread):
                 node = Node_pb2.Node()
                 node.CopyFrom(node_container["waypoints"])
 
-                if self.password is None or self.username is None:
-                    security = None
-                else:
-                    security = {'username': self.username, 'password': self.password}
-
                 if (node.value.type == Value_pb2.Value.Type.WAYPOINTS
                         and node.value != prev_sat.value):
                     cur_sat.value.CopyFrom(node.value)
                     cur_sat_serial = cur_sat.SerializeToString()
 
-                    query = {"imei":"300234068129370","data":cur_sat_serial.hex(),"username":self.username,"password":self.password}
+                    data = {"data": cur_sat_serial.hex()}
+                    if self.imei is not None and self.username is not None and self.password is not None:
+                        data['imei'] = self.imei
+                        data['username'] = self.username
+                        data['password'] = self.password
+
                     print("Sending waypoints")
                     print(cur_sat)
-                    response = requests.request("POST", self.ENDPOINT, params=query)
+                    response = requests.request("POST", self.ENDPOINT, params=data)
+                    print("Response = " + str(response))
                     prev_sat.value.CopyFrom(cur_sat.value)
 
                 time.sleep(self.poll_freq)
@@ -218,7 +219,6 @@ def main():
                         '--imei',
                         type=str,
                         help='Rockblock\'s imei')
-
 
     parser.add_argument('-i',
                         '--ip_addresses',
