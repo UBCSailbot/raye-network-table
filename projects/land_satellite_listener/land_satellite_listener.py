@@ -28,13 +28,11 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             print("Handling post request")
             content_len = int(self.headers['Content-Length'])
             body = self.rfile.read(content_len)
-            # Need to extract hex data from received message, then convert to string, then back to bytes
-            data = bytes(bytes.fromhex((str(body).split("data=", 1)[1])[:-1]).decode('utf-8'), 'utf-8')
             sat = Satellite_pb2.Satellite()
             helper = Help()
 
             try:
-                sat.ParseFromString(data)
+                sat.ParseFromString(body)
                 if sat.type == Satellite_pb2.Satellite.Type.SENSORS:
                     print("Receiving Sensor Data")
                     values = helper.sensors_to_root(sat.sensors)
@@ -51,7 +49,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
 
                 else:
                     print("Did Not receive Sensor or UCCM data")
-                    print(data)
+                    print(body)
 
                 self.send_response(200)
                 self.end_headers()
@@ -88,7 +86,7 @@ class runServer(threading.Thread):
 
 
 class runClient(threading.Thread):
-    def __init__(self, nt_connection, poll_freq, ENDPOINT, username, password):
+    def __init__(self, nt_connection, poll_freq, ENDPOINT, username, password, imei):
         """ Client class that sends waypoints to the boat
             via satellite
 
@@ -96,6 +94,9 @@ class runClient(threading.Thread):
                 poll_freq - frequency at which the network table is
                             polled (seconds)
                  ENDPOINT - endpoint for POSTing waypoint data
+                 username - rockblock+ username
+                 password - rockblock+ password
+                     imei - rockblock+ imei
         """
         threading.Thread.__init__(self)
         self.nt_connection = nt_connection
@@ -103,6 +104,7 @@ class runClient(threading.Thread):
         self.ENDPOINT = ENDPOINT
         self.username = username
         self.password = password
+        self.imei = imei
 
     def init_waypoints(self):
         """ Initializes a satellite object that can be sent to the boat"""
@@ -116,6 +118,8 @@ class runClient(threading.Thread):
             pathfinding waypoints and sends changes to
             the boat via satellite
         """
+        import pdb
+        #pdb.set_trace()
         prev_sat = self.init_waypoints()
         cur_sat = self.init_waypoints()
 
@@ -137,7 +141,12 @@ class runClient(threading.Thread):
                 if (node.value.type == Value_pb2.Value.Type.WAYPOINTS
                         and node.value != prev_sat.value):
                     cur_sat.value.CopyFrom(node.value)
-                    requests.post(self.ENDPOINT, params=security, data=cur_sat.SerializeToString())
+                    cur_sat_serial = cur_sat.SerializeToString()
+
+                    query = {"imei":"300234068129370","data":cur_sat_serial.hex(),"username":self.username,"password":self.password}
+                    print("Sending waypoints")
+                    print(cur_sat)
+                    response = requests.request("POST", self.ENDPOINT, params=query)
                     prev_sat.value.CopyFrom(cur_sat.value)
 
                 time.sleep(self.poll_freq)
@@ -188,13 +197,12 @@ def main():
                         choices=["SEC", "MIN", "HR"],
                         required=True)
 
-    parser.add_argument(
-        '-b',
-        '--bind',
-        type=str,
-        help='Specifies a target address to bind to when sending requests',
-        default="",
-        required=False)
+    parser.add_argument('-b',
+                        '--bind',
+                        type=str,
+                        help='Specifies a target address to bind to when sending requests',
+                        default="",
+                        required=False)
 
     parser.add_argument('-n',
                         '--username',
@@ -205,6 +213,12 @@ def main():
                         '--password',
                         type=str,
                         help='Password for RockBlock')
+
+    parser.add_argument('-r',
+                        '--imei',
+                        type=str,
+                        help='Rockblock\'s imei')
+
 
     parser.add_argument('-i',
                         '--ip_addresses',
@@ -229,7 +243,7 @@ def main():
     nt_connection.Connect()
 
     server = runServer(args.port, args.bind, nt_connection, args.ip_addresses)
-    client = runClient(nt_connection, poll_freq, args.endpoint, args.username, args.password)
+    client = runClient(nt_connection, poll_freq, args.endpoint, args.username, args.password, args.imei)
     server.start()
     client.start()
 
