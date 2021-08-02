@@ -128,6 +128,7 @@ void PublishSensorData() {
             sensors.gps_can_groundspeed_knots = proto_sensors.gps_can().gprmc().ground_speed();
             sensors.gps_can_track_made_good_degrees = proto_sensors.gps_can().gprmc().track_made_good();
             sensors.gps_can_magnetic_variation_degrees = proto_sensors.gps_can().gprmc().magnetic_variation();
+            sensors.gps_can_true_heading_degrees = proto_sensors.gps_can().gprmc().true_heading();
 
             sensors.gps_ais_timestamp_utc = proto_sensors.gps_can().gprmc().utc_timestamp();
             sensors.gps_ais_latitude_degrees = proto_sensors.gps_can().gprmc().latitude();
