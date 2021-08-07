@@ -14,13 +14,15 @@
 #define WIND3_SPEED "/wind_sensor_3/iimwv/wind_speed"
 #define WIND3_ANGLE "/wind_sensor_3/iimwv/wind_angle"
 
-#define GPS_CAN_TIME "/gps_can/gprmc/utc_timestamp"
+// Dependency within global-pathfinding - Do NOT change 
 #define GPS_CAN_LAT "/gps_can/gprmc/latitude"
 #define GPS_CAN_LON "/gps_can/gprmc/longitude"
+
 #define GPS_CAN_GNDSPEED "/gps_can/gprmc/ground_speed"
 #define GPS_CAN_TMG "/gps_can/gprmc/track_made_good"
 #define GPS_CAN_TRUE_HEADING "/gps_can/gprmc/true_heading"
 #define GPS_CAN_MAGVAR "/gps_can/gprmc/magnetic_variation"
+#define GPS_CAN_TIME "/gps_can/gprmc/utc_timestamp"
 
 #define GPS_CAN_VALID "/gps_can/gprmc/valid"
 #define GPS_CAN_VARWEST "/gps_can/gprmc/var_west"
@@ -81,6 +83,7 @@
 #define WINCH_MAIN_ANGLE "/actuation_angle/winch/winch_main/angle"
 #define WINCH_JIB_ANGLE "/actuation_angle/winch/winch_jib/angle"
 
+// Dependency within global-pathfinding - Do NOT change 
 #define WAYPOINTS_GP "waypoints"
 
 //TODO: Add UCCM Uris

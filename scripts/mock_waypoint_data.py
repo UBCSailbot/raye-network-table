@@ -24,6 +24,15 @@ def main():
         gpsCoord = value.waypoints.add()
         gpsCoord.latitude = x
         gpsCoord.longitude = x
+        gpsCoord = value.waypoints.add()
+        gpsCoord.latitude = x
+        gpsCoord.longitude = x
+        gpsCoord = value.waypoints.add()
+        gpsCoord.latitude = x
+        gpsCoord.longitude = x
+        gpsCoord = value.waypoints.add()
+        gpsCoord.latitude = x
+        gpsCoord.longitude = x
 
         uri = "waypoints"
         print(value)

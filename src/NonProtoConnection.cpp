@@ -124,8 +124,8 @@ std::list<std::pair<double, double>> NetworkTable::NonProtoConnection::GetCurren
 }
 
 std::pair<double, double> NetworkTable::NonProtoConnection::GetCurrentGpsCoords() {
-    const std::string lat_uri = "gps/gprmc/latitude";
-    const std::string lon_uri = "gps/gprmc/longitude";
+    const std::string lat_uri = "gps_can/gprmc/latitude";
+    const std::string lon_uri = "gps_can/gprmc/longitude";
 
     double lat, lon;
     std::pair<double, double> curr_gps;
