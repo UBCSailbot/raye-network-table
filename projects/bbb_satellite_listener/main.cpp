@@ -114,13 +114,15 @@ std::vector<char> HexToBytes(const std::string& hex) {
  *
  */
 void send(const std::string &data) {
-    // Send length of message
+    // Write Binary Data to ISU, indicate size of message excluding checksum
+    // Note: Maximum MO SBD length is 340 bytes
+    std::cout << std::endl <<  "BBB_SAT: Defining binary message length in MO buffer" << std::endl;
     std::string message_length("AT+SBDWB="+std::to_string(data.size())+"\r");
     boost::asio::write(serial, \
         boost::asio::buffer(message_length.c_str(), message_length.size()));
 
-    std::cout << readLine(serial) << std::endl;
-    std::cout << readLine(serial) << std::endl;
+    std::cout << readLine(serial) << std::endl; // AT+SBDWB=<message_length>
+    std::cout << readLine(serial) << std::endl; // READY
 
     auto data_c_str = data.c_str();
     int sum = 0;
@@ -139,25 +141,38 @@ void send(const std::string &data) {
     message += '\r';
 
     // Send the message
+    std::cout << std::endl << "BBB_SAT: Sending binary message to ISU" << std::endl;
     boost::asio::write(serial, \
         boost::asio::buffer(message, message.size()));
 
-    std::cout << readLine(serial) << std::endl;
-    std::cout << readLine(serial) << std::endl;
-    std::cout << readLine(serial) << std::endl;
+    // TODO(brielle): In case status is 1, there will be No OK message
+    readLine(serial);                              // \n
+    int send_status = std::stoi(readLine(serial)); // Status
+    std::cout << send_status << std::endl;
+    readLine(serial);                              // \n 
 
-    // Check mailbox
+    if (send_status != 1) {
+        std::cout << readLine(serial) << std::endl;    // OK
+    }
+
+    // If SBD message failed to write to ISU, try again
+    if (send_status != 0) {
+        send(data);
+        return;
+    }
+
+    // Initiates an SBD session between the ISU and the GSS
+    std::cout << std::endl << "BBB_SAT: Initiating session between ISU and GSS" << std::endl;
     std::string send_command = "AT+SBDIX\r";
 
     boost::asio::write(serial, \
         boost::asio::buffer(send_command, send_command.size()));
 
-    std::cout << readLine(serial) << std::endl;
-    std::cout << readLine(serial) << std::endl;
-    std::cout << readLine(serial) << std::endl;
+    std::cout << readLine(serial) << std::endl; // AT+SBDIX
+    std::cout << readLine(serial) << std::endl; // Response
 
-    std::cout << readLine(serial) << std::endl;
-    std::cout << readLine(serial) << std::endl;
+    readLine(serial);                           // \n
+    std::cout << readLine(serial) << std::endl; // OK
 }
 
 /**
@@ -203,7 +218,7 @@ std::string decode_message(std::string message) {
  *                0 if mailbox is empty 
  *
  */
-std::string receive_message(const std::string &status) {
+uint8_t receive_message(const std::string &status) {
     std::string message;
 
     if (status == "1") {
@@ -218,17 +233,18 @@ std::string receive_message(const std::string &status) {
         std::cout << readLine(serial) << std::endl;
 
         // Retrieve the decoded waypoint data
-        message = decode_message(str_payload);
-
+        std::cout << decode_message(str_payload) << std::endl;
+        return 1;
     } else if (status == "2") {
-        message = "Error checking mailbox";
+        std::cout << "Error checking mailbox" << std::endl;
+        return 2;
     } else if (status == "0") {
-        std::string null_msg = "Mailbox empty";
-        message  = null_msg;
-    } else {
-        message  = "Non-valid status";
-    }
-    return message;
+        std::cout << "Mailbox empty" << std::endl;
+        return 0;
+    } 
+
+    std::cout << "Non-valid status" << std::endl;
+    return -1;
 }
 
 /**
@@ -254,6 +270,11 @@ void receive() {
         boost::algorithm::trim(response_split[i]);
     }
 
+    if (response_split.size() < 6) {
+        std::cout << "ERROR - Unexpected SBDIX response" << std::endl;
+        return;
+    }
+
     // Extract the mailbox status and queue size
     receive_size = std::stoul(response_split[4], NULL, 0);
     std::string status(response_split[2]);
@@ -263,14 +284,21 @@ void receive() {
     std::cout << readLine(serial) << std::endl;
 
     // Read the expected waypoints off the seral port
-    std::string received_message = receive_message(status);
-    std::cout << received_message <<std::endl;
-    queueSize--;
+    uint8_t receive_status = receive_message(status);
+    
+    if (receive_status) {
+        queueSize--;
+    }
+    else if (receive_status == 2)
+    {
+        receive();
+    }
 
     // If the queue is empty, wait before polling again
     if (queueSize < 0) {
         std::cout << "waiting" << std::endl;
     }
+    // TODO: (brie) should we keep retrieving until queue is empty?
 }
 
 /** 
@@ -289,7 +317,7 @@ void RootCallback(NetworkTable::Node node, \
     bool is_waypoint = false;
     for (const auto& uris : diffs) {
         std::string uri = uris.first;
-        std::cout << uri << std::endl;
+        //std::cout << uri << std::endl;
         if (uri == WAYPOINTS_GP) {
             is_waypoint = true;
         }
@@ -341,7 +369,7 @@ void sendRecentUccms() {
 void sendSensorData() {
     while (true) {
         if (latest_sensors_satellite_string.size() != 0) {
-            std::cout << "sending sensor data" << std::endl;
+            std::cout << std::endl << "BBB_SAT: Sending sensor data" << std::endl;
             sendRecentSensors();
             sleep(sendSensors_freq);
         }
@@ -354,7 +382,7 @@ void sendSensorData() {
 void sendUccmData() {
     while (true) {
         if (latest_uccms_satellite_string.size() != 0) {
-            std::cout << "sending uccm data" << std::endl;
+            std::cout << std::endl << "BBB_SAT: Sending uccm data" << std::endl;
             sendRecentUccms();
             sleep(sendUccm_freq);
         }
@@ -376,12 +404,16 @@ void receiveData() {
  */
 int main(int argc, char **argv) {
     if (argc != 5) {
-        std::cout << "usage: ./bbb_rockblock_listener <sensors send "\
+        std::cout << "usage: ./bbb_satellite_listener <sensors send "\
             << "frequency (seconds)> <uccm send frequency (seconds)> "\
             << "<waypt receive frequency (seconds)> "\
             << "<path to serial port>" << std::endl;
         return 0;
     }
+
+    bool is_connected = false;
+    bool is_subscribed = false;
+    int clear_status = 1;
 
     sendSensors_freq = std::stoi(argv[1]);
     sendUccm_freq = std::stoi(argv[2]);
@@ -391,48 +423,67 @@ int main(int argc, char **argv) {
     serial.open(serialPort);
 
     receive_size = 0;
-
-    // TODO(brielle) surround in try/catch
-    connection.Connect(1000, true);
-
     latest_sensors_satellite_string = "";
     latest_uccms_satellite_string = "";
 
+    // Connect to the network table server
+    while (!is_connected) {
+        try {
+            connection.Connect(1000, true);
+            is_connected = true;
+        } catch (NetworkTable::InterruptedException) {
+            std::cout << "INTERRUPT: Failed to connect to network table server" << std::endl;
+            sleep(1);
+        } catch (NetworkTable::TimeoutException) {
+            std::cout << "TIMEOUT: Failed to connect to network table server" << std::endl;
+            sleep(1);
+        }
+    }
+
     // Send all network updates back to the land server via satellite
-    bool is_subscribed = false;
     while (!is_subscribed) {
         try {
             connection.Subscribe("/", &RootCallback);
             is_subscribed = true;
-        }
-        catch (NetworkTable::NotConnectedException) {
-            std::cout << "Fail to connect" << std::endl;
+        } catch (NetworkTable::NotConnectedException) {
+            std::cout << "NOT CONNECTED: Failed to subscribe" << std::endl;
+            sleep(1);
+        } catch (NetworkTable::InterruptedException) {
+            std::cout << "INTERRUPT: Failed to subscribe" << std::endl;
+            sleep(1);
+        } catch (NetworkTable::TimeoutException) {
+            std::cout << "TIMEOUT: Failed to subscribe" << std::endl;
             sleep(1);
         }
     }
 
     serial.set_option(boost::asio::serial_port_base::baud_rate(19200));
 
-    // Clear SBD Message buffers
-    boost::asio::write(serial, boost::asio::buffer("AT+SBDD2\r", 9));
-    std::cout << readLine(serial) << std::endl;
-    std::cout << readLine(serial) << std::endl;
-    std::cout << readLine(serial) << std::endl;
-    std::cout << readLine(serial) << std::endl;
+    while (clear_status) {
+        std::cout << std::endl << "BBB_SAT: Clearing MO & MT SBD Message buffers" << std::endl;
+        boost::asio::write(serial, boost::asio::buffer("AT+SBDD2\r", 9));
+        std::cout << readLine(serial) << std::endl; // AT+SBDD2
+        clear_status = std::stoi(readLine(serial)); // Status
+        std::cout << clear_status << std::endl;
+        readLine(serial);                           // /n 
+        std::cout << readLine(serial) << std::endl; // OK
+    }
 
+    std::cout << std::endl << "BBB_SAT: Issuing test AT command" << std::endl;
     boost::asio::write(serial, boost::asio::buffer("AT\r", 3));
-    std::cout << readLine(serial) << std::endl;
-    std::cout << readLine(serial) << std::endl;
+    std::cout << readLine(serial) << std::endl;     // AT
+    std::cout << readLine(serial) << std::endl;     // OK
 
+    std::cout << std::endl << "BBB_SAT: Turning Off Flow Control" << std::endl;
     boost::asio::write(serial, boost::asio::buffer("AT&K0\r", 6));
-    std::cout << readLine(serial) << std::endl;
-    std::cout << readLine(serial) << std::endl;
+    std::cout << readLine(serial) << std::endl;     // AT&K0
+    std::cout << readLine(serial) << std::endl;     // OK
 
     std::thread sensorThread(sendSensorData);
-    std::thread uccmThread(sendUccmData);
-    std::thread receiveThread(receiveData);
+    //std::thread uccmThread(sendUccmData);
+    //std::thread receiveThread(receiveData);
 
     sensorThread.join();
-    uccmThread.join();
-    receiveThread.join();
+    //uccmThread.join();
+    //receiveThread.join();
 }
