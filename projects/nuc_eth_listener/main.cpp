@@ -15,6 +15,7 @@
 #include "sailbot_msg/AISShip.h"
 #include "sailbot_msg/path.h"
 #include "sailbot_msg/latlon.h"
+#include "Controller.pb.h"
 #include "Uri.h"
 
 /*
@@ -44,21 +45,57 @@ void ActuationCallBack(const sailbot_msg::actuation_angle ros_actuation_angle) {
      */
     if (ros::ok()) {
         // Both angles are in radians (CONFIRM WITH BRUCE)
-        NetworkTable::ActuationAngle nt_actuation_angle;
-        nt_actuation_angle.set_rudder_angle(ros_actuation_angle.rudder_angle_degrees);
-        nt_actuation_angle.set_winch_angle(ros_actuation_angle.abs_sail_angle_degrees);
+        NetworkTable::Controller controller;
 
-        std::string serialized_nt_actuation_angle;
-        nt_actuation_angle.SerializeToString(&serialized_nt_actuation_angle);
+        controller.set_type(NetworkTable::Controller::ACTUATION_DATA);
+        controller.mutable_actuation_angle_data()->set_rudder_angle(ros_actuation_angle.rudder_angle_degrees);
+        controller.mutable_actuation_angle_data()->set_winch_angle(ros_actuation_angle.abs_sail_angle_degrees);
 
-        std::cout << "Sending rudder angle: " << nt_actuation_angle.rudder_angle() \
-            << " winch angle: " << nt_actuation_angle.winch_angle() << std::endl;
+        std::string serialized_controller_actuation_data;
+        controller.SerializeToString(&serialized_controller_actuation_data);
 
-        send(serialized_nt_actuation_angle);
+        std::cout << controller.DebugString() << std::endl;
+        std::cout << serialized_controller_actuation_data << std::endl;
+
+        std::cout << "Sending rudder angle: " << controller.actuation_angle_data().rudder_angle()
+            << " winch angle: " << controller.actuation_angle_data().winch_angle() << std::endl;
+
+        send(serialized_controller_actuation_data);
     } else {
         std::cout << "Failed to receive actuation angle" << std::endl;
     }
 }
+
+/*
+void PowerControllerCallBack(const sailbot_msg::power_controller ros_power_data) {
+    /*
+     * Receive motor actuation data and send it
+     * to the BBB.
+     *
+    if (ros::ok()) {
+        // Both angles are in radians (CONFIRM WITH BRUCE)
+	    NetworkTable::Controller controller;
+        // Cant actually test this yet until Bruce adds this ROS node.
+        // Can test using the ActuationAngle Callback function -> pass in ros_actuation_angle to test logic for the moment
+        // TODO: Test once Bruce gets the ROS node working
+	    controller.set_type(NetworkTable::Controller::POWER_DATA);
+	    controller.mutable_power_controller_data()->set_pv_mppt_engage(ros_power_data.PV_MPPT_Engage);
+	    controller.mutable_power_controller_data()->set_pwr_engage(ros_power_data.PWR_Engage);
+	    controller.mutable_power_controller_data()->set_mppt_engage(ros_power_data.MPPT_Engage);
+
+        std::string serialized_controller_power_data;
+        controller.SerializeToString(&serialized_controller_power_data);
+
+        std::cout << "PV_MPPT_Engage data: " << controller.power_controller_data().pv_mppt_engage() \
+            << " PWR_Engage data: " << controller.power_controller_data().pwr_engage() \
+	    << " MPPT_Engage data: " << controller.power_controller_data().mppt_engage() << std::endl;
+
+        send(serialized_controller_power_data);
+    } else {
+        std::cout << "Failed to receive power data" << std::endl;
+    }
+}
+*/
 
 void PublishSensorData() {
     while (true) {
@@ -168,7 +205,7 @@ void PublishSensorData() {
 
 void PrintUsage() {
     std::cout << "Provide the ip address and port to connect to. ex\n"
-        "./nuc_eth_listener 10.0.0.8 5555" << std::endl;
+        "./nuc_eth_listener 192.168.1.60 5555" << std::endl;
 }
 
 /*
@@ -200,6 +237,7 @@ int main(int argc, char** argv) {
     waypoint_msg_pub = n.advertise<sailbot_msg::path>("globalPath", 100);
 
     nt_sub = n.subscribe(ACTUATION, 100, ActuationCallBack);
+    // nt_sub = n.subscribe(POWER_CONTROLLER, 100, PowerControllerCallBack);
     ros::spin();
 
     publish_sensor_data.join();
