@@ -1,4 +1,21 @@
-// Copyright 2017 UBC Sailbot
+/**
+*
+*  Copyright 2017 UBC Sailbot
+* 
+*  @file  bbb_sat_listener.cpp
+*  @brief Facilitates communication between the BBB 
+*         Network Table & Land Server Network Table
+*         via satellite
+*  
+*  Polls sensor data from the CANbus and publishes 
+*  it to the network table. Writes actuation angles
+*  outputted from the boat controller to the CANbus
+*  
+*  @author Alex Macdonald (Alexmac22347)
+*  @author Brielle Law (briellelaw)
+*  @author Vlada Kozachok (vladakozachok)
+*
+*/
 
 #include <iostream>
 #include <boost/asio.hpp>
@@ -38,10 +55,14 @@ uint16_t receive_freq;
 
 NetworkTable::Connection connection;
 
-/*
- * boost::asio::read uses a non const reference,
- * so this function dues the same.
- * cpplint doesnt like this.
+/**
+ *  Reads off the serial port until a newline detected
+ *
+ *  @param p serial port to read off of
+
+ *  boost::asio::read uses a non const reference,
+ *  so this function dues the same. cpplint doesnt like this.
+ * 
  */
 std::string readLine(boost::asio::serial_port &p) {  // NOLINT(runtime/references)
     // Reading data char by char, code is optimized for simplicity, not speed
@@ -66,16 +87,32 @@ std::string readLine(boost::asio::serial_port &p) {  // NOLINT(runtime/reference
     }
 }
 
+/**
+ *  Converts a hex string to a bytestream 
+ *
+ *  @param hex The hex string to be converted 
+ *
+ */
 std::vector<char> HexToBytes(const std::string& hex) {
-  std::vector<char> bytes;
-  for (unsigned int i = 0; i < hex.length(); i += 2) {
-    std::string byteString = hex.substr(i, 2);
-    char byte = static_cast<char>(strtol(byteString.c_str(), NULL, 16));
-    bytes.push_back(byte);
-  }
-  return bytes;
+    std::vector<char> bytes;
+
+    // Convert each hex val to a long, but store within a char
+    for (unsigned int i = 0; i < hex.length(); i += 2) {
+        std::string byteString = hex.substr(i, 2);
+        char byte = static_cast<char>(strtol(byteString.c_str(), NULL, 16));
+        bytes.push_back(byte);
+    }
+
+    return bytes;
 }
 
+/**
+ *  Sends data to the satellite 
+ *
+ *  @param data Data to be transmitted to the satellite
+ *              Must be a string
+ *
+ */
 void send(const std::string &data) {
     // Send length of message
     std::string message_length("AT+SBDWB="+std::to_string(data.size())+"\r");
@@ -95,11 +132,13 @@ void send(const std::string &data) {
     uint16_t check_sum_low = sum & 0x00FF;
     uint16_t check_sum_high = (sum & 0xFF00) >> 8;
 
+    // Append the checksum to the message payload
     std::string message = data;
     message += check_sum_high;
     message += check_sum_low;
     message += '\r';
 
+    // Send the message
     boost::asio::write(serial, \
         boost::asio::buffer(message, message.size()));
 
@@ -121,8 +160,18 @@ void send(const std::string &data) {
     std::cout << readLine(serial) << std::endl;
 }
 
+/**
+ *  Decodes messages received from the satellite as waypoints 
+ *  and updates the network table
+ *
+ *  @param message Data to be decoded 
+ *                 Expecting the message to contain waypoints
+ *
+ */
 std::string decode_message(std::string message) {
     NetworkTable::Satellite satellite;
+
+    // Convert the string message back to the hex representation
     char hex_message[receive_size];  // NOLINT(runtime/arrays)
     int i = 0;
     for (const auto &item : message) {
@@ -130,10 +179,12 @@ std::string decode_message(std::string message) {
         i++;
     }
 
+    // Convert the message back to a bytestream which can then be decoded as a protobuf obj
     std::vector<char> byte_message = HexToBytes(std::string(hex_message));
     std::string str_data(byte_message.begin(), byte_message.end());
     satellite.ParseFromString(str_data);
 
+    // Update the network table with the received waypoints
     if (satellite.type() == NetworkTable::Satellite::VALUE &&
                satellite.value().type() == NetworkTable::Value::WAYPOINTS) {
         std::cout << "WAYPOINT DATA" << std::endl;
@@ -144,6 +195,14 @@ std::string decode_message(std::string message) {
     }
 }
 
+/**
+ *  Retrieves messages sent to the satellite 
+ *
+ *  @param status 1 if mailbox check was successful
+ *                2 if mailbox check failed
+ *                0 if mailbox is empty 
+ *
+ */
 std::string receive_message(const std::string &status) {
     std::string message;
 
@@ -158,6 +217,7 @@ std::string receive_message(const std::string &status) {
         std::string str_payload = response.substr(10);
         std::cout << readLine(serial) << std::endl;
 
+        // Retrieve the decoded waypoint data
         message = decode_message(str_payload);
 
     } else if (status == "2") {
@@ -171,7 +231,9 @@ std::string receive_message(const std::string &status) {
     return message;
 }
 
-/* Check for and receive MT messages in queue */
+/**
+ *  Check for and receive MT messages in the queue
+ */
 void receive() {
     std::lock_guard<std::mutex> lck(serialPort_mtx);
     std::cout << "Receiving Data" << std::endl;
@@ -192,6 +254,7 @@ void receive() {
         boost::algorithm::trim(response_split[i]);
     }
 
+    // Extract the mailbox status and queue size
     receive_size = std::stoul(response_split[4], NULL, 0);
     std::string status(response_split[2]);
     int queueSize = std::stoi(response_split[5], NULL, 0);
@@ -199,6 +262,7 @@ void receive() {
     std::cout << readLine(serial) << std::endl;
     std::cout << readLine(serial) << std::endl;
 
+    // Read the expected waypoints off the seral port
     std::string received_message = receive_message(status);
     std::cout << received_message <<std::endl;
     queueSize--;
@@ -209,11 +273,19 @@ void receive() {
     }
 }
 
-/* Callback function called when network table updated */
+/** 
+ *  Sends updated sensor data back to the satellite 
+ * 
+ *  @param node          Updated network table node (expecting ActuationAngle)
+ *  @param diffs         Uri and value of updated nt node
+ *  @param is_self_reply Prevents recursive callbacks
+ *
+ */
 void RootCallback(NetworkTable::Node node, \
     const std::map<std::string, NetworkTable::Value> &diffs, \
     bool is_self_reply) {
 
+    // Check which nodes in the network table were updated
     bool is_waypoint = false;
     for (const auto& uris : diffs) {
         std::string uri = uris.first;
@@ -247,19 +319,25 @@ void RootCallback(NetworkTable::Node node, \
     }
 }
 
-/* Send most recent sensor data */
+/**
+ *  Send most recent sensor data
+ */
 void sendRecentSensors() {
     std::lock_guard<std::mutex> lck(serialPort_mtx);
     send(latest_sensors_satellite_string);
 }
 
-/* Send most recent uccm data */
+/**
+ *  Send most recent uccm data
+ */
 void sendRecentUccms() {
     std::lock_guard<std::mutex> lck(serialPort_mtx);
     send(latest_uccms_satellite_string);
 }
 
-/* Thread to send sensor data */
+/** 
+ *  Thread to periodically send sensor data
+ */
 void sendSensorData() {
     while (true) {
         if (latest_sensors_satellite_string.size() != 0) {
@@ -270,7 +348,9 @@ void sendSensorData() {
     }
 }
 
-/* Thread to send uccm data*/
+/** 
+ *  Thread to periodically send uccm data
+ */
 void sendUccmData() {
     while (true) {
         if (latest_uccms_satellite_string.size() != 0) {
@@ -281,6 +361,9 @@ void sendUccmData() {
     }
 }
 
+/** 
+ *  Thread to periodically retrieve satellite messages 
+ */
 void receiveData() {
     while (true) {
         receive();
@@ -288,6 +371,9 @@ void receiveData() {
     }
 }
 
+/**
+ *  Spin off the threads responsible for receiving from and sending to satellite
+ */
 int main(int argc, char **argv) {
     if (argc != 5) {
         std::cout << "usage: ./bbb_rockblock_listener <sensors send "\
@@ -306,13 +392,14 @@ int main(int argc, char **argv) {
 
     receive_size = 0;
 
+    // TODO(brielle) surround in try/catch
     connection.Connect(1000, true);
 
     latest_sensors_satellite_string = "";
     latest_uccms_satellite_string = "";
 
+    // Send all network updates back to the land server via satellite
     bool is_subscribed = false;
-
     while (!is_subscribed) {
         try {
             connection.Subscribe("/", &RootCallback);

@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
 
+"""land_satellite_listener.py: Facillitates communication between Land Server and BBB."""
+
+__author__ = "Brielle Law (briellelaw), John Ahn (jahn18)"
+__copyright__ = "Copyright 2020 UBC Sailbot"
+
 from nt_connection.Connection import Connection
 from nt_connection.Help import Help
 import generated_python.Value_pb2 as Value_pb2
@@ -19,6 +24,11 @@ from functools import partial
 
 class HTTPRequestHandler(BaseHTTPRequestHandler):
     def __init__(self, nt_connection, accepted_ip_addresses, *args, **kwargs):
+        """ HTTP Request Handler class that handles HTTP POST requests from Iridium server
+
+                    nt_connection - network table connection instance
+            accepted_ip_addresses - list of IPs we will permit to source incoming data
+        """
         self.nt_connection = nt_connection
         self.accepted_ip_addresses = accepted_ip_addresses
         super().__init__(*args, **kwargs)
@@ -26,13 +36,17 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         if self.client_address[0] in self.accepted_ip_addresses:
             print("Handling post request")
+
+            # Extract the body of the received message
             content_len = int(self.headers['Content-Length'])
             body = self.rfile.read(content_len)
+
             # Need to extract hex data from received message, then convert to string, then back to bytes
             data = bytes(bytes.fromhex((str(body).split("data=", 1)[1])[:-1]).decode('utf-8'), 'utf-8')
             sat = Satellite_pb2.Satellite()
             helper = Help()
 
+            # Expecting to receive sensor or uccm data
             try:
                 sat.ParseFromString(data)
                 if sat.type == Satellite_pb2.Satellite.Type.SENSORS:
@@ -44,10 +58,6 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
                     print("Receiving UCCM Data")
                     values = helper.uccms_to_root(sat.uccms)
                     self.nt_connection.setValues(values)
-
-                elif sat.type == Satellite_pb2.Satellite.Type.VALUE:
-                    print("Receiving Waypoint Data")
-                    print(sat.value)
 
                 else:
                     print("Did Not receive Sensor or UCCM data")

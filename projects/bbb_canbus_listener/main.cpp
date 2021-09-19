@@ -1,4 +1,19 @@
-// Copyright 2017 UBC Sailbot
+/**
+*
+*  Copyright 2017 UBC Sailbot
+* 
+*  @file  bbb_canbus_listener.cpp
+*  @brief Facilitates communication between CANbus and Network Table
+*  
+*  Polls sensor data from the CANbus and publishes 
+*  it to the network table. Writes actuation angles
+*  outputted from the boat controller to the CANbus
+*  
+*  @author Alex Macdonald (Alexmac22347)
+*  @author Brielle Law (briellelaw)
+*  @author John Ahn (jahn18)
+*
+*/
 
 #include <stdio.h>
 #include <map>
@@ -22,42 +37,57 @@
 #include "Exceptions.h"
 #include "Uri.h"
 
+#define WIND_ID1 "1"
+#define WIND_ID2 "2"
+#define WIND_ID3 "3"
+#define CAN_DLC  8
+
 int s;
 NetworkTable::Connection connection;
 
-/*
- * Set wind sensor with given id. id should be 0, 1, or 2
+/**
+ *  Set wind sensor data in the network table. 
+ *  
+ *  @param angle  value of wind angle (degrees)  
+ *  @param speed  value of wind speed (knots)
+ *  @param id     wind sensor id should be 1, 2, or 3
+ *
  */
 void SetWindSensorData(int angle, int speed, const std::string &id) {
+    // Assign values to new network table nodes
     NetworkTable::Value angle_nt;
     angle_nt.set_type(NetworkTable::Value::INT);
     angle_nt.set_int_data(static_cast<int>(angle));
 
-    std::cout << "id: "<< id << " got wind sensor angle and speed:" << std::to_string(angle) \
-        << " " << std::to_string(speed) << std::endl;
     NetworkTable::Value speed_nt;
     speed_nt.set_type(NetworkTable::Value::INT);
     speed_nt.set_int_data(static_cast<int>(speed));
 
+    std::cout << "WindSensor" << id << std::endl;
+    std::cout << "Angle: " << std::to_string(angle) \
+        << " || Speed: " << std::to_string(speed) << std::endl;
+
     std::map<std::string, NetworkTable::Value> values;
 
-    if (id == "1") {
+    // Based on the sensor id, map the nodes to the corresponding uri
+    if (id == WIND_ID1) {
         values.insert((std::pair<std::string, NetworkTable::Value> \
                 (WIND1_SPEED, speed_nt)));
         values.insert((std::pair<std::string, NetworkTable::Value> \
                 (WIND1_ANGLE, angle_nt)));
-    } else if (id == "2") {
+    } else if (id == WIND_ID2) {
         values.insert((std::pair<std::string, NetworkTable::Value> \
                 (WIND2_SPEED, speed_nt)));
         values.insert((std::pair<std::string, NetworkTable::Value> \
                 (WIND2_ANGLE, angle_nt)));
-    } else if (id == "3") {
+    } else if (id == WIND_ID3) {
         values.insert((std::pair<std::string, NetworkTable::Value> \
                 (WIND3_SPEED, speed_nt)));
         values.insert((std::pair<std::string, NetworkTable::Value> \
                 (WIND3_ANGLE, angle_nt)));
     }
 
+    // Try to set the values in the network table
     try {
         connection.SetValues(values);
     } catch (NetworkTable::NotConnectedException) {
@@ -67,15 +97,26 @@ void SetWindSensorData(int angle, int speed, const std::string &id) {
     }
 }
 
+/**
+ *  Write the actuation angles to the CANbus 
+ *  Callback in response to updates to the ActuationAngle nt node
+ *  
+ *  @param node          Updated network table node (expecting ActuationAngle)
+ *  @param diffs         Uri and value of updated nt node
+ *  @param is_self_reply Prevents recursive callbacks
+ *
+ */
 void MotorCallback(NetworkTable::Node node, \
         const std::map<std::string, NetworkTable::Value> &diffs, \
         bool is_self_reply) {
     struct can_frame frame;
-    frame.can_dlc = 8;
     float angle;
+    frame.can_dlc = CAN_DLC;
 
     for (const auto& uris : diffs) {
         std::string uri = uris.first;
+
+        // Determine if new actuation angle is for the port or stbd rudder
         if (uri == RUDDER_PORT_ANGLE) {
             frame.can_id = RUDDER_PORT_CMD_FRAME_ID;
             angle = static_cast<float>(node.children().at("rudder_port").children().at("angle").value().float_data());
@@ -87,14 +128,16 @@ void MotorCallback(NetworkTable::Node node, \
         }
 
         std::cout << uris.first << std::endl;
-        // Manually put split the float into bytes, and
+        // Manually split the float into bytes, and
         // put each byte into the frame.data array
         uint8_t const *angle_array = reinterpret_cast<uint8_t *>(&angle);
         frame.data[0] = angle_array[0];
         frame.data[1] = angle_array[1];
         frame.data[2] = angle_array[2];
         frame.data[3] = angle_array[3];
-        std::cout << "Sending port rudder angle:" << angle << std::endl;
+
+        // Write the rudder angle to the corresponding can frame
+        std::cout << "Sending rudder angle:" << angle << std::endl;
         if (write(s, &frame, sizeof(struct can_frame)) != sizeof(struct can_frame)) {
             perror("Write");
             return;
@@ -102,15 +145,26 @@ void MotorCallback(NetworkTable::Node node, \
     }
 }
 
+/**
+ *  Write the Power Controller outputs to the CANbus 
+ *  Callback in response to updates to the PowerController nt node
+ *  
+ *  @param node          Updated network table node (expecting PowerController)
+ *  @param diffs         Uri and value of updated nt node
+ *  @param is_self_reply Prevents recursive callbacks
+ *
+ */
 void PowerControllerCallback(NetworkTable::Node node, \
         const std::map<std::string, NetworkTable::Value> &diffs, \
         bool is_self_reply) {
     struct can_frame frame;
-    frame.can_dlc = 8;
     int power_data;
+    frame.can_dlc = CAN_DLC;
 
     for (const auto& uris : diffs) {
         std::string uri = uris.first;
+
+        // Verify updated node corresponds to power controller output
         if (uri == POWER_CONTROLLER) {
             frame.can_id = BMS_CMD_FRAME_ID;
             power_data = static_cast<float>(node.children().at("battery_state").value().int_data());
@@ -127,6 +181,8 @@ void PowerControllerCallback(NetworkTable::Node node, \
         frame.data[2] = power_array[2];
         frame.data[3] = power_array[3];
         std::cout << "Sending Power Controller state: " << power_data << std::endl;
+
+        // Write the Power Controller state to the corresponding can frame
         if (write(s, &frame, sizeof(struct can_frame)) != sizeof(struct can_frame)) {
             perror("Write");
             return;
@@ -134,14 +190,22 @@ void PowerControllerCallback(NetworkTable::Node node, \
     }
 }
 
+/**
+ * Connects to the network table, polls the CANbus for sensor updates,
+ * and writes actuation angle and power controller updates to the CANbus  
+ *
+ */
 int main(int argc, char **argv) {
     if (argc != 2) {
         printf("Please provide the name of the canbus interface. \n");
-        printf("Example usage: './bbb_canbus_listener vcan0' \n");
+        printf("Example usage: './bbb_canbus_listener can0' \n");
         return 0;
     }
 
+    std::cout << "Running bbb_canbus_listener..." << std::endl;
+
     // Connect to the network table
+    // TODO(brielle): Surround in try/catch
     connection.Connect(1000, true);
 
     // Connect to the canbus network.
@@ -169,7 +233,7 @@ int main(int argc, char **argv) {
         return -2;
     }
 
-    // subscribe to network-table
+    // Subscribe to rudder node in the network-table
     bool is_subscribed = false;
 
     while (!is_subscribed) {
@@ -185,6 +249,7 @@ int main(int argc, char **argv) {
 
     is_subscribed = false;
 
+    // Subscribe to Power Controller node in the network-table
     while (!is_subscribed) {
         try {
             connection.Subscribe(POWER, &PowerControllerCallback);
@@ -195,7 +260,8 @@ int main(int argc, char **argv) {
             sleep(1);
         }
     }
-    // Keep on reading the wind sensor data off canbus, and
+
+    // Keep on reading the sensor data off canbus, and
     // placing the latest data in the network table.
     while (true) {
         read(s, &frame, sizeof(struct can_frame));
