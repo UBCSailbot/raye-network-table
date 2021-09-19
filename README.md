@@ -1,12 +1,19 @@
 # Network Table
-A communication hub that runs on central controller on Ada 2.0.  
-Receives updates on sensor data (from GPS, wind sensors, etc), allows other programs to connect
+A communication hub that runs on a central machine located on Raye.
+Receives updates on sensor data (from GPS, wind sensors, etc), and allows other programs to connect
 to the network table using pub/sub or request/reply.
 
 [Network Table Communication Protocol](https://github.com/UBCSailbot/network-table/wiki/Network-Table-Communication)
 
 This repository also contains source code for programs which are used to transfer
 data between various other programs. These are located in the `projects` folder.
+All together, these programs make up Raye's communication infrastructure that connects the
+pathfinding, boat controller, and motor/sensor modules. 
+
+[System Architecture](https://github.com/UBCSailbot/network-table/wiki/System-Architecture)
+
+![SystemArchitecture](https://user-images.githubusercontent.com/55005163/133917112-1d30b3ec-e3c2-4f77-98b0-4e2fa0718992.png)
+
 
 ## Install Dependencies
 Clone all submodules:  
@@ -54,6 +61,8 @@ To use the sailbot-msg datatypes from your terminal, (for example if you're runn
 
 ## Running
 Executables can be found in `build/bin/`
+
+More information on each of the executable programs can be found in the `projects` directory.
 
 ## Style Guide, Linting, and Code Check
 For C++ follow [Google's C++ Style Guide](https://google.github.io/styleguide/cppguide.html).  
