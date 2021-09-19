@@ -1,4 +1,15 @@
-// Copyright 2017 UBC Sailbot
+/**
+*
+*  Copyright 2017 UBC Sailbot
+* 
+*  @file  bbb_ais_listener.cpp
+*  @brief Facilitates communication between AIS and BBB Network Table
+*  
+*  @author Alex Macdonald (Alexmac22347)
+*  @author Rick Cheng (yd-cheng)
+*
+*/
+
 // Standard header files
 #include <iostream>
 #include <stdlib.h>

@@ -18,8 +18,8 @@ how often to send uccm data (in seconds), how often to receive waypoints,
 and the path to the serial port connected to the Rockblock.  
 Here is an example where sensors are sent every 30 seconds, and uccm every
 360 seconds, and waypoints are received every 600 seconds, 
-and serial port is at /dev/ttyUSB0
-```./bbb_rockblock_listener 60 360 600 /dev/ttyUSB0```
+and serial port is at /dev/ttyS2
+```./bbb_rockblock_listener 60 360 600 /dev/ttyS2```
 
 ## Full Scale Testing with Viritual Iridium
 This will test Sending data from BBB to Viritual Iridium to Land Server
