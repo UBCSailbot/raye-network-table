@@ -15,16 +15,24 @@ Install protobuf for python3:
 ```pip3 install protobuf```
 
 To run the script:  
-```python3 land_satellite_listener.py <SERVER_PORT_NUMBER> <HTTP_POST_ENDPOINT> <POLL_FREQUENCY> <UNIT> <BINDING_ADDRESS> <USERNAME> <PASSWORD> <ACCEPTED_IP_ADDRESSES>```
+```
+python3 land_satellite_listener.py <SERVER_PORT_NUMBER> <HTTP_POST_ENDPOINT> <POLL_FREQUENCY> <UNIT> <BINDING_ADDRESS> <USERNAME> <PASSWORD> <IMEI> <ACCEPTED_IP_ADDRESSES>
+```
+
+`SERVER_PORT_NUMBER` = port number we will be serving incoming HTTP requests\
+`HTTP_POST_ENDPOINT` = url we want to send our HTTP requests to as a client\
+`POLL_FREQUENCY` = frequency at which we want to check for incoming sensor/uccm data from the satellite\
+`UNIT` = unit of time we will wait (ie. SEC, MIN, HR)\
+`BINDING_ADDRESS` = where you are running the service
+`USERNAME` = username of our Rockblock account\
+`PASSWORD` = password for our Rockblock account\
+`IMEI` = unique identifier for our Rockblock+\
+`ACCEPTED_IP_ADDRESSES` = List of addresses server can accept requests from (For our purposes, we will only be accepting requests from the Iridium server)
 
 For example:
 ```
-python3 land_satellite_listener.py -p 8000 -e https://rockblock.rock7.com/rockblock/MT -f 30 -u SEC -b 70.36.55.243 -n sailbot -p raye2020 -i 109.74.196.135 212.71.235.32
+python3 land_satellite_listener.py -p 8000 -e https://rockblock.rock7.com/rockblock/MT -f 10 -u SEC -b 70.36.55.243 -n <USER> -w <PASS> -r 300234068129370 -i 212.71.235.32
 ```
-
-Binding Address - where you are running the service
-
-Accepted IPs - List of addresses server can accept requests from 
 
 ## Security
 The parameters <USERNAME> <PASSWORD> <ACCEPTED_IP_ADDRESSES> are to enforce security measures. 
@@ -34,9 +42,9 @@ The "accepted ip address(es)" ensures the data being sent to the land satellite 
 The program verifies if the client's ip address matches the list of ip addresses that you decide.  
 
 ## Full-Scale Testing 
-Refer to bbb_rockblock_listener README for full-scale testing with the virtual rockblock.
+Refer to bbb_satellite_listener README for full-scale testing with the virtual rockblock.
 
-## Small-Scale Testing
+## Small-Scale Testing (DEPRECATED)
 `sensorBinaryData.txt` contains serialized dummy sensor
 data from the network table that can be sent as test 
 data to the http server via post request. 
@@ -75,9 +83,8 @@ To get the list of parameters required:
 ```python3 land_satellite_listener.py -h```
 
 Example command: 
-```python3 land_satellite_listener.py -p 8000 -e http://localhost:8080 -f 1000 -u SEC```
-
-TODO: explain how to use username and password parameters
+```python3 land_satellite_listener.py -p 8000 -e https://rockblock.rock7.com/rockblock/MT -f 10 -u SEC -b 70.36.55.243 -n <USER> -w <PASS> -r 300234068129370 -i 212.71.235.32
+```
 
 Send sensor data:  
 ```curl -X POST --data-binary @sensorBinaryData.txt http://<VM_PUBLIC_IP>:8080```
