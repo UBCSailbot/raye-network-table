@@ -1,4 +1,5 @@
 from generated_python import Value_pb2
+from .uri import *
 
 
 class Help:
@@ -30,169 +31,94 @@ class Help:
         values = {}
 
         # Store boom sensor values
-        val = self.create_int_val(
-            sensors.boom_angle_sensor.sensor_data.angle)
-        values["/boom_angle_sensor/sensor_data/angle"] = val
+        val = self.create_int_val(sensors.sailencoder_sensor.boom_angle_data.angle)
+        values[SAILENCODER_ANGLE] = val
 
         # Store wind sensor values
-        val = self.create_int_val(sensors.wind_sensor_0.iimwv.wind_speed)
-        values["/wind_sensor_0/iimwv/wind_speed"] = val
-        val = self.create_int_val(
-            sensors.wind_sensor_0.iimwv.wind_direction)
-        values["/wind_sensor_0/iimwv/wind_direction"] = val
-        val = self.create_int_val(
-            sensors.wind_sensor_0.iimwv.wind_reference)
-        values["/wind_sensor_0/iimwv/wind_reference"] = val
-        val = self.create_int_val(
-            sensors.wind_sensor_0.wixdir.wind_temperature)
-        values["/wind_sensor_0/wixdir/wind_temperature"] = val
-
         val = self.create_int_val(sensors.wind_sensor_1.iimwv.wind_speed)
-        values["/wind_sensor_1/iimwv/wind_speed"] = val
-        val = self.create_int_val(
-            sensors.wind_sensor_1.iimwv.wind_direction)
-        values["/wind_sensor_1/iimwv/wind_direction"] = val
-        val = self.create_int_val(
-            sensors.wind_sensor_1.iimwv.wind_reference)
-        values["/wind_sensor_1/iimwv/wind_reference"] = val
-        val = self.create_int_val(
-            sensors.wind_sensor_1.wixdir.wind_temperature)
-        values["/wind_sensor_1/wixdir/wind_temperature"] = val
+        values[WIND1_SPEED] = val
+        val = self.create_int_val(sensors.wind_sensor_1.iimwv.wind_direction)
+        values[WIND1_ANGLE] = val
 
         val = self.create_int_val(sensors.wind_sensor_2.iimwv.wind_speed)
-        values["/wind_sensor_2/iimwv/wind_speed"] = val
-        val = self.create_int_val(
-            sensors.wind_sensor_2.iimwv.wind_direction)
-        values["/wind_sensor_2/iimwv/wind_direction"] = val
-        val = self.create_int_val(
-            sensors.wind_sensor_2.iimwv.wind_reference)
-        values["/wind_sensor_2/iimwv/wind_reference"] = val
-        val = self.create_int_val(
-            sensors.wind_sensor_2.wixdir.wind_temperature)
-        values["/wind_sensor_2/wixdir/wind_temperature"] = val
+        values[WIND2_SPEED] = val
+        val = self.create_int_val(sensors.wind_sensor_2.iimwv.wind_direction)
+        values[WIND2_ANGLE] = val
+
+        val = self.create_int_val(sensors.wind_sensor_3.iimwv.wind_speed)
+        values[WIND3_SPEED] = val
+        val = self.create_int_val(sensors.wind_sensor_3.iimwv.wind_direction)
+        values[WIND3_ANGLE] = val
 
         # Store gps sensor values
-        val = self.create_str_val(sensors.gps_0.gprmc.utc_timestamp)
-        values["/gps_0/gprmc/utc_timestamp"] = val
-        val = self.create_float_val(sensors.gps_0.gprmc.latitude)
-        values["/gps_0/gprmc/latitude"] = val
-        val = self.create_float_val(sensors.gps_0.gprmc.longitude)
-        values["/gps_0/gprmc/longitude"] = val
-        val = self.create_bool_val(sensors.gps_0.gprmc.latitude_loc)
-        values["/gps_0/gprmc/latitude_loc"] = val
-        val = self.create_bool_val(sensors.gps_0.gprmc.longitude_loc)
-        values["/gps_0/gprmc/longitude_loc"] = val
-        val = self.create_int_val(sensors.gps_0.gprmc.ground_speed)
-        values["/gps_0/gprmc/ground_speed"] = val
-        val = self.create_int_val(sensors.gps_0.gprmc.track_made_good)
-        values["/gps_0/gprmc/track_made_good"] = val
-        val = self.create_int_val(sensors.gps_0.gprmc.magnetic_variation)
-        values["/gps_0/gprmc/magnetic_variation"] = val
-        val = self.create_bool_val(
-            sensors.gps_0.gprmc.magnetic_variation_sense)
-        values["/gps_0/gprmc/magnetic_variation_sense"] = val
-        val = self.create_int_val(sensors.gps_0.gpgga.quality_indicator)
-        values["/gps_0/gpgga/quality_indicator"] = val
-        val = self.create_int_val(sensors.gps_0.gpgga.hdop)
-        values["/gps_0/gpgga/hdop"] = val
-        val = self.create_int_val(sensors.gps_0.gpgga.antenna_altitude)
-        values["/gps_0/gpgga/antenna_altitude"] = val
-        val = self.create_int_val(sensors.gps_0.gpgga.geoidal_separation)
-        values["/gps_0/gpgga/geoidal_separation"] = val
+        val = self.create_str_val(sensors.gps_can.gprmc.utc_timestamp)
+        values[GPS_CAN_TIME] = val
+        val = self.create_float_val(sensors.gps_can.gprmc.latitude)
+        values[GPS_CAN_LAT] = val
+        val = self.create_float_val(sensors.gps_can.gprmc.longitude)
+        values[GPS_CAN_LON] = val
+        val = self.create_int_val(sensors.gps_can.gprmc.ground_speed)
+        values[GPS_CAN_GNDSPEED] = val
+        val = self.create_int_val(sensors.gps_can.gprmc.track_made_good)
+        values[GPS_CAN_TMG] = val
+        val = self.create_int_val(sensors.gps_can.gprmc.magnetic_variation)
+        values[GPS_CAN_MAGVAR] = val
 
-        val = self.create_str_val(sensors.gps_0.gprmc.utc_timestamp)
-        values["/gps_1/gprmc/utc_timestamp"] = val
-        val = self.create_float_val(sensors.gps_1.gprmc.latitude)
-        values["/gps_1/gprmc/latitude"] = val
-        val = self.create_float_val(sensors.gps_1.gprmc.longitude)
-        values["/gps_1/gprmc/longitude"] = val
-        val = self.create_bool_val(sensors.gps_1.gprmc.latitude_loc)
-        values["/gps_1/gprmc/latitude_loc"] = val
-        val = self.create_bool_val(sensors.gps_1.gprmc.longitude_loc)
-        values["/gps_1/gprmc/longitude_loc"] = val
-        val = self.create_int_val(sensors.gps_1.gprmc.ground_speed)
-        values["/gps_1/gprmc/ground_speed"] = val
-        val = self.create_int_val(sensors.gps_1.gprmc.track_made_good)
-        values["/gps_1/gprmc/track_made_good"] = val
-        val = self.create_int_val(sensors.gps_1.gprmc.magnetic_variation)
-        values["/gps_1/gprmc/magnetic_variation"] = val
-        val = self.create_bool_val(
-            sensors.gps_1.gprmc.magnetic_variation_sense)
-        values["/gps_1/gprmc/magnetic_variation_sense"] = val
-        val = self.create_int_val(sensors.gps_1.gpgga.quality_indicator)
-        values["/gps_1/gpgga/quality_indicator"] = val
-        val = self.create_int_val(sensors.gps_1.gpgga.hdop)
-        values["/gps_1/gpgga/hdop"] = val
-        val = self.create_int_val(sensors.gps_1.gpgga.antenna_altitude)
-        values["/gps_1/gpgga/antenna_altitude"] = val
-        val = self.create_int_val(sensors.gps_1.gpgga.geoidal_separation)
-        values["/gps_1/gpgga/geoidal_separation"] = val
+        val = self.create_str_val(sensors.gps_ais.gprmc.utc_timestamp)
+        values[GPS_AIS_TIME] = val
+        val = self.create_float_val(sensors.gps_ais.gprmc.latitude)
+        values[GPS_AIS_LAT] = val
+        val = self.create_float_val(sensors.gps_ais.gprmc.longitude)
+        values[GPS_AIS_LON] = val
+        val = self.create_int_val(sensors.gps_ais.gprmc.ground_speed)
+        values[GPS_AIS_GNDSPEED] = val
+        val = self.create_int_val(sensors.gps_ais.gprmc.track_made_good)
+        values[GPS_AIS_TMG] = val
+        val = self.create_int_val(sensors.gps_ais.gprmc.magnetic_variation)
+        values[GPS_AIS_MAGVAR] = val
 
         # Store bms sensor values
-        val = self.create_int_val(
-            sensors.bms_0.battery_pack_data.current)
-        values["/bms_0/battery_pack_data/current"] = val
-        val = self.create_int_val(
-            sensors.bms_0.battery_pack_data.total_voltage)
-        values["/bms_0/battery_pack_data/total_voltage"] = val
-        val = self.create_int_val(
-            sensors.bms_0.battery_pack_data.temperature)
-        values["/bms_0/battery_pack_data/temperature"] = val
-
         val = self.create_int_val(sensors.bms_1.battery_pack_data.current)
-        values["/bms_1/battery_pack_data/current"] = val
-        val = self.create_int_val(
-            sensors.bms_1.battery_pack_data.total_voltage)
-        values["/bms_1/battery_pack_data/total_voltage"] = val
-        val = self.create_int_val(
-            sensors.bms_1.battery_pack_data.temperature)
-        values["/bms_1/battery_pack_data/temperature"] = val
+        values[BMS1_CURRENT] = val
+        val = self.create_int_val(sensors.bms_1.battery_pack_data.total_voltage)
+        values[BMS1_VOLTAGE] = val
 
         val = self.create_int_val(sensors.bms_2.battery_pack_data.current)
-        values["/bms_2/battery_pack_data/current"] = val
-        val = self.create_int_val(
-            sensors.bms_2.battery_pack_data.total_voltage)
-        values["/bms_2/battery_pack_data/total_voltage"] = val
-        val = self.create_int_val(
-            sensors.bms_2.battery_pack_data.temperature)
-        values["/bms_2/battery_pack_data/temperature"] = val
+        values[BMS2_CURRENT] = val
+        val = self.create_int_val(sensors.bms_2.battery_pack_data.total_voltage)
+        values[BMS2_VOLTAGE] = val
 
         val = self.create_int_val(sensors.bms_3.battery_pack_data.current)
-        values["/bms_3/battery_pack_data/current"] = val
-        val = self.create_int_val(
-            sensors.bms_3.battery_pack_data.total_voltage)
-        values["/bms_3/battery_pack_data/total_voltage"] = val
-        val = self.create_int_val(
-            sensors.bms_3.battery_pack_data.temperature)
-        values["/bms_3/battery_pack_data/temperature"] = val
+        values[BMS3_CURRENT] = val
+        val = self.create_int_val(sensors.bms_3.battery_pack_data.total_voltage)
+        values[BMS3_VOLTAGE] = val
 
         val = self.create_int_val(sensors.bms_4.battery_pack_data.current)
-        values["/bms_4/battery_pack_data/current"] = val
-        val = self.create_int_val(
-            sensors.bms_4.battery_pack_data.total_voltage)
-        values["/bms_4/battery_pack_data/total_voltage"] = val
-        val = self.create_int_val(
-            sensors.bms_4.battery_pack_data.temperature)
-        values["/bms_4/battery_pack_data/temperature"] = val
+        values[BMS4_CURRENT] = val
+        val = self.create_int_val(sensors.bms_4.battery_pack_data.total_voltage)
+        values[BMS4_VOLTAGE] = val
 
         val = self.create_int_val(sensors.bms_5.battery_pack_data.current)
-        values["/bms_5/battery_pack_data/current"] = val
-        val = self.create_int_val(
-            sensors.bms_5.battery_pack_data.total_voltage)
-        values["/bms_5/battery_pack_data/total_voltage"] = val
-        val = self.create_int_val(
-            sensors.bms_5.battery_pack_data.temperature)
-        values["/bms_5/battery_pack_data/temperature"] = val
+        values[BMS5_CURRENT] = val
+        val = self.create_int_val(sensors.bms_5.battery_pack_data.total_voltage)
+        values[BMS5_VOLTAGE] = val
 
         val = self.create_int_val(
             sensors.accelerometer.boat_orientation_data.x_axis_acceleration)
-        values["/accelerometer/boat_orientation_data/x_axis_acceleration"] = val
+        values[ACCELEROMETER_X] = val
         val = self.create_int_val(
             sensors.accelerometer.boat_orientation_data.y_axis_acceleration)
-        values["/accelerometer/boat_orientation_data/y_axis_acceleration"] = val
+        values[ACCELEROMETER_Y] = val
         val = self.create_int_val(
             sensors.accelerometer.boat_orientation_data.z_axis_acceleration)
-        values["/accelerometer/boat_orientation_data/z_axis_acceleration"] = val
+        values[ACCELEROMETER_Z] = val
+
+        val = self.create_float_val(sensors.gyroscope.angular_motion_data.x_angular_velocity)
+        values[GYROSCOPE_X] = val
+        val = self.create_float_val(sensors.gyroscope.angular_motion_data.y_angular_velocity)
+        values[GYROSCOPE_Y] = val
+        val = self.create_float_val(sensors.gyroscope.angular_motion_data.z_angular_velocity)
+        values[GYROSCOPE_Z] = val
 
         return values
 
