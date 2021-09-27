@@ -34,10 +34,23 @@ void printBoats() {
 
 
 int main(int argc, char** argv) {
+    /* This was a bad decision
     std::cout << "Enter number of boats to send through socket: ";
     std::cin >> num_boats;
     std::cout << std::endl << "Enter number of times boats are sent through socket: ";
     std::cin >> num_loop;
+    */
+
+    if (argc < 3) {
+        std::cout << "2 required args are: num_boats num_loop" << std::endl;
+        return -1;
+    }
+    
+    // Store number of boats to send through socket
+    num_boats = std::stoi(argv[1], NULL, 10);
+    num_loop = std::stoi(argv[2], NULL, 10);
+    
+    // Store number of times to loop through generation
 
     zmq::context_t ctx;
     zmq::socket_t m_socket(ctx, ZMQ_REP);
@@ -45,6 +58,7 @@ int main(int argc, char** argv) {
 
     zmq::message_t request;
 
+    std::cout << "Waiting for client to request boats" << std::endl;
     for (int i = 0; i < num_loop; i++) {
         // recv blocking so program will only generate test boats when requested by query from bbb_ais_listener main
         m_socket.recv(&request);
@@ -91,6 +105,8 @@ int main(int argc, char** argv) {
 
         memcpy(reply.data(), boat_buff, boat_buff_size);
         m_socket.send(reply);  // Send reply to socket
+
+        boat_vector.clear();
 
         printBoats();
     }

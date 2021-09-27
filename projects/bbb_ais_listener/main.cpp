@@ -108,7 +108,7 @@ int main(int argc, char** argv) {
     // Main loop to continuously request list of boats from ais_connection
     std::list<Boat> ais_boats;  // Stores boat query from ENDPOINT
     while (true) {
-        std::cout << "looped" << std::endl;
+        std::cout << std::endl;
         ais_boats = ais_connection.getBoats();  // Query list of boats from zmq socket
 
         // Clear all proto_boats so we don't have extra/repeated boats after each ais_connection query
