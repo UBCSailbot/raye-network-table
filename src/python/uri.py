@@ -3,20 +3,28 @@ If referenced in another file, the values can
 be reassigned in the scope of that specific project.
 """
 
+# waypoints
+WAYPOINTS_GP = "waypoints"
+
 # boom sensor
+SAILENCODER = "/sailencoder"
 SAILENCODER_ANGLE = "/sailencoder/sensor_data/angle"
 
 # wind sensors
+WIND1 = "/wind_sensor_1"
 WIND1_SPEED = "/wind_sensor_1/iimwv/wind_speed"
 WIND1_ANGLE = "/wind_sensor_1/iimwv/wind_angle"
 
+WIND2 = "/wind_sensor_2"
 WIND2_SPEED = "/wind_sensor_2/iimwv/wind_speed"
 WIND2_ANGLE = "/wind_sensor_2/iimwv/wind_angle"
 
+WIND2 = "/wind_sensor_3"
 WIND3_SPEED = "/wind_sensor_3/iimwv/wind_speed"
 WIND3_ANGLE = "/wind_sensor_3/iimwv/wind_angle"
 
 # gps sensors
+GPS_CAN = "/gps_can"
 GPS_CAN_TIME = "/gps_can/gprmc/utc_timestamp"
 GPS_CAN_LAT = "/gps_can/gprmc/latitude"
 GPS_CAN_LON = "/gps_can/gprmc/longitude"
@@ -25,6 +33,7 @@ GPS_CAN_TMG = "/gps_can/gprmc/track_made_good"
 GPS_CAN_TRUE_HEADING = "/gps_can/gprmc/true_heading"
 GPS_CAN_MAGVAR = "/gps_can/gprmc/magnetic_variation"
 
+GPS_AIS = "/gps_ais"
 GPS_AIS_TIME = "/gps_ais/gprmc/utc_timestamp"
 GPS_AIS_LAT = "/gps_ais/gprmc/latitude"
 GPS_AIS_LON = "/gps_ais/gprmc/longitude"
@@ -34,42 +43,50 @@ GPS_AIS_TRUE_HEADING = "/gps_ais/gprmc/true_heading"
 GPS_AIS_MAGVAR = "/gps_ais/gprmc/magnetic_variation"
 
 # bms
+BMS1 = "/bms_1"
 BMS1_CURRENT = "/bms_1/battery_pack_data/current"
 BMS1_VOLTAGE = "/bms_1/battery_pack_data/total_voltage"
 BMS1_MAX_CELL = "/bms_1/battery_pack_data/max_cell"
 BMS1_MIN_CELL = "/bms_1/battery_pack_data/min_cell"
 
+BMS2 = "/bms_2"
 BMS2_CURRENT = "/bms_2/battery_pack_data/current"
 BMS2_VOLTAGE = "/bms_2/battery_pack_data/total_voltage"
 BMS2_MAX_CELL = "/bms_2/battery_pack_data/max_cell"
 BMS2_MIN_CELL = "/bms_2/battery_pack_data/min_cell"
 
+BMS3 = "/bms_3"
 BMS3_CURRENT = "/bms_3/battery_pack_data/current"
 BMS3_VOLTAGE = "/bms_3/battery_pack_data/total_voltage"
 BMS3_MAX_CELL = "/bms_3/battery_pack_data/max_cell"
 BMS3_MIN_CELL = "/bms_3/battery_pack_data/min_cell"
 
+BMS4 = "/bms_4"
 BMS4_CURRENT = "/bms_4/battery_pack_data/current"
 BMS4_VOLTAGE = "/bms_4/battery_pack_data/total_voltage"
 BMS4_MAX_CELL = "/bms_4/battery_pack_data/max_cell"
 BMS4_MIN_CELL = "/bms_4/battery_pack_data/min_cell"
 
+BMS5 = "/bms_5"
 BMS5_CURRENT = "/bms_5/battery_pack_data/current"
 BMS5_VOLTAGE = "/bms_5/battery_pack_data/total_voltage"
 BMS5_MAX_CELL = "/bms_5/battery_pack_data/max_cell"
 BMS5_MIN_CELL = "/bms_5/battery_pack_data/min_cell"
 
+BMS6 = "/bms_6"
 BMS6_CURRENT = "/bms_6/battery_pack_data/current"
 BMS6_VOLTAGE = "/bms_6/battery_pack_data/total_voltage"
 BMS6_MAX_CELL = "/bms_6/battery_pack_data/max_cell"
 BMS6_MIN_CELL = "/bms_6/battery_pack_data/min_cell"
 
 # accelerometer
+ACCELEROMETER = "/accelerometer"
 ACCELEROMETER_X = "/accelerometer/boat_orientation_data/x_axis_acceleration"
 ACCELEROMETER_Y = "/accelerometer/boat_orientation_data/y_axis_acceleration"
 ACCELEROMETER_Z = "/accelerometer/boat_orientation_data/z_axis_acceleration"
 
 # gyroscope
+GYROSCOPE = "/gyroscope"
 GYROSCOPE_X = "/gyroscope/x_velocity"
 GYROSCOPE_Y = "/gyroscope/y_velocity"
 GYROSCOPE_Z = "/gyroscope/z_velocity"
@@ -77,9 +94,14 @@ GYROSCOPE_Z = "/gyroscope/z_velocity"
 # actuators
 ACTUATION = "/actuation_angle"
 RUDDER = "/actuation_angle/rudder"
+RUDDER_PORT = "/actuation_angle/rudder/rudder_port"
+RUDDER_STBD = "/actuation_angle/rudder/rudder_stbd"
 RUDDER_PORT_ANGLE = "/actuation_angle/rudder/rudder_port/angle"
 RUDDER_STBD_ANGLE = "/actuation_angle/rudder/rudder_stbd/angle"
+
 WINCH = "/actuation_angle/winch"
+WINCH_MAIN = "/actuation_angle/winch/winch_main"
+WINCH_JIB = "/actuation_angle/winch/winch_jib"
 WINCH_MAIN_ANGLE = "/actuation_angle/winch/winch_main/angle"
 WINCH_JIB_ANGLE = "/actuation_angle/winch/winch_jib/angle"
 
@@ -123,6 +145,8 @@ WIND1_UCCM_CURRENT = "/wind_sensor_1/uccm/current"
 WIND1_UCCM_VOLTAGE = "/wind_sensor_1/uccm/voltage"
 WIND1_UCCM_TEMP = "/wind_sensor_1/uccm/temperature"
 WIND1_UCCM_CURRENT = "/wind_sensor_1/uccm/status"
+
+WINCH1_UCCM = "/winch_motor_control_1"
 
 WIND2_UCCM_CURRENT = "/wind_sensor_2/uccm/current"
 WIND2_UCCM_VOLTAGE = "/wind_sensor_2/uccm/voltage"
