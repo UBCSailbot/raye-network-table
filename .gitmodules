@@ -26,3 +26,6 @@
 [submodule "projects/boat_controller"]
 	path = projects/boat_controller
 	url = https://github.com/UBCSailbot/boat_controller.git
+[submodule "projects/nuc_manual_override/sailbot-msg"]
+	path = projects/nuc_manual_override/sailbot-msg
+	url = https://github.com/UBCSailbot/sailbot-msg
