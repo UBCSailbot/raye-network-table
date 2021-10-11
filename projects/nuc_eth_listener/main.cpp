@@ -18,6 +18,11 @@
 #include "Controller.pb.h"
 #include "Uri.h"
 
+#define ROS_ACTUATION_NODE "/rudder_winch_actuation_angle"
+#define ROS_SENSORS_NODE   "sensors"
+#define ROS_WAYPOINTS_NODE "globalPath"
+#define ROS_AIS_NODE       "ais_msg"
+
 /*
  * Needed for communication over ethernet
  */
@@ -232,11 +237,11 @@ int main(int argc, char** argv) {
     }
     std::thread publish_sensor_data(PublishSensorData);
 
-    sensors_pub = n.advertise<sailbot_msg::Sensors>("sensors", 100);
-    ais_msg_pub = n.advertise<sailbot_msg::AISMsg>("ais_msg", 100);
-    waypoint_msg_pub = n.advertise<sailbot_msg::path>("globalPath", 100);
+    sensors_pub = n.advertise<sailbot_msg::Sensors>(ROS_SENSORS_NODE, 100);
+    ais_msg_pub = n.advertise<sailbot_msg::AISMsg>(ROS_AIS_NODE, 100);
+    waypoint_msg_pub = n.advertise<sailbot_msg::path>(ROS_WAYPOINTS_NODE, 100);
 
-    nt_sub = n.subscribe(ACTUATION, 100, ActuationCallBack);
+    nt_sub = n.subscribe(ROS_ACTUATION_NODE, 100, ActuationCallBack);
     // nt_sub = n.subscribe(POWER_CONTROLLER, 100, PowerControllerCallBack);
     ros::spin();
 
