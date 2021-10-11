@@ -203,7 +203,7 @@ pipeline {
                     }
                     steps {
                         dir("/home/debian/workspace/can_bbb_nuc_integration/") {
-                            sh './scripts/canbus_data_checker.py -c can0 > canbus_data_checker.log'
+                            //sh './scripts/canbus_data_checker.py -c can0 > canbus_data_checker.log'
 							sh './build/bin/viewtree'
                         }
                     }
@@ -225,8 +225,8 @@ pipeline {
                             sh 'cat bbb_satellite_listener.log'
                             echo "======== BBB virtual_iridium ========"
                             sh 'cat virtual_iridium.log'
-                            echo "======== BBB canbus_data_checker ========"
-                            sh 'cat canbus_data_checker.log'
+                            //echo "======== BBB canbus_data_checker ========"
+                            //sh 'cat canbus_data_checker.log'
                         }
                     }
                 }
