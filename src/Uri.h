@@ -5,6 +5,8 @@
 
 #define SAILENCODER_ANGLE "/sailencoder/sensor_data/angle"
 
+#define WIND_SPEED "/iimwv/wind_speed"
+#define WIND_ANGLE "/iimwv/wind_angle"
 #define WIND1_SPEED "/wind_sensor_1/iimwv/wind_speed"
 #define WIND1_ANGLE "/wind_sensor_1/iimwv/wind_angle"
 
@@ -43,6 +45,10 @@
 #define POWER_PWR "/bms/battery_state/pwr_engage" 
 #define POWER_MPPT "/bms/battery_state/mppt_engage" 
 
+#define BMS_CURRENT "/battery_pack_data/current"
+#define BMS_VOLTAGE "/battery_pack_data/total_voltage"
+#define BMS_MAXCELL "/battery_pack_data/max_cell"
+#define BMS_MINCELL "/battery_pack_data/min_cell"
 #define BMS1_CURRENT "/bms_1/battery_pack_data/current"
 #define BMS1_VOLTAGE "/bms_1/battery_pack_data/total_voltage"
 #define BMS1_MAXCELL "/bms_1/battery_pack_data/max_cell"
