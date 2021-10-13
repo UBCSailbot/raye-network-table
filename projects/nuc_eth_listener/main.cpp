@@ -25,6 +25,7 @@
  * We will be acting as subscriber to a new manual override node
  * Will create a new script to take in rudder angles as input
  */
+extern bool manual_override_flag = false;
 
 /*
  * Needed for communication over ethernet

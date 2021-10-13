@@ -9,6 +9,17 @@
 #include "sailbot_msg/actuation_angle.h"
 #include "Uri.h"
 
+// This is a global variable read in "nuc_eth_listener.cpp".
+bool manual_override_flag;
+
+/* 
+ * When testing without the network controller, we want to publish to
+ * "/rudder_winch_actuation_angle" instead of "/manual_overwrite". To
+ * make sure the nuc_eth_listener reads from "/rudder_winch_actuation_angle"
+ * in this case, the override_mask makes sure that manual_override_flag
+ * is always false.  
+ */
+bool override_mask;
 ros::Publisher manual_override_pub;
 
 void PublishManualOverride() {
@@ -21,7 +32,7 @@ void PublishManualOverride() {
         std::getline(std::cin, input);
 
         if (input == "stop") {
-            // set global manual override flag to false
+            manual_override_flag = false;
             std::cout << "Manual override suspended." << std::endl;
         } else if (input == "exit" || input == "quit") {
             std::cout << "Exiting manual override."<< std::endl;
@@ -39,7 +50,7 @@ void PublishManualOverride() {
 
                 std::cout << "Setting rudder angle to: " << rudder_angle_degrees
                 << " degrees, sail angle to: " << abs_sail_angle_degrees << " degrees." << std::endl;
-                // set global manual override flag to true
+                manual_override_flag = true & override_mask;
 
                 manual_override_pub.publish(ros_actuation_angle);
             } catch (const std::invalid_argument& ia) {
@@ -51,11 +62,16 @@ void PublishManualOverride() {
 
 
 int main(int argc, char** argv) {
+    std::cout << "Starting manual override." << std::endl;
     std::string topic;
     if (argc == 2 && std::string(argv[1]) == "test") {
-        topic = ACTUATION;
+        topic = "/rudder_winch_actuation_angle";
+        std::cout << "Controller is off, sending messages via: " << topic << std::endl;
+        override_mask = false;
     } else {
-        topic = "rudder_winch_actuation_angle";
+        topic = "/manual_override";
+        std::cout << "Controller is on, sending messages via: " << topic << std::endl;
+        override_mask = true;
     }
     ros::init(argc, argv, "nuc_manual_override");
 
