@@ -19,6 +19,14 @@
 #include "Uri.h"
 
 /*
+ * Manual override plan: Create a static global variable that indicates if we have manual override turned on.
+ * If it is, we drop any rudder angles sent over the ACTUATION node
+ * 
+ * We will be acting as subscriber to a new manual override node
+ * Will create a new script to take in rudder angles as input
+ */
+
+/*
  * Needed for communication over ethernet
  */
 zmq::context_t context(1);
