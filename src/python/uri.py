@@ -19,7 +19,7 @@ WIND2 = "/wind_sensor_2"
 WIND2_SPEED = "/wind_sensor_2/iimwv/wind_speed"
 WIND2_ANGLE = "/wind_sensor_2/iimwv/wind_angle"
 
-WIND2 = "/wind_sensor_3"
+WIND3 = "/wind_sensor_3"
 WIND3_SPEED = "/wind_sensor_3/iimwv/wind_speed"
 WIND3_ANGLE = "/wind_sensor_3/iimwv/wind_angle"
 

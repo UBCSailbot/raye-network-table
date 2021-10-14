@@ -86,20 +86,20 @@ int main() {
                     (GPS_CAN_LON, longitude));
 
             NetworkTable::Value ground_speed;
-            ground_speed.set_type(NetworkTable::Value::INT);
-            ground_speed.set_int_data(int_rand);
+            ground_speed.set_type(NetworkTable::Value::FLOAT);
+            ground_speed.set_float_data(float_rand);
             values.insert(std::pair<std::string, NetworkTable::Value>\
                     (GPS_CAN_GNDSPEED, ground_speed));
 
             NetworkTable::Value track_made_good;
-            track_made_good.set_type(NetworkTable::Value::INT);
-            track_made_good.set_int_data(int_rand);
+            track_made_good.set_type(NetworkTable::Value::FLOAT);
+            track_made_good.set_float_data(float_rand);
             values.insert(std::pair<std::string, NetworkTable::Value>\
                     (GPS_CAN_TMG, track_made_good));
 
             NetworkTable::Value magnetic_variation;
-            magnetic_variation.set_type(NetworkTable::Value::INT);
-            magnetic_variation.set_int_data(int_rand);
+            magnetic_variation.set_type(NetworkTable::Value::FLOAT);
+            magnetic_variation.set_float_data(float_rand);
             values.insert(std::pair<std::string, NetworkTable::Value>\
                     (GPS_CAN_MAGVAR, magnetic_variation));
 
@@ -189,13 +189,13 @@ int main() {
         }
 
         // SET winch motor control
-        float_rand = getRandFloat();
+        int_rand = getRandInt();
         try {
             std::map<std::string, NetworkTable::Value> values;
 
             NetworkTable::Value winch_angle;
-            winch_angle.set_type(NetworkTable::Value::FLOAT);
-            winch_angle.set_float_data(float_rand);
+            winch_angle.set_type(NetworkTable::Value::INT);
+            winch_angle.set_int_data(int_rand);
             values.insert(std::pair<std::string, NetworkTable::Value>\
                     (WINCH_MAIN_ANGLE, winch_angle));
             values.insert(std::pair<std::string, NetworkTable::Value>\
@@ -211,20 +211,23 @@ int main() {
         try {
             for (int i = 1; i <= 3; i++) {
                 std::map<std::string, NetworkTable::Value> values;
+                std::string uri;
 
+                uri = "/wind_sensor_" + std::to_string(i) + WIND_SPEED;
                 float_rand = getRandFloat();
                 NetworkTable::Value wind_speed;
                 wind_speed.set_type(NetworkTable::Value::FLOAT);
                 wind_speed.set_float_data(float_rand);
                 values.insert(std::pair<std::string, NetworkTable::Value>\
-                        ("wind_sensor_"+std::to_string(i)+WIND_SPEED, wind_speed));
+                        (uri, wind_speed));
 
-                float_rand = getRandFloat();
+                uri = "/wind_sensor_" + std::to_string(i) + WIND_ANGLE;
+                int_rand = getRandInt();
                 NetworkTable::Value wind_angle;
                 wind_angle.set_type(NetworkTable::Value::INT);
-                wind_angle.set_float_data(float_rand);
+                wind_angle.set_int_data(int_rand);
                 values.insert(std::pair<std::string, NetworkTable::Value>\
-                        ("wind_sensor_"+std::to_string(i)+WIND_ANGLE, wind_angle));
+                        (uri, wind_angle));
 
                 connection.SetValues(values);
             }
@@ -237,32 +240,37 @@ int main() {
         try {
             for (int i = 1; i <= 6; i++) {
                 std::map<std::string, NetworkTable::Value> values;
+                std::string uri;
 
                 int_rand = getRandInt();
 
+                uri = "/bms_" + std::to_string(i) + BMS_CURRENT;
                 NetworkTable::Value current;
                 current.set_type(NetworkTable::Value::INT);
                 current.set_int_data(int_rand);
                 values.insert(std::pair<std::string, NetworkTable::Value>\
-                        ("bms_"+std::to_string(i)+BMS_CURRENT, current));
+                        (uri, current));
 
+                uri = "/bms_" + std::to_string(i) + BMS_VOLTAGE;
                 NetworkTable::Value total_voltage;
                 total_voltage.set_type(NetworkTable::Value::INT);
                 total_voltage.set_int_data(int_rand);
                 values.insert(std::pair<std::string, NetworkTable::Value>\
-                        ("bms_"+std::to_string(i)+BMS_VOLTAGE, total_voltage));
+                        (uri, total_voltage));
 
+                uri = "/bms_" + std::to_string(i) + BMS_MAXCELL;
                 NetworkTable::Value maxcell;
                 maxcell.set_type(NetworkTable::Value::INT);
                 maxcell.set_int_data(int_rand);
                 values.insert(std::pair<std::string, NetworkTable::Value>\
-                        ("bms_"+std::to_string(i)+BMS_MAXCELL, maxcell));
+                        (uri, maxcell));
 
+                uri = "/bms_" + std::to_string(i) + BMS_MINCELL;
                 NetworkTable::Value mincell;
                 mincell.set_type(NetworkTable::Value::INT);
                 mincell.set_int_data(int_rand);
                 values.insert(std::pair<std::string, NetworkTable::Value>\
-                        ("bms_"+std::to_string(i)+BMS_MINCELL, mincell));
+                        (uri, mincell));
 
                 connection.SetValues(values);
             }
@@ -328,8 +336,9 @@ int main() {
             connection.SetValues(values);
         } catch (NetworkTable::TimeoutException) {
         } catch (...) {
-            std::cout << "Error setting accelerometer" << std::endl;
+            std::cout << "Error setting gyroscope" << std::endl;
         }
+
         std::this_thread::sleep_for(\
                 std::chrono::milliseconds(rand()%250));  // NOLINT(runtime/threadsafe_fn)
     }
