@@ -10,16 +10,20 @@ from nt_connection.Help import Help
 import nt_connection.uri
 import generated_python.Value_pb2 as Value_pb2
 import generated_python.Node_pb2 as Node_pb2
+import requests
 import websocket
 import json
 import random
+from datetime import datetime, timezone
+import argparse
 
 
 class NetworkTableListener:
-    def __init__(self, ws_connection):
+    def __init__(self, ws_connection, back_end_connection):
         web_socket = websocket.WebSocket()
         web_socket.connect(ws_connection)
         self.ws = web_socket
+        self.back_end_connection = back_end_connection + "/api/sensors"
 
     """
     The methods below should be used as a callback function when subscribing to the network table.
@@ -27,7 +31,7 @@ class NetworkTableListener:
     ex usage.)
     - Create a network table instance
     - Call the method subscribe and input the uri and the callback method for that uri
-    - network_table.subscribe('/wind_sensor_0', getWindSensorData)
+    - network_table.subscribe('/wind_sensor_1', getWindSensorData)
 
     """
 
@@ -38,6 +42,7 @@ class NetworkTableListener:
                 'sensor_id': uri,
                 'speed': node.children['iimwv'].children['wind_speed'].value.int_data,
                 'direction': node.children['iimwv'].children['wind_direction'].value.int_data
+                'timestamp': str(datetime.utcnow().replace(tzinfo=timezone.utc))
                 # 'current': node.children['uccm'].children['current'].value.int_data,
                 # 'voltage': node.children['uccm'].children['voltage'].value.int_data,
                 # 'temperature': node.children['uccm'].children['temperature'].value.int_data,
@@ -45,6 +50,7 @@ class NetworkTableListener:
             }
         )
         print(wind_sensor_data)
+        requests.post(self.back_end_connection + "/wind", data=wind_sensor_data)
         self.ws.send(wind_sensor_data)
 
     def getWinchMotorData(self, node, uri):
@@ -52,7 +58,8 @@ class NetworkTableListener:
             {
                 'sensor_type': 'winch_motor',
                 'sensor_id': uri,
-                'angle': node.children['angle'].value.int_data
+                'angle': node.children['angle'].value.int_data,
+                'timestamp': str(datetime.utcnow().replace(tzinfo=timezone.utc))
                 # 'current': node.children['uccm'].children['current'].value.int_data,
                 # 'voltage': node.children['uccm'].children['voltage'].value.int_data,
                 # 'temperature': node.children['uccm'].children['temperature'].value.int_data,
@@ -60,6 +67,7 @@ class NetworkTableListener:
             }
         )
         print(winch_sensor_data)
+        requests.post(self.back_end_connection + "/winch_motor", data=winch_sensor_data)
         self.ws.send(winch_sensor_data)
 
     def getSailencoderData(self, node, uri):
@@ -67,7 +75,8 @@ class NetworkTableListener:
             {
                 'sensor_type': 'sailencoder',
                 'sensor_id': uri,
-                'angle': node.children['boom_angle_data'].children['angle'].value.int_data
+                'angle': node.children['boom_angle_data'].children['angle'].value.int_data,
+                'timestamp': str(datetime.utcnow().replace(tzinfo=timezone.utc))
                 # 'current': node.children['uccm'].children['current'].value.int_data,
                 # 'voltage': node.children['uccm'].children['voltage'].value.int_data,
                 # 'temperature': node.children['uccm'].children['temperature'].value.int_data,
@@ -75,14 +84,16 @@ class NetworkTableListener:
             }
         )
         print(sailencoder_sensor_data)
+        requests.post(self.back_end_connection + "/sailencoder", data=sailencoder_sensor_data)
         self.ws.send(sailencoder_sensor_data)
 
     def getRudderMotorData(self, node, uri):
         rudder_motor_sensor_data = json.dumps(
             {
-                'sensor_type': 'ruddermotor',
+                'sensor_type': 'rudder_motor',
                 'sensor_id': uri,
-                'angle': node.children['angle'].value.int_data
+                'angle': node.children['angle'].value.int_data,
+                'timestamp': str(datetime.utcnow().replace(tzinfo=timezone.utc))
                 # 'current': node.children['uccm'].children['current'].value.int_data,
                 # 'voltage': node.children['uccm'].children['voltage'].value.int_data,
                 # 'temperature': node.children['uccm'].children['temperature'].value.int_data,
@@ -90,6 +101,7 @@ class NetworkTableListener:
             }
         )
         print(rudder_motor_sensor_data)
+        requests.post(self.back_end_connection + "/rudder_motor", data=rudder_motor_sensor_data)
         self.ws.send(rudder_motor_sensor_data)
 
     def getAccelerometerData(self, node, uri):
@@ -100,6 +112,7 @@ class NetworkTableListener:
                 'x_pos': node.children['boat_orientation_data'].children['x_axis_acceleration'].value.int_data,
                 'y_pos': node.children['boat_orientation_data'].children['y_axis_acceleration'].value.int_data,
                 'z_pos': node.children['boat_orientation_data'].children['z_axis_acceleration'].value.int_data,
+                'timestamp': str(datetime.utcnow().replace(tzinfo=timezone.utc))
                 # 'current': node.children['uccm'].children['current'].value.int_data,
                 # 'voltage': node.children['uccm'].children['voltage'].value.int_data,
                 # 'temperature': node.children['uccm'].children['temperature'].value.int_data,
@@ -107,6 +120,7 @@ class NetworkTableListener:
             }
         )
         print(accelerometer_sensor_data)
+        requests.post(self.back_end_connection + "/accelerometer", data=accelerometer_sensor_data)
         self.ws.send(accelerometer_sensor_data)
 
     def getBMSData(self, node, uri):
@@ -116,7 +130,8 @@ class NetworkTableListener:
                 'sensor_id': uri,
                 'battery_current': node.children['battery_pack_data'].children['current'].value.int_data,
                 'battery_voltage': node.children['battery_pack_data'].children['total_voltage'].value.int_data,
-                'battery_temperature': node.children['battery_pack_data'].children['temperature'].value.int_data
+                'battery_temperature': node.children['battery_pack_data'].children['temperature'].value.int_data,
+                'timestamp': str(datetime.utcnow().replace(tzinfo=timezone.utc))
                 # 'current': node.children['uccm'].children['current'].value.int_data,
                 # 'voltage': node.childrgetWinchMotorDataen['uccm'].children['total_voltage'].value.int_data,
                 # 'temperature': node.children['uccm'].children['temperature'].value.int_data,
@@ -124,6 +139,7 @@ class NetworkTableListener:
             }
         )
         print(bms_sensor_data)
+        requests.post(self.back_end_connection + "/bms", data=bms_sensor_data)
         self.ws.send(bms_sensor_data)
 
     def getGPSData(self, node, uri):
@@ -131,7 +147,7 @@ class NetworkTableListener:
             {
                 'sensor_type': 'gps',
                 'sensor_id': uri,
-                'utc_timestamp': node.children['gprmc'].children['utc_timestamp'].value.string_data,
+                'timestamp': node.children['gprmc'].children['utc_timestamp'].value.string_data,
                 'latitude': node.children['gprmc'].children['latitude'].value.float_data,
                 'longitude': node.children['gprmc'].children['longitude'].value.float_data,
                 'ground_speed': node.children['gprmc'].children['ground_speed'].value.int_data,
@@ -144,6 +160,7 @@ class NetworkTableListener:
             }
         )
         print(gps_sensor_data)
+        requests.post(self.back_end_connection + "/gps", gps_sensor_data)
         self.ws.send(gps_sensor_data)
 
     def getWaypointData(self, node, uri):
@@ -152,10 +169,12 @@ class NetworkTableListener:
                 'sensor_type': 'waypoint',
                 'sensor_id': uri,
                 'latitude': node.value.waypoints.latitude,
-                'longitude': node.value.waypoints.longitude
+                'longitude': node.value.waypoints.longitude,
+                'timestamp': str(datetime.utcnow().replace(tzinfo=timezone.utc))
             }
         )
         print(waypoint_data)
+        requests.post(self.back_end_connection + "/waypoint", data=waypoint_data)
         self.ws.send(waypoint_data)
 
     def getGyroscopeData(self, node, uri):
@@ -165,10 +184,12 @@ class NetworkTableListener:
                 'sensor_id': uri,
                 'x_velocity': node.children['x_velocity'].value.float_data,
                 'y_velocity': node.children['y_velocity'].value.float_data,
-                'z_velocity': node.children['z_velocity'].value.float_data
+                'z_velocity': node.children['z_velocity'].value.float_data,
+                'timestamp': str(datetime.utcnow().replace(tzinfo=timezone.utc))
             }
         )
         print(gyroscope_data)
+        requests.post(self.back_end_connection + "/gyroscope", data=gyroscope_data)
         self.ws.send(gyroscope_data)
 
     def getAISData(self, node, uri):
@@ -195,14 +216,35 @@ class NetworkTableListener:
                 'm_positionValid': node.children['m_positionValid'].value.bool_data,
                 'm_timeStampValid': node.children['m_timeStampValid'].value.bool_data,
                 'm_transcieverClass': node.children['m_transcieverClass'].value.int_data,
+                'timestamp': str(datetime.utcnow().replace(tzinfo=timezone.utc))
             }
         )
         print(ais_data)
+        requests.post(self.back_end_connection + "/ais", data=ais_data)
         self.ws.send(ais_data)
 
 
 def main():
-    network_table = NetworkTableListener('ws://localhost:8000/ws/networkTableData/')
+    parser = argparse.ArgumentParser(description="Runs on the land server"
+                                     "to poll and write to the network table")
+
+    parser.add_argument('-w',
+                        '--websocket_server',
+                        metavar='WEB_SOCKET_SERVER',
+                        type=str,
+                        help='server name for the websocket',
+                        required=True)
+
+    parser.add_argument('-b',
+                        '--backend_server',
+                        metavar='BACK_END_SERVER_PORT',
+                        type=str,
+                        help='server name for the backend server',
+                        required=True)
+
+    args = parser.parse_args()
+
+    network_table = NetworkTableListener(args.websocket_server, args.backend_server)
     nt_connection = Connection()
     print("Connecting to Network Table...")
     nt_connection.Connect()
