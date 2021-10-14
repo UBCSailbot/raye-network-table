@@ -157,11 +157,11 @@ void PublishSensorData() {
 
             // Wind Sensors
             sensors.wind_sensor_1_speed_knots = proto_sensors.wind_sensor_1().iimwv().wind_speed();
-            sensors.wind_sensor_1_angle_degrees = proto_sensors.wind_sensor_1().iimwv().wind_direction();
+            sensors.wind_sensor_1_angle_degrees = proto_sensors.wind_sensor_1().iimwv().wind_angle();
             sensors.wind_sensor_2_speed_knots = proto_sensors.wind_sensor_2().iimwv().wind_speed();
-            sensors.wind_sensor_2_angle_degrees = proto_sensors.wind_sensor_2().iimwv().wind_direction();
+            sensors.wind_sensor_2_angle_degrees = proto_sensors.wind_sensor_2().iimwv().wind_angle();
             sensors.wind_sensor_3_speed_knots = proto_sensors.wind_sensor_3().iimwv().wind_speed();
-            sensors.wind_sensor_3_angle_degrees = proto_sensors.wind_sensor_3().iimwv().wind_direction();
+            sensors.wind_sensor_3_angle_degrees = proto_sensors.wind_sensor_3().iimwv().wind_angle();
 
             // GPS
             sensors.gps_can_timestamp_utc = proto_sensors.gps_can().gprmc().utc_timestamp();
@@ -189,11 +189,11 @@ void PublishSensorData() {
 
             // Gyroscope
             sensors.gyroscope_x_velocity_millidegreesps = \
-                proto_sensors.gyroscope().angular_motion_data().x_angular_velocity();
+                proto_sensors.gyroscope().angular_motion_data().x_velocity();
             sensors.gyroscope_y_velocity_millidegreesps = \
-                proto_sensors.gyroscope().angular_motion_data().y_angular_velocity();
+                proto_sensors.gyroscope().angular_motion_data().y_velocity();
             sensors.gyroscope_z_velocity_millidegreesps = \
-                proto_sensors.gyroscope().angular_motion_data().z_angular_velocity();
+                proto_sensors.gyroscope().angular_motion_data().z_velocity();
 
             sensors_pub.publish(sensors);
             ais_msg_pub.publish(ais_msg);

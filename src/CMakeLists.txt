@@ -31,8 +31,6 @@ set(NT_CLIENT_HDRS
 # files we don't need, and compile time
 # on the BBB is already slow enough
 protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS
-    protofiles/network_table/ActuationAngle.proto
-    protofiles/network_table/PowerController.proto
     protofiles/network_table/Node.proto
     protofiles/network_table/Reply.proto
     protofiles/network_table/Request.proto
