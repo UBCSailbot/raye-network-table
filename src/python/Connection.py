@@ -161,9 +161,6 @@ class Connection:
             if reply_node.type == Reply_pb2.Reply.Type.SUBSCRIBE:
                 uri = reply_node.subscribe_reply.uri
                 if self.callbacks[uri] is not None:
-                    node_container = self.getNodes([uri])
-                    subscribed_node = Node_pb2.Node()
-                    subscribed_node.CopyFrom(node_container[uri])
-                    self.callbacks[uri](subscribed_node, uri)
+                    self.callbacks[uri](reply_node.subscribe_reply.node, uri)
             elif reply_node.type == Reply_pb2.Reply.Type.ERROR:
                 raise ConnectionError(reply_node.error_reply.message_data)
