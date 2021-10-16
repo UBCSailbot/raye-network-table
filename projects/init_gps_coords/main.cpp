@@ -5,6 +5,7 @@
 #include "Connection.h"
 #include "Value.pb.h"
 #include <iostream>
+#include "Uri.h"
 
 /*
  * This program fakes
@@ -19,16 +20,16 @@ int main() {
         return 0;
     }
 
-    int lat = 48;
-    int lon = 235;
+    float lat = 48.0;
+    float lon = 235.0;
     NetworkTable::Value lat_val;
-    lat_val.set_type(NetworkTable::Value::INT);
+    lat_val.set_type(NetworkTable::Value::FLOAT);
     NetworkTable::Value lon_val;
-    lon_val.set_type(NetworkTable::Value::INT);
-    lat_val.set_int_data(lat);
-    lon_val.set_int_data(lon);
-    connection.SetValue("gps/gprmc/longitude", lon_val);
-    connection.SetValue("gps/gprmc/latitude", lat_val);
+    lon_val.set_type(NetworkTable::Value::FLOAT);
+    lat_val.set_float_data(lat);
+    lon_val.set_float_data(lon);
+    connection.SetValue(GPS_CAN_LON, lon_val);
+    connection.SetValue(GPS_CAN_LAT, lat_val);
 
     connection.Disconnect();
 }

@@ -53,15 +53,15 @@ NetworkTable::Connection connection;
  *  @param id     wind sensor id should be 1, 2, or 3
  *
  */
-void SetWindSensorData(int angle, int speed, const std::string &id) {
+void SetWindSensorData(int angle, float speed, const std::string &id) {
     // Assign values to new network table nodes
     NetworkTable::Value angle_nt;
     angle_nt.set_type(NetworkTable::Value::INT);
     angle_nt.set_int_data(static_cast<int>(angle));
 
     NetworkTable::Value speed_nt;
-    speed_nt.set_type(NetworkTable::Value::INT);
-    speed_nt.set_int_data(static_cast<int>(speed));
+    speed_nt.set_type(NetworkTable::Value::FLOAT);
+    speed_nt.set_float_data(static_cast<float>(speed));
 
     std::cout << "WindSensor" << id << std::endl;
     std::cout << "Angle: " << std::to_string(angle) \
@@ -164,6 +164,7 @@ void PowerControllerCallback(NetworkTable::Node node, \
     for (const auto& uris : diffs) {
         std::string uri = uris.first;
 
+        // TODO(brielle&john): not accessing battery_state's children nodes
         // Verify updated node corresponds to power controller output
         if (uri == POWER_CONTROLLER) {
             frame.can_id = BMS_CMD_FRAME_ID;
@@ -252,7 +253,7 @@ int main(int argc, char **argv) {
     // Subscribe to Power Controller node in the network-table
     while (!is_subscribed) {
         try {
-            connection.Subscribe(POWER, &PowerControllerCallback);
+            connection.Subscribe(BMS, &PowerControllerCallback);
             is_subscribed = true;
         }
         catch (NetworkTable::NotConnectedException) {
@@ -270,21 +271,21 @@ int main(int argc, char **argv) {
             case WIND_SENS1_FRAME_ID : {
                 std::cout << "Received Wind Sensor 0 Frame" << std::endl;
                 int angle = GET_WIND_ANGLE(frame.data);
-                int speed = GET_WIND_SPEED(frame.data);
+                float speed = GET_WIND_SPEED(frame.data);
                 SetWindSensorData(angle, speed, "1");
                 break;
             }
             case WIND_SENS2_FRAME_ID : {
                 std::cout << "Received Wind Sensor 1 Frame" << std::endl;
                 int angle = GET_WIND_ANGLE(frame.data);
-                int speed = GET_WIND_SPEED(frame.data);
+                float speed = GET_WIND_SPEED(frame.data);
                 SetWindSensorData(angle, speed, "2");
                 break;
             }
             case WIND_SENS3_FRAME_ID : {
                 std::cout << "Received Wind Sensor 2 Frame" << std::endl;
                 int angle = GET_WIND_ANGLE(frame.data);
-                int speed = GET_WIND_SPEED(frame.data);
+                float speed = GET_WIND_SPEED(frame.data);
                 SetWindSensorData(angle, speed, "3");
                 break;
             }
@@ -368,24 +369,24 @@ int main(int argc, char **argv) {
                 std::map<std::string, NetworkTable::Value> values;
                 NetworkTable::Value gps_gndSpeed;
                 float gndSpeed = GET_GPS_GND_SPEED(frame.data);
-                gps_gndSpeed.set_type(NetworkTable::Value::INT);
-                gps_gndSpeed.set_int_data(static_cast<int>(gndSpeed));
+                gps_gndSpeed.set_type(NetworkTable::Value::FLOAT);
+                gps_gndSpeed.set_float_data(static_cast<float>(gndSpeed));
                 values.insert(std::pair<std::string, NetworkTable::Value>\
                         (GPS_CAN_GNDSPEED, gps_gndSpeed));
                 std::cout << "gnd speed = " << gndSpeed << " " << std::endl;
 
                 NetworkTable::Value gps_magVar;
                 float magVar = GET_GPS_MAG_VAR(frame.data);
-                gps_magVar.set_type(NetworkTable::Value::INT);
-                gps_magVar.set_int_data(static_cast<int>(magVar));
+                gps_magVar.set_type(NetworkTable::Value::FLOAT);
+                gps_magVar.set_float_data(static_cast<float>(magVar));
                 values.insert((std::pair<std::string, NetworkTable::Value>\
                         (GPS_CAN_MAGVAR, gps_magVar)));
                 std::cout << "mag var =  " << magVar << " " << std::endl;
 
                 NetworkTable::Value gps_TMG;
                 float gpsTMG = GET_GPS_TMG(frame.data);
-                gps_TMG.set_type(NetworkTable::Value::INT);
-                gps_TMG.set_int_data(static_cast<int>(gpsTMG));
+                gps_TMG.set_type(NetworkTable::Value::FLOAT);
+                gps_TMG.set_float_data(static_cast<float>(gpsTMG));
                 values.insert(std::pair<std::string, NetworkTable::Value>\
                         (GPS_CAN_TMG, gps_TMG));
                 std::cout << "gps tmg =  " << gpsTMG << " " << std::endl;
@@ -505,23 +506,23 @@ int main(int argc, char **argv) {
 
                 std::map<std::string, NetworkTable::Value> values;
                 NetworkTable::Value bms_volt_data;
-                uint16_t volt_data = GET_BMS_VOLT_DATA(frame.data);
-                bms_volt_data.set_type(NetworkTable::Value::INT);
-                bms_volt_data.set_int_data(volt_data);
+                float volt_data = GET_BMS_BATTERY_VOLT_DATA(frame.data);
+                bms_volt_data.set_type(NetworkTable::Value::FLOAT);
+                bms_volt_data.set_float_data(volt_data);
                 values.insert(std::pair<std::string, NetworkTable::Value>\
                         (BMS1_VOLTAGE, bms_volt_data));
                 std::cout << "volt_data:" << volt_data << std::endl;
 
                 NetworkTable::Value bms_curr_data;
-                uint16_t curr_data = GET_BMS_CURR_DATA(frame.data);
-                bms_curr_data.set_type(NetworkTable::Value::INT);
-                bms_curr_data.set_int_data(curr_data);
+                float curr_data = GET_BMS_BATTERY_CURR_DATA(frame.data);
+                bms_curr_data.set_type(NetworkTable::Value::FLOAT);
+                bms_curr_data.set_float_data(curr_data);
                 values.insert(std::pair<std::string, NetworkTable::Value>\
                         (BMS1_CURRENT, bms_curr_data));
                 std::cout << "curr_data:" << curr_data << std::endl;
 
                 NetworkTable::Value bms_maxcell_data;
-                uint16_t maxcell_data = GET_BMS_MAXCELL_DATA(frame.data);
+                uint16_t maxcell_data = GET_BMS_BATTERY_MAX_VOLT_DATA(frame.data);
                 bms_maxcell_data.set_type(NetworkTable::Value::INT);
                 bms_maxcell_data.set_int_data(maxcell_data);
                 values.insert(std::pair<std::string, NetworkTable::Value>\
@@ -529,7 +530,7 @@ int main(int argc, char **argv) {
                 std::cout << "maxcell_data:" << maxcell_data << std::endl;
 
                 NetworkTable::Value bms_mincell_data;
-                uint16_t mincell_data = GET_BMS_MINCELL_DATA(frame.data);
+                uint16_t mincell_data = GET_BMS_BATTERY_MIN_VOLT_DATA(frame.data);
                 bms_mincell_data.set_type(NetworkTable::Value::INT);
                 bms_mincell_data.set_int_data(mincell_data);
                 values.insert(std::pair<std::string, NetworkTable::Value>\
@@ -549,25 +550,25 @@ int main(int argc, char **argv) {
                 std::cout << "Received Accel Frame:" << std::endl;
                 NetworkTable::Value accel_x_pos;
                 std::map<std::string, NetworkTable::Value> values;
-                int16_t x_pos = GET_ACCEL_X_DATA(frame.data);
-                accel_x_pos.set_type(NetworkTable::Value::INT);
-                accel_x_pos.set_int_data(static_cast<int>(x_pos));
+                float x_pos = GET_ACCEL_X_DATA(frame.data);
+                accel_x_pos.set_type(NetworkTable::Value::FLOAT);
+                accel_x_pos.set_float_data(static_cast<float>(x_pos));
                 values.insert(std::pair<std::string, NetworkTable::Value>\
                         (ACCELEROMETER_X, accel_x_pos));
                 std::cout << "x_pos " << x_pos << std::endl;
 
                 NetworkTable::Value accel_y_pos;
-                int16_t y_pos = GET_ACCEL_Y_DATA(frame.data);
-                accel_y_pos.set_type(NetworkTable::Value::INT);
-                accel_y_pos.set_int_data(static_cast<int>(y_pos));
+                float y_pos = GET_ACCEL_Y_DATA(frame.data);
+                accel_y_pos.set_type(NetworkTable::Value::FLOAT);
+                accel_y_pos.set_float_data(static_cast<float>(y_pos));
                 values.insert(std::pair<std::string, NetworkTable::Value>\
                         (ACCELEROMETER_Y, accel_y_pos));
                 std::cout << "y_pos " << y_pos << std::endl;
 
                 NetworkTable::Value accel_z_pos;
-                int16_t z_pos = GET_ACCEL_Z_DATA(frame.data);
-                accel_z_pos.set_type(NetworkTable::Value::INT);
-                accel_z_pos.set_int_data(static_cast<int>(z_pos));
+                float z_pos = GET_ACCEL_Z_DATA(frame.data);
+                accel_z_pos.set_type(NetworkTable::Value::FLOAT);
+                accel_z_pos.set_float_data(static_cast<float>(z_pos));
                 values.insert(std::pair<std::string, NetworkTable::Value>\
                         (ACCELEROMETER_Z, accel_z_pos));
                 std::cout << "z_pos " << z_pos << std::endl;

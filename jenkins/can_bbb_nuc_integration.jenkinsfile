@@ -180,7 +180,7 @@ pipeline {
                             sh 'JENKINS_NODE_COOKIE=nokill nohup ./projects/land_satellite_listener/land_satellite_listener.py -p 8000 -e http://10.0.0.3:8085 -f 5 -u SEC --bind 10.0.0.1 > land_satellite_listener.log &'
                         }
                         dir("/var/lib/jenkins/workspace/can_bbb_nuc_integration/projects/global-pathfinding/") {
-                            sh './build/bin/pathfinder_cli -p 8 --table --navigate 21 203 > global_pathfinding.log 2>&1'
+                            sh './build/bin/pathfinder_cli -p 8 --navigate 48 235 21 203 > global_pathfinding.log 2>&1'
                         }
                     }
                 }

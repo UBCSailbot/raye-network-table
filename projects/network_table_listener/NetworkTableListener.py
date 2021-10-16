@@ -41,7 +41,7 @@ class NetworkTableListener:
                 'sensor_type': 'wind',
                 'sensor_id': uri,
                 'speed': node.children['iimwv'].children['wind_speed'].value.float_data,
-                'direction': node.children['iimwv'].children['wind_angle'].value.int_data,
+                'angle': node.children['iimwv'].children['wind_angle'].value.int_data,
                 'timestamp': str(datetime.utcnow().replace(tzinfo=timezone.utc))
                 # 'current': node.children['uccm'].children['current'].value.int_data,
                 # 'voltage': node.children['uccm'].children['voltage'].value.int_data,
@@ -75,7 +75,7 @@ class NetworkTableListener:
             {
                 'sensor_type': 'sailencoder',
                 'sensor_id': uri,
-                'angle': node.children['sensor_data'].children['angle'].value.int_data,
+                'angle': node.children['boom_angle_data'].children['angle'].value.int_data,
                 'timestamp': str(datetime.utcnow().replace(tzinfo=timezone.utc))
                 # 'current': node.children['uccm'].children['current'].value.int_data,
                 # 'voltage': node.children['uccm'].children['voltage'].value.int_data,
@@ -128,8 +128,8 @@ class NetworkTableListener:
             {
                 'sensor_type': 'bms',
                 'sensor_id': uri,
-                'battery_current': node.children['battery_pack_data'].children['current'].value.int_data,
-                'battery_voltage': node.children['battery_pack_data'].children['total_voltage'].value.int_data,
+                'battery_current': node.children['battery_pack_data'].children['battery_current'].value.float_data,
+                'battery_voltage': node.children['battery_pack_data'].children['battery_voltage'].value.float_data,
                 'timestamp': str(datetime.utcnow().replace(tzinfo=timezone.utc))
                 # 'current': node.children['uccm'].children['current'].value.int_data,
                 # 'voltage': node.childrgetWinchMotorDataen['uccm'].children['total_voltage'].value.int_data,
@@ -182,9 +182,9 @@ class NetworkTableListener:
             {
                 'sensor_type': 'gyroscope',
                 'sensor_id': uri,
-                'x_velocity': node.children['x_velocity'].value.float_data,
-                'y_velocity': node.children['y_velocity'].value.float_data,
-                'z_velocity': node.children['z_velocity'].value.float_data,
+                'x_velocity': node.children['angular_motion_data'].children['x_velocity'].value.float_data,
+                'y_velocity': node.children['angular_motion_data'].children['y_velocity'].value.float_data,
+                'z_velocity': node.children['angular_motion_data'].children['z_velocity'].value.float_data,
                 'timestamp': str(datetime.utcnow().replace(tzinfo=timezone.utc))
             }
         )
