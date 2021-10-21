@@ -110,6 +110,7 @@ pipeline {
                         // compile global pathfinding
                         dir("/var/lib/jenkins/workspace/can_bbb_nuc_integration/projects/global-pathfinding/") {
                             sh '''
+                                ./configure
                                 mkdir -p build
                                 cd build
                                 cmake ..
