@@ -9,5 +9,9 @@ if (NOT ENABLE_ROS)
 add_subdirectory(lib/googletest)
 endif()
 
+if (ENABLE_ROS)
+add_subdirectory(mock_gps_tests)
+endif()
+
 # Include test categories
 add_subdirectory(basic_tests)
