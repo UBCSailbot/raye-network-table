@@ -24,7 +24,7 @@
 #define ROS_SENSORS_NODE   "sensors"
 #define ROS_WAYPOINTS_NODE "globalPath"
 #define ROS_AIS_NODE       "ais_msg"
-#define MOCK_GPS_NODE      "placeholder"  // Do not know the actual node, temporary placeholder.
+#define MOCK_GPS_NODE      "mock_gps"  // Do not know the actual node, temporary placeholder.
 
 /*
  * Needed for communication over ethernet
@@ -53,7 +53,7 @@ void MockGPSCallBack(const sailbot_msg::latlon coords) {
     if (ros::ok()) {
         NetworkTable::Controller controller;
 
-        controller.set_type(NetworkTable::Controller::MockGPS);
+        controller.set_type(NetworkTable::Controller::MOCK_GPS_DATA);
         controller.mutable_mock_gps_data()->set_latitude(coords.lat);
         controller.mutable_mock_gps_data()->set_longitude(coords.lon);
 
@@ -254,7 +254,7 @@ int main(int argc, char** argv) {
         return 0;
     }
 
-    ros::init(argc, argv, "nuc_eth_listener");
+    ros::init(argc, argv, "mock_gps_nuc_eth_listener");
     ros::NodeHandle n;
 
     try {
