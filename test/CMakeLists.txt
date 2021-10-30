@@ -15,3 +15,4 @@ endif()
 
 # Include test categories
 add_subdirectory(basic_tests)
+add_subdirectory(bbb_eth_listener_test)
