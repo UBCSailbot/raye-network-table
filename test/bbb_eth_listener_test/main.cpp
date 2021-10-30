@@ -181,7 +181,7 @@ int main(int argc, char *argv[]) {
                         (GPS_CAN_LAT, latitude));
 
                 std::cout << "received longitude: " << controller_data.mock_gps_data().longitude() \
-                    << "received latitude: " << controller_data.mock_gps_data().latitude() << std::endl;
+                    << "\nreceived latitude: " << controller_data.mock_gps_data().latitude() << std::endl;
             } else if (controller_data.type() == NetworkTable::Controller::POWER_DATA) {
                 // Create new nodes populated with the outputted power controller states
                 NetworkTable::Value pv_mppt;
