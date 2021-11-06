@@ -42,7 +42,7 @@ class NetworkTableListener:
                 'sensor_id': uri,
                 'speed': node.children['iimwv'].children['wind_speed'].value.float_data,
                 'angle': node.children['iimwv'].children['wind_angle'].value.int_data,
-                'timestamp': str(datetime.utcnow().replace(tzinfo=timezone.utc))
+                'timestamp': datetime.today().replace(microsecond=0)
                 # 'current': node.children['uccm'].children['current'].value.int_data,
                 # 'voltage': node.children['uccm'].children['voltage'].value.int_data,
                 # 'temperature': node.children['uccm'].children['temperature'].value.int_data,
@@ -59,7 +59,7 @@ class NetworkTableListener:
                 'sensor_type': 'winch_motor',
                 'sensor_id': uri,
                 'angle': node.children['angle'].value.int_data,
-                'timestamp': str(datetime.utcnow().replace(tzinfo=timezone.utc))
+                'timestamp': datetime.today().replace(microsecond=0)
                 # 'current': node.children['uccm'].children['current'].value.int_data,
                 # 'voltage': node.children['uccm'].children['voltage'].value.int_data,
                 # 'temperature': node.children['uccm'].children['temperature'].value.int_data,
@@ -76,7 +76,7 @@ class NetworkTableListener:
                 'sensor_type': 'sailencoder',
                 'sensor_id': uri,
                 'angle': node.children['boom_angle_data'].children['angle'].value.int_data,
-                'timestamp': str(datetime.utcnow().replace(tzinfo=timezone.utc))
+                'timestamp': datetime.today().replace(microsecond=0)
                 # 'current': node.children['uccm'].children['current'].value.int_data,
                 # 'voltage': node.children['uccm'].children['voltage'].value.int_data,
                 # 'temperature': node.children['uccm'].children['temperature'].value.int_data,
@@ -93,7 +93,7 @@ class NetworkTableListener:
                 'sensor_type': 'rudder_motor',
                 'sensor_id': uri,
                 'angle': node.children['angle'].value.float_data,
-                'timestamp': str(datetime.utcnow().replace(tzinfo=timezone.utc))
+                'timestamp': datetime.today().replace(microsecond=0)
                 # 'current': node.children['uccm'].children['current'].value.int_data,
                 # 'voltage': node.children['uccm'].children['voltage'].value.int_data,
                 # 'temperature': node.children['uccm'].children['temperature'].value.int_data,
@@ -112,7 +112,7 @@ class NetworkTableListener:
                 'x_pos': node.children['boat_orientation_data'].children['x_axis_acceleration'].value.float_data,
                 'y_pos': node.children['boat_orientation_data'].children['y_axis_acceleration'].value.float_data,
                 'z_pos': node.children['boat_orientation_data'].children['z_axis_acceleration'].value.float_data,
-                'timestamp': str(datetime.utcnow().replace(tzinfo=timezone.utc))
+                'timestamp': datetime.today().replace(microsecond=0)
                 # 'current': node.children['uccm'].children['current'].value.int_data,
                 # 'voltage': node.children['uccm'].children['voltage'].value.int_data,
                 # 'temperature': node.children['uccm'].children['temperature'].value.int_data,
@@ -130,7 +130,7 @@ class NetworkTableListener:
                 'sensor_id': uri,
                 'battery_current': node.children['battery_pack_data'].children['battery_current'].value.float_data,
                 'battery_voltage': node.children['battery_pack_data'].children['battery_voltage'].value.float_data,
-                'timestamp': str(datetime.utcnow().replace(tzinfo=timezone.utc))
+                'timestamp': datetime.today().replace(microsecond=0)
                 # 'current': node.children['uccm'].children['current'].value.int_data,
                 # 'voltage': node.childrgetWinchMotorDataen['uccm'].children['total_voltage'].value.int_data,
                 # 'temperature': node.children['uccm'].children['temperature'].value.int_data,
@@ -146,7 +146,7 @@ class NetworkTableListener:
             {
                 'sensor_type': 'gps',
                 'sensor_id': uri,
-                'timestamp': node.children['gprmc'].children['utc_timestamp'].value.string_data,
+                'timestamp': datetime.today().replace(microsecond=0),
                 'latitude': node.children['gprmc'].children['latitude'].value.float_data,
                 'longitude': node.children['gprmc'].children['longitude'].value.float_data,
                 'ground_speed': node.children['gprmc'].children['ground_speed'].value.float_data,
@@ -170,7 +170,7 @@ class NetworkTableListener:
                 'sensor_id': uri,
                 'latitude': node.value.waypoints.latitude,
                 'longitude': node.value.waypoints.longitude,
-                'timestamp': str(datetime.utcnow().replace(tzinfo=timezone.utc))
+                'timestamp': datetime.today().replace(microsecond=0)
             }
         )
         print(waypoint_data)
@@ -185,7 +185,7 @@ class NetworkTableListener:
                 'x_velocity': node.children['angular_motion_data'].children['x_velocity'].value.float_data,
                 'y_velocity': node.children['angular_motion_data'].children['y_velocity'].value.float_data,
                 'z_velocity': node.children['angular_motion_data'].children['z_velocity'].value.float_data,
-                'timestamp': str(datetime.utcnow().replace(tzinfo=timezone.utc))
+                'timestamp': datetime.today().replace(microsecond=0)
             }
         )
         print(gyroscope_data)
@@ -216,7 +216,7 @@ class NetworkTableListener:
                 'm_positionValid': node.children['m_positionValid'].value.bool_data,
                 'm_timeStampValid': node.children['m_timeStampValid'].value.bool_data,
                 'm_transcieverClass': node.children['m_transcieverClass'].value.int_data,
-                'timestamp': str(datetime.utcnow().replace(tzinfo=timezone.utc))
+                'timestamp': datetime.today().replace(microsecond=0)
             }
         )
         print(ais_data)
