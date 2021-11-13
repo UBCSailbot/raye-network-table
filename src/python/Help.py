@@ -64,7 +64,7 @@ class Help:
         val = self.create_float_val(sensors.gps_can.gprmc.magnetic_variation)
         values[GPS_CAN_MAGVAR] = val
         val = self.create_float_val(sensors.gps_can.gprmc.true_heading)
-        values[GPS_CAN_MAGVAR] = val
+        values[GPS_CAN_TRUE_HEADING] = val
         val = self.create_bool_val(sensors.gps_can.gprmc.data_valid)
         values[GPS_CAN_VALID] = val
         val = self.create_bool_val(sensors.gps_can.gprmc.magvar_west)
