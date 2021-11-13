@@ -21,7 +21,7 @@
 #define ROS_ACTUATION_NODE "/rudder_winch_actuation_angle"
 #define ROS_SENSORS_NODE   "sensors"
 #define ROS_WAYPOINTS_NODE "globalPath"
-#define ROS_AIS_NODE       "ais_msg"
+#define ROS_AIS_NODE       "AIS"
 
 /*
  * Needed for communication over ethernet
