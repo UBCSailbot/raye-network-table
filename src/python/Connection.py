@@ -38,6 +38,7 @@ class Connection:
         be called to get and set data in the network table.
         """
         assert not self.connected
+        # TODO: handle timeout error, interrupt error, reference Connection.cpp
 
         # Send a request to connect to the network table
         init_socket = self.context.socket(zmq.REQ)

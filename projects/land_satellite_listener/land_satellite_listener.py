@@ -52,6 +52,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
                 if sat.type == Satellite_pb2.Satellite.Type.SENSORS:
                     print("Receiving Sensor Data")
                     values = helper.sensors_to_root(sat.sensors)
+                    # TODO: handle exception with try/catch
                     self.nt_connection.setValues(values)
 
                 elif sat.type == Satellite_pb2.Satellite.Type.UCCMS:
@@ -138,6 +139,8 @@ class runClient(threading.Thread):
                 # Check connection to network table
                 assert self.nt_connection.connected
                 uris = ["waypoints"]
+
+                # TODO: surround in try/except block to catch exceptions raised by getNodes
                 node_container = self.nt_connection.getNodes(uris)
 
                 node = Node_pb2.Node()
@@ -250,6 +253,10 @@ def main():
     print("serving at port", args.port)
     print("Connecting to network table")
     nt_connection = Connection()
+
+    # TODO: We don't check if calling Connect() triggers an exception
+    # We can surround this in a try/except block
+    # Need to throw errors (ie. timeout) in src/python/Connection.py
     nt_connection.Connect()
 
     server = runServer(args.port, args.bind, nt_connection, args.ip_addresses)
