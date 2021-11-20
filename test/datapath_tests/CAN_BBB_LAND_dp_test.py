@@ -8,6 +8,7 @@ For the tests, run the following:
 On the BBB:
 ~$ network_table_server &
 ~$ bbb_canbus_listener vcan0 &
+<<<<<<< HEAD
 ~$ bbb_satellite_listener 5000 5000 5000 /dev/ttyS2 &
 
 On the Landserver:
@@ -15,6 +16,12 @@ On the Landserver:
 ex.
 ~$ python3 land_satellite_listener.py -p 8000 -e http://rockblock.rock7.com/rockblock/MT -f 10 -u SEC -b 70.36.55.243 
     -n [LOGIN USERNAME] -w [PASSWORD] -r 300234068129370 -i 212.71.235.32
+=======
+~$ bbb_rockblock_listener ... (not sure, see bbb_satellite_listener)
+
+On the Landserver:
+~$ python3 land_satellite_listener -p [PORT] -e [ENDPOINT] -f [FREQUENCY] -u [TIME] -n [LOGIN USERNAME] -w [PASSWORD]
+>>>>>>> d7c7a61814f3f8d3e2c7db95b2a899d68a96989b
 """
 
 import time
