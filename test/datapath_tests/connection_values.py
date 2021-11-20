@@ -15,6 +15,14 @@ from nt_connection.Connection import Connection
 import generated_python.Node_pb2 as Node_pb2
 import argparse
 
+# Function that filters the uri
+def isFloatValue(uri_item):
+    return ('latitude' in uri_item or 'longitude' in uri_item
+            or 'rudder' in uri_item or 'winch' in uri_item
+            or 'gyroscope' in uri_item or 'ground_speed' in uri_item
+            or 'magnetic_variation' in uri_item
+            or 'track_made_good' in uri_item
+            or 'true_heading' in uri_item)
 
 # NOTE: we might get an error here that says the value hasn't been
 # populated in the network table
@@ -42,9 +50,7 @@ def main():
         # Value_pb2.py in the src/generated_python folder
         if 'status' in item or 'valid' in item or 'utc_timestamp' in item:
             node_list.append(node.value.string_data)
-        elif 'latitude' in item or 'longitude' in item or 'rudder' in item or 'winch' in item:
-            node_list.append(node.value.float_data)
-        elif 'gyroscope' in item:
+        elif isFloatValue(item):
             node_list.append(node.value.float_data)
         else:
             node_list.append(node.value.int_data)

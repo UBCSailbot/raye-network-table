@@ -138,7 +138,7 @@ def main():
     # Just focus on GPS sensor data for now
     CAN_bus_filter = ["GPS_CAN_DATE_FRAME", "GPS_CAN_LAT_FRAME", "GPS_CAN_LON_FRAME", "GPS_CAN_OTHER_FRAME"] 
     test_data = make_dummy_tests(CAN_bus_filter, Test_Data, CAN_to_URI_to_ROStopic)
-
+    
     bbb_can_test_thread = threading.Thread( name="test_bbb_can",
                                             target=test_bbb_can,    
                                             args=(bbb_client, test_data))
