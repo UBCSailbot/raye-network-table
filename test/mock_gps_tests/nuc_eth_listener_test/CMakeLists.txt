@@ -1,4 +1,4 @@
-set(NUC_MOCK_GPS_TEST nuc_mock_gps_tests)
+set(NUC_MOCK_GPS_TEST nuc_eth_listener_test)
 
 if (NOT TARGET sailbot_msg_generate_messages_cpp)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../projects/nuc_eth_listener/sailbot-msg 
@@ -7,7 +7,7 @@ endif()
 
 project(${NUC_MOCK_GPS_TEST} CXX)
 
-set(${NUC_MOCK_GPS_TEST}_SRCS MockGPSNucTest.cpp)
+set(${NUC_MOCK_GPS_TEST}_SRCS main.cpp)
 
 add_executable(${NUC_MOCK_GPS_TEST} ${${NUC_MOCK_GPS_TEST}_SRCS})
 

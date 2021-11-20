@@ -10,9 +10,9 @@ add_subdirectory(lib/googletest)
 endif()
 
 if (ENABLE_ROS)
-add_subdirectory(mock_gps_tests)
+add_subdirectory(mock_gps_tests/nuc_eth_listener_test)
 endif()
 
 # Include test categories
 add_subdirectory(basic_tests)
-add_subdirectory(bbb_eth_listener_test)
+add_subdirectory(mock_gps_tests/bbb_eth_listener_test)
