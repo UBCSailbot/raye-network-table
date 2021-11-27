@@ -52,6 +52,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
                 if sat.type == Satellite_pb2.Satellite.Type.SENSORS:
                     print("Receiving Sensor Data")
                     values = helper.sensors_to_root(sat.sensors)
+                    # TODO: handle exception with try/catch
                     self.nt_connection.setValues(values)
 
                 elif sat.type == Satellite_pb2.Satellite.Type.UCCMS:
