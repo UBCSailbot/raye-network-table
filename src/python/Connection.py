@@ -1,4 +1,5 @@
 import zmq
+import time
 from generated_python import Reply_pb2
 from generated_python import Request_pb2
 from generated_python import Node_pb2
@@ -46,12 +47,27 @@ class Connection:
         init_socket.send(b'connect\x00')
 
         # Reply will contain location to connect to with ZMQ_PAIR
-        reply = init_socket.recv()
-        reply_body = 'ipc://'
-        reply_body += reply.decode('utf-8')
-        self.socket = self.context.socket(zmq.PAIR)
-        self.socket.connect(reply_body)
-        self.connected = True
+        print("testing")
+            
+        delaycount = 0
+        while not self.connected and delaycount < 5000:
+            try:
+                reply = init_socket.recv(flags=zmq.NOBLOCK)
+            #print(reply.decode('utf-8'))
+            
+                reply_body = 'ipc://'
+                reply_body += reply.decode('utf-8')
+                self.socket = self.context.socket(zmq.PAIR)
+                self.socket.connect(reply_body)
+                self.connected = True
+                return
+        
+            except zmq.Again:
+                delaycount += 1
+                time.sleep(1)
+        
+        print("timeout")
+        raise ConnectionError("TimeoutError")
 
     def Disconnect(self):
         """Terminates connection to the network table server
