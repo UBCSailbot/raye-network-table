@@ -15,6 +15,7 @@ from nt_connection.Connection import Connection
 import generated_python.Node_pb2 as Node_pb2
 import argparse
 
+
 # Function that filters the uri
 def isFloatValue(uri_item):
     return ('latitude' in uri_item or 'longitude' in uri_item
@@ -23,6 +24,7 @@ def isFloatValue(uri_item):
             or 'magnetic_variation' in uri_item
             or 'track_made_good' in uri_item
             or 'true_heading' in uri_item)
+
 
 # NOTE: we might get an error here that says the value hasn't been
 # populated in the network table

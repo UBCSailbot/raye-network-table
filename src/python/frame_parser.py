@@ -216,8 +216,9 @@ def twos_complement(val, bits):
 
 
 # SAIL ENCODER
-# def GET_SAILENCODER_ANGLE(data):
-#     return get_byte(data, 0)
+# Just 1 byte
+def GET_SAILENCODER_ANGLE(data):
+    return get_byte(data, 0)
 
 
 # WIND SENSORS
@@ -295,16 +296,15 @@ def GET_GYRO_Z_DATA(data):
 # is that true?
 # def GET_BMS_VOLT_DATA(data):
 #     return int(data[0] + (data[1] << 8))
-#
-#
+
+
 # def GET_BMS_CURR_DATA(data):
 #     return (data[2] + (data[3] << 8) / 100.0)
 
-# #define GET_BMS_MAXCELL_DATA(data) {\
+# define GET_BMS_MAXCELL_DATA(data) {\
 #    static_cast<uint16_t>(data[4] + (data[5] << 8)) \
 # }
-#
-# #define GET_BMS_MINCELL_DATA(data) {\
+
+# define GET_BMS_MINCELL_DATA(data) {\
 #    static_cast<uint16_t>(data[6] + (data[7] << 8)) \
 # }
-#

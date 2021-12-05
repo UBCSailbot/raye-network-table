@@ -50,7 +50,8 @@ from .rostopic import *
 from .frame_parser import *
 
 
-CAN_to_URI_to_ROStopic = {'WS1_FRAME': {'id': WIND_SENS1_FRAME_ID,
+CAN_to_URI_to_ROStopic = {
+                          'WS1_FRAME': {'id': WIND_SENS1_FRAME_ID,
                                         'uri': [WIND1_SPEED,
                                                 WIND1_ANGLE],
                                         'rostopic': [WIND1_SPEED_TOPIC,
@@ -177,16 +178,35 @@ CAN_to_URI_to_ROStopic = {'WS1_FRAME': {'id': WIND_SENS1_FRAME_ID,
                                          'parser': [GET_GYRO_X_DATA,
                                                     GET_GYRO_Y_DATA,
                                                     GET_GYRO_Z_DATA],
-                                         'parsed_data': []}
-                          }
+                                         'parsed_data': []},
+                          # Not connected to NUC so rostopic is None
+                          'SAILENCODER_FRAME': {'id': SAILENCODER_FRAME_ID,
+                                                'uri': [SAILENCODER_ANGLE],
+                                                'rostopic': None,
+                                                'data': None,
+                                                'parser': [GET_SAILENCODER_ANGLE],
+                                                'parsed_data': []},
+                          # bbb_canbus_listener.cpp only considers BMS1
+                          'BMS1_FRAME1_ID': {'id': BMS1_FRAME1_ID,
+                                             'uri': [BMS1_UCCM_CURRENT,
+                                                     BMS1_UCCM_VOLTAGE,
+                                                     BMS1_UCCM_TEMP,
+                                                     BMS1_UCCM_STATUS],
+                                             'rostopic': None,
+                                             'data': None,
+                                             'parser': [],  # TODO: frame_parser.py
+                                             'parsed_data': []}
+}
 
 CAN_bus_sensor = ['WS1_FRAME',
                   'WS2_FRAME',
                   'WS3_FRAME',
-                  # 'GPS_CAN_DATE_FRAME',
+                  'GPS_CAN_DATE_FRAME',
                   'GPS_CAN_LAT_FRAME',
                   'GPS_CAN_LON_FRAME',
                   'GPS_CAN_OTHER_FRAME',
                   'ACCEL_FRAME',
-                  'GYRO_FRAME'
+                  'GYRO_FRAME',
+                  'SAILENCODER_FRAME',
+                  'BMS1_FRAME1_ID'
                   ]
