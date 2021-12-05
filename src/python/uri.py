@@ -251,3 +251,9 @@ BMS5_UCCM_CURRENT = "/bms_5/uccm/current"
 BMS5_UCCM_VOLTAGE = "/bms_5/uccm/total_voltage"
 BMS5_UCCM_TEMP = "/bms_5/uccm/temperature"
 BMS5_UCCM_STATUS = "/bms_5/uccm/status"
+
+# accelerometer
+ACCEL_UCCM_CURRENT = "/accelerometer/uccm/current"
+ACCEL_UCCM_VOLTAGE = "/accelerometer/uccm/voltage"
+ACCEL_UCCM_TEMP = "/accelerometer/uccm/temperature"
+ACCEL_UCCM_STATUS = "/accelerometer/uccm/status"

@@ -187,14 +187,18 @@ CAN_to_URI_to_ROStopic = {
                                                 'parser': [GET_SAILENCODER_ANGLE],
                                                 'parsed_data': []},
                           # bbb_canbus_listener.cpp only considers BMS1
-                          'BMS1_FRAME1_ID': {'id': BMS1_FRAME1_ID,
-                                             'uri': [BMS1_UCCM_CURRENT,
-                                                     BMS1_UCCM_VOLTAGE,
-                                                     BMS1_UCCM_TEMP,
-                                                     BMS1_UCCM_STATUS],
+                          # it also only sets current, voltage, maxcell, and mincell
+                          'BMS1': {'id': BMS1,
+                                             'uri': [BMS1_CURRENT,
+                                                     BMS1_VOLTAGE,
+                                                     BMS1_MAXCELL,
+                                                     BMS1_MINCELL],
                                              'rostopic': None,
                                              'data': None,
-                                             'parser': [],  # TODO: frame_parser.py
+                                             'parser': [GET_BMS_CURR_DATA,
+                                                        GET_BMS_VOLT_DATA,
+                                                        GET_BMS_MAX_VOLT_DATA,
+                                                        GET_BMS_MIN_VOLT_DATA],
                                              'parsed_data': []}
 }
 
@@ -208,5 +212,5 @@ CAN_bus_sensor = ['WS1_FRAME',
                   'ACCEL_FRAME',
                   'GYRO_FRAME',
                   'SAILENCODER_FRAME',
-                  'BMS1_FRAME1_ID'
+                  'BMS1'
                   ]
