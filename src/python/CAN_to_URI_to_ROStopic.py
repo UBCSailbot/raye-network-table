@@ -39,7 +39,7 @@ use of in the make_dummy_tests function of dummy_data.py.
 
 
 The CAN_bus_sensor list acts as a filter when making dummy_tests
-for the CAN_BBB_NUC datapath test
+for the CAN_BBB_NUC and CAN_BBB_LAND datapath tests.
 
 
 """
@@ -189,17 +189,17 @@ CAN_to_URI_to_ROStopic = {
                           # bbb_canbus_listener.cpp only considers BMS1
                           # it also only sets current, voltage, maxcell, and mincell
                           'BMS1': {'id': BMS1,
-                                             'uri': [BMS1_CURRENT,
-                                                     BMS1_VOLTAGE,
-                                                     BMS1_MAXCELL,
-                                                     BMS1_MINCELL],
-                                             'rostopic': None,
-                                             'data': None,
-                                             'parser': [GET_BMS_CURR_DATA,
-                                                        GET_BMS_VOLT_DATA,
-                                                        GET_BMS_MAX_VOLT_DATA,
-                                                        GET_BMS_MIN_VOLT_DATA],
-                                             'parsed_data': []}
+                                   'uri': [BMS1_CURRENT,
+                                           BMS1_VOLTAGE,
+                                           BMS1_MAXCELL,
+                                           BMS1_MINCELL],
+                                   'rostopic': None,
+                                   'data': None,
+                                   'parser': [GET_BMS_CURR_DATA,
+                                              GET_BMS_VOLT_DATA,
+                                              GET_BMS_MAX_VOLT_DATA,
+                                              GET_BMS_MIN_VOLT_DATA],
+                                   'parsed_data': []}
 }
 
 CAN_bus_sensor = ['WS1_FRAME',

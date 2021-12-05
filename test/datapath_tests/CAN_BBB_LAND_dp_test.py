@@ -66,8 +66,7 @@ def test_bbb_can_listener(bbb, test_data_dict):
                 """
                 Relative tolerance of 5% of the larger number.
                 Absolute tolerance of 0.15 to help with smaller numbers.
-                Realistically, rel_tol of 1% or lower would work for
-                everything but latitude and longitude.
+                Play around with the values if needed.
                 """
                 assert math.isclose(NT_i, CAN_i, rel_tol=0.05, abs_tol=0.15)
             print("CAN LISTENER TEST - DATA PASSED")

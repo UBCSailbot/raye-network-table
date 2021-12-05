@@ -294,15 +294,18 @@ def GET_GYRO_Z_DATA(data):
 # TODO(anyone): this is assuming voltage,
 # current, etc cannot be negative.
 # is that true?
-# Primary frameparser.h file also faces same issue. 
+# Primary frameparser.h file also faces same issue.
 def GET_BMS_VOLT_DATA(data):
     return (data[0] + (data[1] << 8)) / 100.0
+
 
 def GET_BMS_CURR_DATA(data):
     return (data[2] + (data[3] << 8)) / 100.0
 
+
 def GET_BMS_MAX_VOLT_DATA(data):
     return (data[4] + (data[5] << 8))
+
 
 def GET_BMS_MIN_VOLT_DATA(data):
     return (data[6] + (data[7] << 8))
