@@ -294,7 +294,6 @@ def GET_GYRO_Z_DATA(data):
 # TODO(anyone): this is assuming voltage,
 # current, etc cannot be negative.
 # is that true?
-# Primary frameparser.h file also faces same issue.
 def GET_BMS_VOLT_DATA(data):
     return (data[0] + (data[1] << 8)) / 100.0
 

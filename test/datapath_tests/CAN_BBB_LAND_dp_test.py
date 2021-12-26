@@ -11,6 +11,7 @@ On the BBB:
 ~$ bbb_satellite_listener 5000 5000 5000 /dev/ttyS2 &
 
 On the Landserver:
+~$ ./network_table_server &
 ~$ python3 land_satellite_listener.py -p [PORT] -e [ENDPOINT] -f [FREQUENCY] -u [TIME] -n [LOGIN USERNAME] -w [PASSWORD]
 ex.
 ~$ python3 land_satellite_listener.py -p 8000 -e http://rockblock.rock7.com/rockblock/MT -f 10 -u SEC -b 70.36.55.243
@@ -33,14 +34,14 @@ CAN_producer = threading.Semaphore(0)
 CAN_consumer = threading.Semaphore(1)
 CAN_Listener_ready = threading.Semaphore(0)
 CAN_listen_sem = threading.Semaphore(1)
+SAT_listen_sem = threading.Semaphore(1)
+CAN_producer_SAT = threading.Semaphore(0)
+CAN_consumer_SAT = threading.Semaphore(1)
 CAN_SEND_INTERVAL = 15
 
 read_nt_cmd = "python3 network-table/test/datapath_tests/connection_values.py -u {}"
 candump_cmd = 'candump vcan0'
 
-satellite_sensor_uris = [GPS_CAN_TIME, GPS_CAN_LAT, GPS_CAN_LON, GPS_CAN_GNDSPEED, GPS_CAN_TMG,
-                         GPS_CAN_TRUE_HEADING, GPS_CAN_MAGVAR, GPS_CAN_VALID, GPS_CAN_VARWEST,
-                         GPS_CAN_LATNORTH, GPS_CAN_LONWEST]
 # Data sent from bbb_satallite_listener -> bb_can_bus_listener is sensor data (gps, sailencoder, wind, ...)
 
 
@@ -50,7 +51,7 @@ def test_bbb_can_listener(bbb, test_data_dict):
         ss_uri = ' '.join(test_data_dict[test]['uri'])  # list to string
         test_command = read_nt_cmd.format(ss_uri)
         print("CAN LISTENER TEST - TEST COMMAND: ", test_command)
-        CAN_producer.acquire()  # Wait for main thread to fill NT (I think)
+        CAN_producer.acquire()  # Wait for other threads to fill NT
         _, stdout, __ = bbb.exec_command(test_command)
         NT_data = stdout.readline()[1:-2].split(", ")  # string to list
         CAN_consumer.release()
@@ -81,10 +82,12 @@ def test_bbb_can(bbb, test_data_dict):
     print("BBB Virtual CAN Test")
     for test in test_data_dict:
         CAN_consumer.acquire()
+        CAN_consumer_SAT.acquire()
         _, stdout, __ = bbb.exec_command(candump_cmd)
         can_msg = stdout.readline()
         VCAN_data = "".join(can_msg.strip().split()[-8:])
         CAN_producer.release()
+        CAN_producer_SAT.release()
         CAN_data = test_data_dict[test]["data"]
         print("CAN TEST - BBB CAN Sensor Data: ", VCAN_data)
         print("CAN TEST - BBB VCAN Sensor Data: ", CAN_data)
@@ -98,13 +101,25 @@ def test_bbb_can(bbb, test_data_dict):
 
 def test_land_satellite_listener(server, test_data_dict):
     print("Landserver Satellite Listener Test")
-    # Use poll_network_table_data file to get data
+    prev_data = ""
     for test in test_data_dict:
+        CAN_producer_SAT.acquire()
         ss_uri = " ".join(test_data_dict[test]["uri"])
         test_command = read_nt_cmd.format(ss_uri)
         print("LAND SATELLITE TEST - TEST COMMAND", test_command)
         _, stdout, __ = server.exec_command(test_command)
         LAND_data = stdout.readline()[1:-2].split(", ")
+        """
+        No easy way to tell when land satellite listener receives data
+        as bbb satellite listener does not signal when it sends data.
+        """
+        # TODO: Not sure if this loop actually works
+        while LAND_data == prev_data:
+            print("No change detected by satellite listener yet")
+            time.sleep(1)
+            _, stdout, __ = server.exec_command(test_command)
+            LAND_data = stdout.readline()[1:-2].split(", ")
+        CAN_consumer_SAT.release()
         CAN_data = list(map(str, test_data_dict[test]["parsed_data"]))
         print("LAND SATELLITE TEST - LAND Sensor Data: ", LAND_data)
         print("LAND SATELLITE TEST - BBB CAN Sensor Data: ", CAN_data)
@@ -118,6 +133,8 @@ def test_land_satellite_listener(server, test_data_dict):
             print("PASS - LAND SATELLITE TEST - SENSOR DATA PASSED")
         except AssertionError:
             print("ERROR - LAND SATELLITE TEST - LAND SENSOR DATA FAILED")
+        print("-----")
+        SAT_listen_sem.release()
 
 
 def main():
@@ -163,12 +180,13 @@ def main():
     print("==============================")
     bbb_can_test_thread.start()
     bbb_can_listener_thread.start()
-    # land_satellite_listener_thread.start()
+    land_satellite_listener_thread.start()
 
     # Virtual CAN bus emulation loop
     for test in test_data:
         time.sleep(CAN_SEND_INTERVAL)
         CAN_listen_sem.acquire()
+        SAT_listen_sem.acquire()
         print("MAIN - Sending command:",
               "cansend vcan0 " +
               '{:03x}'.format(test_data[test]['id'], "x")
@@ -179,7 +197,7 @@ def main():
 
     bbb_can_test_thread.join()
     bbb_can_listener_thread.join()
-    # land_satellite_listener_thread.join()
+    land_satellite_listener_thread.join()
     ssh_connection.close_SSH()
 
 
