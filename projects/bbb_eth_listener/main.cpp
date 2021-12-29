@@ -160,6 +160,8 @@ int main(int argc, char *argv[]) {
                         (WINCH_MAIN_ANGLE, winch_angle));
                 values.insert(std::pair<std::string, NetworkTable::Value>\
                         (RUDDER_PORT_ANGLE, rudder_angle));
+                values.insert(std::pair<std::string, NetworkTable::Value>\
+                        (RUDDER_STBD_ANGLE, rudder_angle));
 
                 std::cout << "received rudder angle: " << controller_data.actuation_angle_data().rudder_angle() \
                     << " winch angle: " << controller_data.actuation_angle_data().winch_angle() << std::endl;
