@@ -24,7 +24,7 @@ LS_IPSRC="-i 212.71.235.32"
 
 NT_CMD="./build/bin/network_table_server &"
 LS_CMD="python3 land_satellite_listener.py $LS_PORT $LS_URL $LS_FREQ_UNIT $LS_UNIT $LS_B $LS_USER $LS_PASS $LS_ID $LS_IPSRC &"
-GP_CMD="./projects/global-pathfinding/build/bin/pathfinder_cli -p 8 --navigate 48 235 21 203"
+GP_CMD="/root/network-table/scripts/startup/helpers/global_pathfinding_startup.sh"
 
 printf "\nStartup script for land server\n"
 printf "\n================================\n"
@@ -79,10 +79,10 @@ else
     printf "Global pathfinding not started. Starting new process\n"
 
     cd $NT_ROOT
-    eval "$GP_CMD"
+    screen -dmS global_pathfinding $GP_CMD
     GP_PID=$(pgrep -f "$GP_PGREP")
 
-    printf "Started global pathfinding with PID: %d\n", $GP_PID
+    printf "Started global pathfinding with PID: %d\n" $GP_PID
 fi
 printf "\n================================\n\n"
 
