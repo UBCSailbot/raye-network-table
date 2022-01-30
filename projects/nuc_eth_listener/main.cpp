@@ -18,6 +18,11 @@
 #include "Controller.pb.h"
 #include "Uri.h"
 
+#define ROS_ACTUATION_NODE "/rudder_winch_actuation_angle"
+#define ROS_SENSORS_NODE   "sensors"
+#define ROS_WAYPOINTS_NODE "globalPath"
+#define ROS_AIS_NODE       "AIS"
+
 /*
  * Manual override plan: Create a static global variable that indicates if we have manual override turned on.
  * If it is, we drop any rudder angles sent over the ACTUATION node
@@ -161,11 +166,11 @@ void PublishSensorData() {
 
             // Wind Sensors
             sensors.wind_sensor_1_speed_knots = proto_sensors.wind_sensor_1().iimwv().wind_speed();
-            sensors.wind_sensor_1_angle_degrees = proto_sensors.wind_sensor_1().iimwv().wind_direction();
+            sensors.wind_sensor_1_angle_degrees = proto_sensors.wind_sensor_1().iimwv().wind_angle();
             sensors.wind_sensor_2_speed_knots = proto_sensors.wind_sensor_2().iimwv().wind_speed();
-            sensors.wind_sensor_2_angle_degrees = proto_sensors.wind_sensor_2().iimwv().wind_direction();
+            sensors.wind_sensor_2_angle_degrees = proto_sensors.wind_sensor_2().iimwv().wind_angle();
             sensors.wind_sensor_3_speed_knots = proto_sensors.wind_sensor_3().iimwv().wind_speed();
-            sensors.wind_sensor_3_angle_degrees = proto_sensors.wind_sensor_3().iimwv().wind_direction();
+            sensors.wind_sensor_3_angle_degrees = proto_sensors.wind_sensor_3().iimwv().wind_angle();
 
             // GPS
             sensors.gps_can_timestamp_utc = proto_sensors.gps_can().gprmc().utc_timestamp();
@@ -193,11 +198,11 @@ void PublishSensorData() {
 
             // Gyroscope
             sensors.gyroscope_x_velocity_millidegreesps = \
-                proto_sensors.gyroscope().angular_motion_data().x_angular_velocity();
+                proto_sensors.gyroscope().angular_motion_data().x_velocity();
             sensors.gyroscope_y_velocity_millidegreesps = \
-                proto_sensors.gyroscope().angular_motion_data().y_angular_velocity();
+                proto_sensors.gyroscope().angular_motion_data().y_velocity();
             sensors.gyroscope_z_velocity_millidegreesps = \
-                proto_sensors.gyroscope().angular_motion_data().z_angular_velocity();
+                proto_sensors.gyroscope().angular_motion_data().z_velocity();
 
             sensors_pub.publish(sensors);
             ais_msg_pub.publish(ais_msg);
@@ -241,11 +246,11 @@ int main(int argc, char** argv) {
     }
     std::thread publish_sensor_data(PublishSensorData);
 
-    sensors_pub = n.advertise<sailbot_msg::Sensors>("sensors", 100);
-    ais_msg_pub = n.advertise<sailbot_msg::AISMsg>("ais_msg", 100);
-    waypoint_msg_pub = n.advertise<sailbot_msg::path>("globalPath", 100);
+    sensors_pub = n.advertise<sailbot_msg::Sensors>(ROS_SENSORS_NODE, 100);
+    ais_msg_pub = n.advertise<sailbot_msg::AISMsg>(ROS_AIS_NODE, 100);
+    waypoint_msg_pub = n.advertise<sailbot_msg::path>(ROS_WAYPOINTS_NODE, 100);
 
-    nt_sub = n.subscribe(ACTUATION, 100, ActuationCallBack);
+    nt_sub = n.subscribe(ROS_ACTUATION_NODE, 100, ActuationCallBack);
     // nt_sub = n.subscribe(POWER_CONTROLLER, 100, PowerControllerCallBack);
     ros::spin();
 

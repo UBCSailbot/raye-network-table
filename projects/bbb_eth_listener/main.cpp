@@ -17,8 +17,6 @@
 */
 
 #include "Connection.h"
-#include "ActuationAngle.pb.h"
-#include "PowerController.pb.h"
 #include "Controller.pb.h"
 #include "Value.pb.h"
 #include "Help.h"
@@ -150,10 +148,10 @@ int main(int argc, char *argv[]) {
                 NetworkTable::Value winch_angle;
                 NetworkTable::Value rudder_angle;
                 winch_angle.set_type(
-                        NetworkTable::Value::FLOAT);
+                        NetworkTable::Value::INT);
                 rudder_angle.set_type(
                         NetworkTable::Value::FLOAT);
-                winch_angle.set_float_data(controller_data.actuation_angle_data().winch_angle());
+                winch_angle.set_int_data(controller_data.actuation_angle_data().winch_angle());
                 rudder_angle.set_float_data(controller_data.actuation_angle_data().rudder_angle());
 
                 // Map the new actuation nodes to their corresponding uris
@@ -162,6 +160,8 @@ int main(int argc, char *argv[]) {
                         (WINCH_MAIN_ANGLE, winch_angle));
                 values.insert(std::pair<std::string, NetworkTable::Value>\
                         (RUDDER_PORT_ANGLE, rudder_angle));
+                values.insert(std::pair<std::string, NetworkTable::Value>\
+                        (RUDDER_STBD_ANGLE, rudder_angle));
 
                 std::cout << "received rudder angle: " << controller_data.actuation_angle_data().rudder_angle() \
                     << " winch angle: " << controller_data.actuation_angle_data().winch_angle() << std::endl;

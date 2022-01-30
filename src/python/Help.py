@@ -35,19 +35,19 @@ class Help:
         values[SAILENCODER_ANGLE] = val
 
         # Store wind sensor values
-        val = self.create_int_val(sensors.wind_sensor_1.iimwv.wind_speed)
+        val = self.create_float_val(sensors.wind_sensor_1.iimwv.wind_speed)
         values[WIND1_SPEED] = val
-        val = self.create_int_val(sensors.wind_sensor_1.iimwv.wind_direction)
+        val = self.create_int_val(sensors.wind_sensor_1.iimwv.wind_angle)
         values[WIND1_ANGLE] = val
 
-        val = self.create_int_val(sensors.wind_sensor_2.iimwv.wind_speed)
+        val = self.create_float_val(sensors.wind_sensor_2.iimwv.wind_speed)
         values[WIND2_SPEED] = val
-        val = self.create_int_val(sensors.wind_sensor_2.iimwv.wind_direction)
+        val = self.create_int_val(sensors.wind_sensor_2.iimwv.wind_angle)
         values[WIND2_ANGLE] = val
 
-        val = self.create_int_val(sensors.wind_sensor_3.iimwv.wind_speed)
+        val = self.create_float_val(sensors.wind_sensor_3.iimwv.wind_speed)
         values[WIND3_SPEED] = val
-        val = self.create_int_val(sensors.wind_sensor_3.iimwv.wind_direction)
+        val = self.create_int_val(sensors.wind_sensor_3.iimwv.wind_angle)
         values[WIND3_ANGLE] = val
 
         # Store gps sensor values
@@ -57,12 +57,22 @@ class Help:
         values[GPS_CAN_LAT] = val
         val = self.create_float_val(sensors.gps_can.gprmc.longitude)
         values[GPS_CAN_LON] = val
-        val = self.create_int_val(sensors.gps_can.gprmc.ground_speed)
+        val = self.create_float_val(sensors.gps_can.gprmc.ground_speed)
         values[GPS_CAN_GNDSPEED] = val
-        val = self.create_int_val(sensors.gps_can.gprmc.track_made_good)
+        val = self.create_float_val(sensors.gps_can.gprmc.track_made_good)
         values[GPS_CAN_TMG] = val
-        val = self.create_int_val(sensors.gps_can.gprmc.magnetic_variation)
+        val = self.create_float_val(sensors.gps_can.gprmc.magnetic_variation)
         values[GPS_CAN_MAGVAR] = val
+        val = self.create_float_val(sensors.gps_can.gprmc.true_heading)
+        values[GPS_CAN_TRUE_HEADING] = val
+        val = self.create_bool_val(sensors.gps_can.gprmc.data_valid)
+        values[GPS_CAN_VALID] = val
+        val = self.create_bool_val(sensors.gps_can.gprmc.magvar_west)
+        values[GPS_CAN_VARWEST] = val
+        val = self.create_bool_val(sensors.gps_can.gprmc.lat_north)
+        values[GPS_CAN_LATNORTH] = val
+        val = self.create_bool_val(sensors.gps_can.gprmc.lon_west)
+        values[GPS_CAN_LONWEST] = val
 
         val = self.create_str_val(sensors.gps_ais.gprmc.utc_timestamp)
         values[GPS_AIS_TIME] = val
@@ -70,54 +80,59 @@ class Help:
         values[GPS_AIS_LAT] = val
         val = self.create_float_val(sensors.gps_ais.gprmc.longitude)
         values[GPS_AIS_LON] = val
-        val = self.create_int_val(sensors.gps_ais.gprmc.ground_speed)
+        val = self.create_float_val(sensors.gps_ais.gprmc.ground_speed)
         values[GPS_AIS_GNDSPEED] = val
-        val = self.create_int_val(sensors.gps_ais.gprmc.track_made_good)
+        val = self.create_float_val(sensors.gps_ais.gprmc.track_made_good)
         values[GPS_AIS_TMG] = val
-        val = self.create_int_val(sensors.gps_ais.gprmc.magnetic_variation)
+        val = self.create_float_val(sensors.gps_ais.gprmc.magnetic_variation)
         values[GPS_AIS_MAGVAR] = val
 
         # Store bms sensor values
-        val = self.create_int_val(sensors.bms_1.battery_pack_data.current)
+        val = self.create_float_val(sensors.bms_1.battery_pack_data.battery_current)
         values[BMS1_CURRENT] = val
-        val = self.create_int_val(sensors.bms_1.battery_pack_data.total_voltage)
+        val = self.create_float_val(sensors.bms_1.battery_pack_data.battery_voltage)
         values[BMS1_VOLTAGE] = val
 
-        val = self.create_int_val(sensors.bms_2.battery_pack_data.current)
+        val = self.create_float_val(sensors.bms_2.battery_pack_data.battery_current)
         values[BMS2_CURRENT] = val
-        val = self.create_int_val(sensors.bms_2.battery_pack_data.total_voltage)
+        val = self.create_float_val(sensors.bms_2.battery_pack_data.battery_voltage)
         values[BMS2_VOLTAGE] = val
 
-        val = self.create_int_val(sensors.bms_3.battery_pack_data.current)
+        val = self.create_float_val(sensors.bms_3.battery_pack_data.battery_current)
         values[BMS3_CURRENT] = val
-        val = self.create_int_val(sensors.bms_3.battery_pack_data.total_voltage)
+        val = self.create_float_val(sensors.bms_3.battery_pack_data.battery_voltage)
         values[BMS3_VOLTAGE] = val
 
-        val = self.create_int_val(sensors.bms_4.battery_pack_data.current)
+        val = self.create_float_val(sensors.bms_4.battery_pack_data.battery_current)
         values[BMS4_CURRENT] = val
-        val = self.create_int_val(sensors.bms_4.battery_pack_data.total_voltage)
+        val = self.create_float_val(sensors.bms_4.battery_pack_data.battery_voltage)
         values[BMS4_VOLTAGE] = val
 
-        val = self.create_int_val(sensors.bms_5.battery_pack_data.current)
+        val = self.create_float_val(sensors.bms_5.battery_pack_data.battery_current)
         values[BMS5_CURRENT] = val
-        val = self.create_int_val(sensors.bms_5.battery_pack_data.total_voltage)
+        val = self.create_float_val(sensors.bms_5.battery_pack_data.battery_voltage)
         values[BMS5_VOLTAGE] = val
 
-        val = self.create_int_val(
+        val = self.create_float_val(sensors.bms_6.battery_pack_data.battery_current)
+        values[BMS6_CURRENT] = val
+        val = self.create_float_val(sensors.bms_6.battery_pack_data.battery_voltage)
+        values[BMS6_VOLTAGE] = val
+
+        val = self.create_float_val(
             sensors.accelerometer.boat_orientation_data.x_axis_acceleration)
         values[ACCELEROMETER_X] = val
-        val = self.create_int_val(
+        val = self.create_float_val(
             sensors.accelerometer.boat_orientation_data.y_axis_acceleration)
         values[ACCELEROMETER_Y] = val
-        val = self.create_int_val(
+        val = self.create_float_val(
             sensors.accelerometer.boat_orientation_data.z_axis_acceleration)
         values[ACCELEROMETER_Z] = val
 
-        val = self.create_float_val(sensors.gyroscope.angular_motion_data.x_angular_velocity)
+        val = self.create_float_val(sensors.gyroscope.angular_motion_data.x_velocity)
         values[GYROSCOPE_X] = val
-        val = self.create_float_val(sensors.gyroscope.angular_motion_data.y_angular_velocity)
+        val = self.create_float_val(sensors.gyroscope.angular_motion_data.y_velocity)
         values[GYROSCOPE_Y] = val
-        val = self.create_float_val(sensors.gyroscope.angular_motion_data.z_angular_velocity)
+        val = self.create_float_val(sensors.gyroscope.angular_motion_data.z_velocity)
         values[GYROSCOPE_Z] = val
 
         return values
