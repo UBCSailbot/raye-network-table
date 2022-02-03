@@ -4,18 +4,14 @@
 #include <iostream>
 #include <string>
 #include <ros/ros.h>
-// #include <unistd.h>
 #include <getopt.h>
 #include "Help.h"
 #include "ActuationAngle.pb.h"
-#include "sailbot_msg/actuation_angle.h"
+#include "sailbot_msg/manual_override.h"
 #include "Uri.h"
 
-#define ROS_ACTUATION_NODE "/rudder_winch_actuation_angle"
+#define ROS_MANUAL_OVERRIDE_NODE "/manual_override"
 #define DEFAULT_TEST_NODE  "/manual_override_test"
-
-// This is a global variable read in "nuc_eth_listener.cpp".
-bool manual_override_flag;
 
 /* 
  * When testing without the network controller, we want to publish to
@@ -24,7 +20,6 @@ bool manual_override_flag;
  * in this case, the override_mask makes sure that manual_override_flag
  * is always false.  
  */
-bool override_mask = true;
 ros::Publisher manual_override_pub;
 
 void PublishManualOverride(std::string angles) {
@@ -34,15 +29,16 @@ void PublishManualOverride(std::string angles) {
         // Gets second number in string.
         double abs_sail_angle_degrees = std::stod(angles.substr(size));
 
-        sailbot_msg::actuation_angle ros_actuation_angle;
-        ros_actuation_angle.rudder_angle_degrees = rudder_angle_degrees;
-        ros_actuation_angle.abs_sail_angle_degrees = abs_sail_angle_degrees;
+        sailbot_msg::manual_override ros_manual_override;
+        ros_manual_override.rudder_angle_degrees = rudder_angle_degrees;
+        ros_manual_override.abs_sail_angle_degrees = abs_sail_angle_degrees;
+        // Nav-247: Add something to deal with jib angle
+        ros_manual_override.manual_override_active = true;
 
         std::cout << "Setting rudder angle to: " << rudder_angle_degrees
         << " degrees, sail angle to: " << abs_sail_angle_degrees << " degrees." << std::endl;
-        manual_override_flag = true & override_mask;
 
-        manual_override_pub.publish(ros_actuation_angle);
+        manual_override_pub.publish(ros_manual_override);
     } catch (const std::invalid_argument& ia) {
         std::cout << "Invalid input: " << angles << std::endl;
     }
@@ -57,10 +53,11 @@ void PublishManualOverrideLoop() {
         std::getline(std::cin, input);
 
         if (input == "stop") {
-            manual_override_flag = false;
             std::cout << "Manual override suspended." << std::endl;
+            sailbot_msg::manual_override ros_manual_override;
+            ros_manual_override.manual_override_active = false;
+            manual_override_pub.publish(ros_manual_override);
         } else if (input == "exit" || input == "quit" || input == "e" || input == "q") {
-            manual_override_flag = false;
             std::cout << "Exiting manual override."<< std::endl;
             break;
         } else {
@@ -74,16 +71,16 @@ void PrintUsage(void) {
 }
 int main(int argc, char** argv) {
     std::cout << "Starting manual override." << std::endl;
-    std::string topic = ROS_ACTUATION_NODE;
+    std::string topic = ROS_MANUAL_OVERRIDE_NODE;
     int opt;
     bool once = false;
-    std::string msg_once = "";
+    std::string msg_once;
 
     static struct option long_options[] = {
         {"help", no_argument,       NULL, 'h'},
-        {"once", required_argument, NULL, 'o'}, // Send angle once
-        {"test", optional_argument, NULL, 't'}, // Send angle to a test node that won't atually change rudder/winch angle
-        {NULL,   0,                 NULL,   0}  // Required to have all zeros.
+        {"once", required_argument, NULL, 'o'},  // Send angle once
+        {"test", optional_argument, NULL, 't'},  // Send angle to a test ROS node
+        {NULL,   0,                 NULL,   0}   // Required to have all zeros.
     };
 
     while ((opt = getopt_long(argc, argv, ":ho:t::", long_options, NULL)) != -1) {
@@ -97,13 +94,12 @@ int main(int argc, char** argv) {
                 break;
             case 't':
                 topic = optarg ? optarg : DEFAULT_TEST_NODE;
-                override_mask = false;
                 break;
             case '?':
                 std::cout << "Unknown option: " << optopt << std::endl;
                 PrintUsage();
-                break; // Continue parsing even with unknown option.
-            case ':': // When a required argument is missing.
+                break;  // Continue parsing even with unknown option.
+            case ':':  // When a required argument is missing.
                 std::cout << "Missing argument for: " << optopt << std::endl;
                 PrintUsage();
                 exit(EXIT_FAILURE);
@@ -120,7 +116,7 @@ int main(int argc, char** argv) {
 
     ros::NodeHandle n;
 
-    manual_override_pub = n.advertise<sailbot_msg::actuation_angle>(topic, 1);
+    manual_override_pub = n.advertise<sailbot_msg::manual_override>(topic, 1);
 
     if (once)
         PublishManualOverride(msg_once);

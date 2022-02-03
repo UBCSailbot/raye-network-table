@@ -14,23 +14,17 @@
 #include "sailbot_msg/AISMsg.h"
 #include "sailbot_msg/AISShip.h"
 #include "sailbot_msg/path.h"
+#include "sailbot_msg/manual_override.h"
 #include "sailbot_msg/latlon.h"
 #include "Controller.pb.h"
 #include "Uri.h"
 
-#define ROS_ACTUATION_NODE "/rudder_winch_actuation_angle"
-#define ROS_SENSORS_NODE   "sensors"
-#define ROS_WAYPOINTS_NODE "globalPath"
-#define ROS_AIS_NODE       "AIS"
-
-/*
- * Manual override plan: Create a static global variable that indicates if we have manual override turned on.
- * If it is, we drop any rudder angles sent over the ACTUATION node
- * 
- * We will be acting as subscriber to a new manual override node
- * Will create a new script to take in rudder angles as input
- */
-extern bool manual_override_flag = false;
+#define ROS_ACTUATION_NODE          "/rudder_winch_actuation_angle"
+#define ROS_SENSORS_NODE            "sensors"
+#define ROS_WAYPOINTS_NODE          "globalPath"
+#define ROS_AIS_NODE                "AIS"
+#define ROS_MANUAL_OVERRIDE_NODE    "/manual_override"
+// Make sure manual override node matches whatever is in nuc_manual_override project
 
 /*
  * Needed for communication over ethernet
@@ -47,36 +41,59 @@ int send(const std::string &serialized_data) {
 /*
  * Needed for communication with other ROS nodes
  */
-ros::Subscriber nt_sub;
+ros::Subscriber nt_sub;  // Actuation angle subscriber
+ros::Subscriber manual_override_sub;
 ros::Publisher sensors_pub;
 ros::Publisher ais_msg_pub;
 ros::Publisher waypoint_msg_pub;
+
+bool manual_override_active = false;
+
+// Nav-247: Update for addition of jib.
+void SendActuationAngle(double rudder_angle_degrees, double abs_sail_angle_degrees) {
+    // Both angles are in radians (CONFIRM WITH BRUCE)
+    NetworkTable::Controller controller;
+
+    controller.set_type(NetworkTable::Controller::ACTUATION_DATA);
+    controller.mutable_actuation_angle_data()->set_rudder_angle(rudder_angle_degrees);
+    controller.mutable_actuation_angle_data()->set_winch_angle(abs_sail_angle_degrees);
+
+    std::string serialized_controller_actuation_data;
+    controller.SerializeToString(&serialized_controller_actuation_data);
+
+    std::cout << controller.DebugString() << std::endl;
+    std::cout << serialized_controller_actuation_data << std::endl;
+
+    std::cout << "Sending rudder angle: " << controller.actuation_angle_data().rudder_angle()
+        << " winch angle: " << controller.actuation_angle_data().winch_angle() << std::endl;
+
+    send(serialized_controller_actuation_data);
+}
 
 void ActuationCallBack(const sailbot_msg::actuation_angle ros_actuation_angle) {
     /*
      * Receive motor actuation data and send it
      * to the BBB.
      */
-    if (ros::ok()) {
-        // Both angles are in radians (CONFIRM WITH BRUCE)
-        NetworkTable::Controller controller;
-
-        controller.set_type(NetworkTable::Controller::ACTUATION_DATA);
-        controller.mutable_actuation_angle_data()->set_rudder_angle(ros_actuation_angle.rudder_angle_degrees);
-        controller.mutable_actuation_angle_data()->set_winch_angle(ros_actuation_angle.abs_sail_angle_degrees);
-
-        std::string serialized_controller_actuation_data;
-        controller.SerializeToString(&serialized_controller_actuation_data);
-
-        std::cout << controller.DebugString() << std::endl;
-        std::cout << serialized_controller_actuation_data << std::endl;
-
-        std::cout << "Sending rudder angle: " << controller.actuation_angle_data().rudder_angle()
-            << " winch angle: " << controller.actuation_angle_data().winch_angle() << std::endl;
-
-        send(serialized_controller_actuation_data);
+    if (ros::ok() && !manual_override_active) {
+        SendActuationAngle(ros_actuation_angle.rudder_angle_degrees,
+            ros_actuation_angle.abs_sail_angle_degrees);
     } else {
         std::cout << "Failed to receive actuation angle" << std::endl;
+    }
+}
+
+void ManualOverrideCallback(const sailbot_msg::manual_override ros_actuation_angle) {
+    if (ros::ok()) {
+        if (ros_actuation_angle.manual_override_active) {
+            manual_override_active = true;
+            SendActuationAngle(ros_actuation_angle.rudder_angle_degrees,
+                ros_actuation_angle.abs_sail_angle_degrees);
+        } else {
+            manual_override_active = false;
+        }
+    } else {
+        manual_override_active = false;
     }
 }
 
@@ -251,6 +268,7 @@ int main(int argc, char** argv) {
     waypoint_msg_pub = n.advertise<sailbot_msg::path>(ROS_WAYPOINTS_NODE, 100);
 
     nt_sub = n.subscribe(ROS_ACTUATION_NODE, 100, ActuationCallBack);
+    manual_override_sub = n.subscribe(ROS_MANUAL_OVERRIDE_NODE, 100, ManualOverrideCallback);
     // nt_sub = n.subscribe(POWER_CONTROLLER, 100, PowerControllerCallBack);
     ros::spin();
 
