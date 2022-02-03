@@ -1,11 +1,11 @@
 # Set a variable for commands below
-set(PROJECT_NAME nuc_eth_listener)
+set(PROJECT_NAME nuc_manual_override)
 
 # this is where the custom messages are
 # we have to build them and use them
-# in nuc_eth_listener
+# in nuc_manual_override
 if (NOT TARGET sailbot_msg_generate_messages_cpp)
-    add_subdirectory(sailbot-msg)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../nuc_eth_listener/sailbot-msg ${CMAKE_CURRENT_BINARY_DIR}/sailbot-msg_build)
 endif()
 
 # Define your project and language
