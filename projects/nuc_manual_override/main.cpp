@@ -43,6 +43,13 @@ void PublishManualOverride(std::string angles) {
         std::cout << "Invalid input: " << angles << std::endl;
     }
 }
+
+void StopManualOverride() {
+    sailbot_msg::manual_override ros_manual_override;
+    ros_manual_override.manual_override_active = false;
+    manual_override_pub.publish(ros_manual_override);
+}
+
 void PublishManualOverrideLoop() {
     while (ros::ok()) {
         std::string input;
@@ -54,11 +61,10 @@ void PublishManualOverrideLoop() {
 
         if (input == "stop") {
             std::cout << "Manual override suspended." << std::endl;
-            sailbot_msg::manual_override ros_manual_override;
-            ros_manual_override.manual_override_active = false;
-            manual_override_pub.publish(ros_manual_override);
+            StopManualOverride();
         } else if (input == "exit" || input == "quit" || input == "e" || input == "q") {
             std::cout << "Exiting manual override."<< std::endl;
+            StopManualOverride();
             break;
         } else {
             PublishManualOverride(input);
@@ -67,7 +73,10 @@ void PublishManualOverrideLoop() {
 }
 
 void PrintUsage(void) {
-    std::cout << "Placeholder" << std::endl;
+    std::cout << "Run the program with or without arguments.\n"
+        "./nuc_manual_override [-h] [-o \"Angles\"] [-t<ROS_NODE>]\n"
+        "Ex. ./nuc_manual_override\n"
+        "See README for more details." << std::endl;
 }
 int main(int argc, char** argv) {
     std::cout << "Starting manual override." << std::endl;
@@ -118,10 +127,21 @@ int main(int argc, char** argv) {
 
     manual_override_pub = n.advertise<sailbot_msg::manual_override>(topic, 1);
 
-    if (once)
+    if (once) {
+        // ROS is quite finicky when dealing with just one message.
         PublishManualOverride(msg_once);
-    else
+        std::thread PublishWaitThread([]{usleep(1000000);});
+        PublishWaitThread.join();
+        // Repeat the function call to clear the ROS queue.
+        PublishManualOverride(msg_once);
+        StopManualOverride();
+        PublishWaitThread = std::thread([]{usleep(1000000);});
+        PublishWaitThread.join();
+        // Calling the next function is just to clear the ROS queue.
+        StopManualOverride();
+    } else {
         PublishManualOverrideLoop();
+    }
     std::cout << "Manual override program exited." << std::endl;
     return 0;
 }

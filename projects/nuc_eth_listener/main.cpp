@@ -75,9 +75,10 @@ void ActuationCallBack(const sailbot_msg::actuation_angle ros_actuation_angle) {
      * Receive motor actuation data and send it
      * to the BBB.
      */
-    if (ros::ok() && !manual_override_active) {
-        SendActuationAngle(ros_actuation_angle.rudder_angle_degrees,
-            ros_actuation_angle.abs_sail_angle_degrees);
+    if (ros::ok()) {
+        if (!manual_override_active)
+            SendActuationAngle(ros_actuation_angle.rudder_angle_degrees,
+                ros_actuation_angle.abs_sail_angle_degrees);
     } else {
         std::cout << "Failed to receive actuation angle" << std::endl;
     }
@@ -267,8 +268,10 @@ int main(int argc, char** argv) {
     ais_msg_pub = n.advertise<sailbot_msg::AISMsg>(ROS_AIS_NODE, 100);
     waypoint_msg_pub = n.advertise<sailbot_msg::path>(ROS_WAYPOINTS_NODE, 100);
 
-    nt_sub = n.subscribe(ROS_ACTUATION_NODE, 100, ActuationCallBack);
-    manual_override_sub = n.subscribe(ROS_MANUAL_OVERRIDE_NODE, 100, ManualOverrideCallback);
+    /* Because of how the manual override suspends regular operation, we have to set the
+       subscription queue to a size of 1 so that very old angles are not used. */
+    nt_sub = n.subscribe(ROS_ACTUATION_NODE, 1, ActuationCallBack);
+    manual_override_sub = n.subscribe(ROS_MANUAL_OVERRIDE_NODE, 1, ManualOverrideCallback);
     // nt_sub = n.subscribe(POWER_CONTROLLER, 100, PowerControllerCallBack);
     ros::spin();
 
