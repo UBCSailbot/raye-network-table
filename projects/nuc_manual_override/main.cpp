@@ -24,19 +24,22 @@ ros::Publisher manual_override_pub;
 
 void PublishManualOverride(std::string angles) {
     try {
-        std::size_t size;
+        std::size_t size, size_2;
         double rudder_angle_degrees = std::stod(angles, &size);
         // Gets second number in string.
-        double abs_sail_angle_degrees = std::stod(angles.substr(size));
+        double abs_sail_angle_degrees = std::stod(angles.substr(size), &size_2);
+        // Gets third number.
+        double abs_jib_angle_degrees = std::stod(angles.substr(size + size_2));
 
         sailbot_msg::manual_override ros_manual_override;
         ros_manual_override.rudder_angle_degrees = rudder_angle_degrees;
         ros_manual_override.abs_sail_angle_degrees = abs_sail_angle_degrees;
-        // Nav-247: Add something to deal with jib angle
+        ros_manual_override.abs_jib_angle_degrees = abs_jib_angle_degrees;
         ros_manual_override.manual_override_active = true;
 
         std::cout << "Setting rudder angle to: " << rudder_angle_degrees
-        << " degrees, sail angle to: " << abs_sail_angle_degrees << " degrees." << std::endl;
+        << " degrees, sail angle to: " << abs_sail_angle_degrees << " degrees, set jib angle to: "
+        << abs_jib_angle_degrees << std::endl;
 
         manual_override_pub.publish(ros_manual_override);
     } catch (const std::invalid_argument& ia) {

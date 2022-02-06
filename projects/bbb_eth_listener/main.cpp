@@ -147,12 +147,16 @@ int main(int argc, char *argv[]) {
                 // Create new nodes populated with the outputted actuation angles
                 NetworkTable::Value winch_angle;
                 NetworkTable::Value rudder_angle;
+                NetworkTable::Value jib_angle;
                 winch_angle.set_type(
                         NetworkTable::Value::INT);
                 rudder_angle.set_type(
                         NetworkTable::Value::FLOAT);
+                jib_angle.set_type(
+                        NetworkTable::Value::INT);
                 winch_angle.set_int_data(controller_data.actuation_angle_data().winch_angle());
                 rudder_angle.set_float_data(controller_data.actuation_angle_data().rudder_angle());
+                jib_angle.set_int_data(controller_data.actuation_angle_data().jib_angle());
 
                 // Map the new actuation nodes to their corresponding uris
                 // TODO(brielle): May have to check if port or stbd rudder
@@ -162,9 +166,12 @@ int main(int argc, char *argv[]) {
                         (RUDDER_PORT_ANGLE, rudder_angle));
                 values.insert(std::pair<std::string, NetworkTable::Value>\
                         (RUDDER_STBD_ANGLE, rudder_angle));
+                values.insert(std::pair<std::string, NetworkTable::Value>\
+                        (WINCH_JIB_ANGLE, jib_angle));
 
                 std::cout << "received rudder angle: " << controller_data.actuation_angle_data().rudder_angle() \
-                    << " winch angle: " << controller_data.actuation_angle_data().winch_angle() << std::endl;
+                    << " winch angle: " << controller_data.actuation_angle_data().winch_angle() \
+                    << " jib angle: " << controller_data.actuation_angle_data().jib_angle() << std::endl;
             } else if (controller_data.type() == NetworkTable::Controller::POWER_DATA) {
                 // Create new nodes populated with the outputted power controller states
                 NetworkTable::Value pv_mppt;

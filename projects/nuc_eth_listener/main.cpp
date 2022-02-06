@@ -49,14 +49,14 @@ ros::Publisher waypoint_msg_pub;
 
 bool manual_override_active = false;
 
-// Nav-247: Update for addition of jib.
-void SendActuationAngle(double rudder_angle_degrees, double abs_sail_angle_degrees) {
+void SendActuationAngle(double rudder_angle_degrees, double abs_sail_angle_degrees, double jib_angle_degrees) {
     // Both angles are in radians (CONFIRM WITH BRUCE)
     NetworkTable::Controller controller;
 
     controller.set_type(NetworkTable::Controller::ACTUATION_DATA);
     controller.mutable_actuation_angle_data()->set_rudder_angle(rudder_angle_degrees);
     controller.mutable_actuation_angle_data()->set_winch_angle(abs_sail_angle_degrees);
+    controller.mutable_actuation_angle_data()->set_jib_angle(jib_angle_degrees);
 
     std::string serialized_controller_actuation_data;
     controller.SerializeToString(&serialized_controller_actuation_data);
@@ -65,7 +65,8 @@ void SendActuationAngle(double rudder_angle_degrees, double abs_sail_angle_degre
     std::cout << serialized_controller_actuation_data << std::endl;
 
     std::cout << "Sending rudder angle: " << controller.actuation_angle_data().rudder_angle()
-        << " winch angle: " << controller.actuation_angle_data().winch_angle() << std::endl;
+        << " winch angle: " << controller.actuation_angle_data().winch_angle() 
+        << " jib angle: " << controller.actuation_angle_data().jib_angle() << std::endl;
 
     send(serialized_controller_actuation_data);
 }
@@ -78,7 +79,8 @@ void ActuationCallBack(const sailbot_msg::actuation_angle ros_actuation_angle) {
     if (ros::ok()) {
         if (!manual_override_active)
             SendActuationAngle(ros_actuation_angle.rudder_angle_degrees,
-                ros_actuation_angle.abs_sail_angle_degrees);
+                ros_actuation_angle.abs_sail_angle_degrees,
+                ros_actuation_angle.abs_jib_angle_degrees);
     } else {
         std::cout << "Failed to receive actuation angle" << std::endl;
     }
@@ -89,7 +91,8 @@ void ManualOverrideCallback(const sailbot_msg::manual_override ros_actuation_ang
         if (ros_actuation_angle.manual_override_active) {
             manual_override_active = true;
             SendActuationAngle(ros_actuation_angle.rudder_angle_degrees,
-                ros_actuation_angle.abs_sail_angle_degrees);
+                ros_actuation_angle.abs_sail_angle_degrees,
+                ros_actuation_angle.abs_jib_angle_degrees);
         } else {
             manual_override_active = false;
         }

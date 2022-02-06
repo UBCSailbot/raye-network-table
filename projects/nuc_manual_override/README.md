@@ -13,7 +13,13 @@ All of the above flags are optional. The `-o` and `-t` flags can be used simulta
 * Run Nuc Ethernet Listener: `./nuc_eth_listener <IP> <PORT>`, with whichever IP and port you want. It does not matter for this test. For example: `./nuc_eth_listener 127.0.0.1 5555`.
 * Make sure `roscore` is running`.
 * Source the ROS message files: `source build/devel/setup.bash` or `source build/devel/setup.zsh`.
-* Run the following command: `rostopic pub /rudder_winch_actuation_angle sailbot_msg/actuation_angle 123 456 789 -r 1` This simulates messages being sent via the `rudder_winch_actuation_angle` at a rate of 1 Hz. *Note*, 789 won't be shown as part of the output as the jib angle has not been added to the code yet.
+* Run the following command: `rostopic pub /rudder_winch_actuation_angle sailbot_msg/actuation_angle 123 456 789 -r 1` This simulates messages being sent via the `rudder_winch_actuation_angle` at a rate of 1 Hz. 
 * Run the manual override: `./nuc_manual_override`. 
 
 As soon as you enter a value into the manual override, for example with `"66.2 90.5"` the output from the `nuc_eth_listener` should stop accepting `123 456` values from the `/rudder_winch_actuation_angle` topic. Entering `stop` or `exit` should resume the 1 Hz messages. After entering `stop`, entering any correct set of angles will have the listener prioritize the manual override and ignore the 1 Hz messages again.
+
+For more concrete results, in another window, run:
+* `./network_table_server &`
+* `./bbb_eth_listener <IP> <PORT>`, where IP and PORT are the same what you passed to the `nuc_eth_listener`.
+
+The output of `bbb_eth_listener` should match that of `nuc_eth_listener`.
