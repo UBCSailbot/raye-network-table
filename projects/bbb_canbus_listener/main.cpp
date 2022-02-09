@@ -116,13 +116,23 @@ void MotorCallback(NetworkTable::Node node, \
     for (const auto& uris : diffs) {
         std::string uri = uris.first;
 
-        // Determine if new actuation angle is for the port or stbd rudder
+        // Determine which URI the data is associated with
         if (uri == RUDDER_PORT_ANGLE) {
             frame.can_id = RUDDER_PORT_CMD_FRAME_ID;
             angle = static_cast<float>(node.children().at("rudder_port").children().at("angle").value().float_data());
+            std::cout << "Sending rudder port angle: " << angle << std::endl;
         } else if (uri == RUDDER_STBD_ANGLE) {
             frame.can_id = RUDDER_STBD_CMD_FRAME_ID;
             angle = static_cast<float>(node.children().at("rudder_stbd").children().at("angle").value().float_data());
+            std::cout << "Sending rudder starboard angle: " << angle << std::endl;
+        } else if (uri == WINCH_MAIN_ANGLE) {
+            frame.can_id = WINCH_MAIN_ANGLE_FRAME_ID;
+            angle = static_cast<float>(node.children().at("winch_main").children().at("angle").value().float_data());
+            std::cout << "Sending winch main angle: " << angle << std::endl;
+        } else if (uri == WINCH_JIB_ANGLE) {
+            frame.can_id = WINCH_JIB_ANGLE_FRAME_ID;
+            angle = static_cast<float>(node.children().at("winch_jib").children().at("angle").value().float_data());
+            std::cout << "Sending jib angle: " << angle << std::endl;
         } else {
             break;
         }
@@ -130,6 +140,11 @@ void MotorCallback(NetworkTable::Node node, \
         std::cout << uris.first << std::endl;
         // Manually split the float into bytes, and
         // put each byte into the frame.data array
+        // The CAN frame data format is the same for all four angles
+        /* 
+            TODO(Henry): The "CAN Bus Inputs and Outputs" page on Confluence
+            says that the angles should be 16 bit unsigned integer values?
+        */
         uint8_t const *angle_array = reinterpret_cast<uint8_t *>(&angle);
         frame.data[0] = angle_array[0];
         frame.data[1] = angle_array[1];
@@ -137,7 +152,6 @@ void MotorCallback(NetworkTable::Node node, \
         frame.data[3] = angle_array[3];
 
         // Write the rudder angle to the corresponding can frame
-        std::cout << "Sending rudder angle:" << angle << std::endl;
         if (write(s, &frame, sizeof(struct can_frame)) != sizeof(struct can_frame)) {
             perror("Write");
             return;

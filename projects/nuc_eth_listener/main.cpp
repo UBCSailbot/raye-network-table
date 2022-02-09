@@ -65,7 +65,7 @@ void SendActuationAngle(double rudder_angle_degrees, double abs_sail_angle_degre
     std::cout << serialized_controller_actuation_data << std::endl;
 
     std::cout << "Sending rudder angle: " << controller.actuation_angle_data().rudder_angle()
-        << " winch angle: " << controller.actuation_angle_data().winch_angle() 
+        << " winch angle: " << controller.actuation_angle_data().winch_angle()
         << " jib angle: " << controller.actuation_angle_data().jib_angle() << std::endl;
 
     send(serialized_controller_actuation_data);
