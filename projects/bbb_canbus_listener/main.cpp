@@ -141,15 +141,15 @@ void MotorCallback(NetworkTable::Node node, \
         // Manually split the float into bytes, and
         // put each byte into the frame.data array
         // The CAN frame data format is the same for all four angles
-        /* 
-            TODO(Henry): The "CAN Bus Inputs and Outputs" page on Confluence
-            says that the angles should be 16 bit unsigned integer values?
-        */
         uint8_t const *angle_array = reinterpret_cast<uint8_t *>(&angle);
         frame.data[0] = angle_array[0];
         frame.data[1] = angle_array[1];
-        frame.data[2] = angle_array[2];
-        frame.data[3] = angle_array[3];
+        // Winch and jib are only 16 bit integers, so don't need to set
+        // frame.data[2] and frame.data[3] for them. 
+        if (uri == RUDDER_PORT_ANGLE || uri == RUDDER_STBD_ANGLE) {
+            frame.data[2] = angle_array[2];
+            frame.data[3] = angle_array[3];
+        }
 
         // Write the rudder angle to the corresponding can frame
         if (write(s, &frame, sizeof(struct can_frame)) != sizeof(struct can_frame)) {
