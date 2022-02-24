@@ -97,7 +97,7 @@ void SetWindSensorData(int angle, float speed, const std::string &id) {
     }
 }
 
-void SetRudderFrame(float angle, struct can_frame *frame) {
+inline void SetRudderFrame(float angle, struct can_frame *frame) {
     // Manually split the float into bytes, and
     // put each byte into the frame.data array
     // The CAN frame data format is the same for all four angles
@@ -108,10 +108,9 @@ void SetRudderFrame(float angle, struct can_frame *frame) {
     frame->data[3] = angle_array[3];
 }
 
-void SetWinchJibFrame(float f_angle, struct can_frame *frame) {
+inline void SetWinchJibFrame(uint16_t angle, struct can_frame *frame) {
     // Winch and jib are only 16 bit integers,
     // so we need to reset the upper 2 bytes.
-    uint16_t angle = static_cast<uint16_t>(f_angle);
     frame->data[0] = angle & 0xFF;
     frame->data[1] = (angle >> 8) & 0xFF;
     frame->data[2] = 0;
@@ -130,7 +129,6 @@ void MotorCallback(NetworkTable::Node node, \
         const std::map<std::string, NetworkTable::Value> &diffs, \
         bool is_self_reply) {
     struct can_frame frame;
-    float angle;
     frame.can_dlc = CAN_DLC;
 
     for (const auto& uris : diffs) {
@@ -139,22 +137,26 @@ void MotorCallback(NetworkTable::Node node, \
         // Determine which URI the data is associated with
         if (uri == RUDDER_PORT_ANGLE) {
             frame.can_id = RUDDER_PORT_CMD_FRAME_ID;
-            angle = static_cast<float>(node.children().at("rudder_port").children().at("angle").value().float_data());
+            float angle = \
+                static_cast<float>(node.children().at("rudder_port").children().at("angle").value().float_data());
             SetRudderFrame(angle, &frame);
             std::cout << "Sending rudder port angle: " << angle << std::endl;
         } else if (uri == RUDDER_STBD_ANGLE) {
             frame.can_id = RUDDER_STBD_CMD_FRAME_ID;
-            angle = static_cast<float>(node.children().at("rudder_stbd").children().at("angle").value().float_data());
+            float angle = \
+                static_cast<float>(node.children().at("rudder_stbd").children().at("angle").value().float_data());
             SetRudderFrame(angle, &frame);
             std::cout << "Sending rudder starboard angle: " << angle << std::endl;
         } else if (uri == WINCH_MAIN_ANGLE) {
             frame.can_id = WINCH_MAIN_ANGLE_FRAME_ID;
-            angle = static_cast<float>(node.children().at("winch_main").children().at("angle").value().float_data());
+            uint16_t angle = \
+                static_cast<float>(node.children().at("winch_main").children().at("angle").value().float_data());
             SetWinchJibFrame(angle, &frame);
             std::cout << "Sending winch main angle: " << angle << std::endl;
         } else if (uri == WINCH_JIB_ANGLE) {
             frame.can_id = WINCH_JIB_ANGLE_FRAME_ID;
-            angle = static_cast<float>(node.children().at("winch_jib").children().at("angle").value().float_data());
+            uint16_t angle = \
+                static_cast<float>(node.children().at("winch_jib").children().at("angle").value().float_data());
             SetWinchJibFrame(angle, &frame);
             std::cout << "Sending jib angle: " << angle << std::endl;
         } else {
