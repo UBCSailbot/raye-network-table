@@ -150,13 +150,13 @@ void MotorCallback(NetworkTable::Node node, \
         } else if (uri == WINCH_MAIN_ANGLE) {
             frame.can_id = WINCH_MAIN_ANGLE_FRAME_ID;
             uint16_t angle = \
-                static_cast<float>(node.children().at("winch_main").children().at("angle").value().float_data());
+                static_cast<float>(node.children().at("winch_main").children().at("angle").value().int_data());
             SetWinchJibFrame(angle, &frame);
             std::cout << "Sending winch main angle: " << angle << std::endl;
         } else if (uri == WINCH_JIB_ANGLE) {
             frame.can_id = WINCH_JIB_ANGLE_FRAME_ID;
             uint16_t angle = \
-                static_cast<float>(node.children().at("winch_jib").children().at("angle").value().float_data());
+                static_cast<float>(node.children().at("winch_jib").children().at("angle").value().int_data());
             SetWinchJibFrame(angle, &frame);
             std::cout << "Sending jib angle: " << angle << std::endl;
         } else {
