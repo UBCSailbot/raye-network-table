@@ -6,28 +6,35 @@
 
 SENSORS="/sensors"
 HEAD="/desired_heading_degrees"
-ACTUATE_ANG="/actuation_angle"
+ACTUATE_ANG="/rudder_winch_actuation_angle"
 
-ROS_ECHO="rostopic echo"
+ROS_ECHO="rostopic echo -n 1"
 
-OUTPUT_FILE="CTRL_data.log"
+OUTPUT_SENSORS="sensor_data.log"
+OUTPUT_HEAD="head_data.log"
+OUTPUT_ACT="act_data.log"
 
+ECHO_DATE="date >> $OUTPUT_SENSORS && date >> $OUTPUT_HEAD && date >> $OUTPUT_ACT"
 # Go to the real directory and not a symlink
 # directory
 cd "$(dirname "$(realpath "$0")")"
-OUTPUT_LOC="$PWD$OUTPUT_FILE"
 
 printf "\n Starting data logging for CTRL\n"
 printf "\n================================\n"
 
 # Source the ROS topocs
-source ../../build/devel/setup.sh
+#../../build/devel/setup.sh
 # Clear the output file
-eval ": > $OUTPUT_FILE$"
-printf "Saving output to %s\n" $OUTPUT_LOC
-printf "
+eval ": > $OUTPUT_SENSORS"
+eval ": > $OUTPUT_HEAD"
+eval ": > $OUTPUT_ACT"
+printf "Saving output to %s\n" $PWD
 
-
-eval "$ROS_ECHO $SENSORS >> $OUTPUT_FILE"
-eval "$ROS_ECHO $HEAD >> $OUTPUT_FILE"
-eval "$ROS_ECHO $ACTUATE_ANG >> "$OUTPUT_FILE"
+while :
+do
+  eval "$ECHO_DATE"
+  eval "$ROS_ECHO $SENSORS >> $OUTPUT_SENSORS"
+  eval "$ROS_ECHO $HEAD >> $OUTPUT_HEAD"
+  eval "$ROS_ECHO $ACTUATE_ANG >> $OUTPUT_ACT"
+  sleep 1
+done
