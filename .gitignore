@@ -45,3 +45,6 @@ compile_commands.json
 
 #.json files
 frame_ids.json
+
+# Test logs
+scripts/ctrl_data_logging/*.log

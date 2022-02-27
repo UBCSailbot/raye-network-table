@@ -1,8 +1,13 @@
 # !/bin/bash
 
 # Logs the relevant rostopics on the NUC for
-# CTRL testing.
-
+# CTRL testing. See the Confluence page on
+# "Feb 27 2022 Testing in Preparation for Marina"
+# for more info.
+#
+# Make sure to source the ROS topics before
+# running this script
+# Ex. source ../../build/devel/setup.bash
 
 SENSORS="/sensors"
 HEAD="/desired_heading_degrees"
@@ -22,8 +27,6 @@ cd "$(dirname "$(realpath "$0")")"
 printf "\n Starting data logging for CTRL\n"
 printf "\n================================\n"
 
-# Source the ROS topocs
-#../../build/devel/setup.sh
 # Clear the output file
 eval ": > $OUTPUT_SENSORS"
 eval ": > $OUTPUT_HEAD"

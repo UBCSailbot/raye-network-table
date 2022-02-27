@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Steps for landserver:
-# 1) Run network_table_server (./build/bin/network_table_server) 
+# 1) Run network_table_server (./build/bin/network_table_server)
 # 2) Run land-satellite-listener (command too long to paste)
 # 3) Run global pathfinding
 #    (./build/bin/pathfinder_cli -p 8 --navigate 48 235 21 203)
@@ -16,9 +16,9 @@ GP_PGREP="pathfinder_cli"
 LS_PORT="-p 8000"
 LS_URL="-e https://rockblock.rock7.com/rockblock/MT"
 LS_FREQ_UNIT="-f 10 -u SEC"
-LS_B="-b 70.36.55.243"
+LS_B="-b 144.126.208.108"
 LS_USER="-n captain@ubcsailbot.org"
-LS_PASS="-w raye2020"
+# LS_PASS="-w raye2020"
 LS_ID="-r 300234068129370"
 LS_IPSRC="-i 212.71.235.32"
 
@@ -27,7 +27,7 @@ LS_CMD="python3 land_satellite_listener.py $LS_PORT $LS_URL $LS_FREQ_UNIT $LS_UN
 GP_CMD="/root/network-table/scripts/startup/helpers/global_pathfinding_startup.sh"
 
 printf "\nStartup script for land server\n"
-printf "\n================================\n"
+printf "================================\n"
 
 # network_table_server
 printf "Network Table Server\n"
@@ -43,7 +43,7 @@ else
     cd $NT_ROOT
     eval "$NT_CMD"
     NT_PID=$(pgrep -f "$NT_PGREP")
-    
+
     printf "Started nt_server with PID: %d\n" $NT_PID
 fi
 printf "\n================================\n"
@@ -58,12 +58,15 @@ then
     printf "Satellite listener already running with PID: %d\n" $LS_PID
 else
     printf "Listener not started. Starting new process\n"
-    
+
     cd $NT_ROOT/projects/land_satellite_listener
+    read -p "Enter the Rockblock password: " -r
+    echo
+    LS_PASS="-w $REPLY"
     eval "$LS_CMD"
     LS_PID=$(pgrep -f "$LS_PGREP")
 
-    printf "Started land satellite listener with PID: %d\n" $LS_PID
+   printf "Started land satellite listener with PID: %d\n" $LS_PID
 fi
 printf "\n================================\n"
 
