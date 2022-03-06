@@ -6,12 +6,17 @@
 #include <ros/ros.h>
 #include <getopt.h>
 #include "Help.h"
-#include "ActuationAngle.pb.h"
+#include "Controller.pb.h"
 #include "sailbot_msg/manual_override.h"
 #include "Uri.h"
 
 #define ROS_MANUAL_OVERRIDE_NODE "/manual_override"
 #define DEFAULT_TEST_NODE  "/manual_override_test"
+
+// Limits for the rudders, winch, and jib
+#define PI                          3.14159265358979323846
+#define MAX_RUDDER_ANGLE_RAD        PI / 4
+#define MAX_WINCH_JIB_POS           360
 
 /* 
  * When testing without the network controller, we want to publish to
@@ -24,19 +29,45 @@ ros::Publisher manual_override_pub;
 
 void PublishManualOverride(std::string angles) {
     try {
-        std::size_t size;
-        double rudder_angle_degrees = std::stod(angles, &size);
+        std::size_t size, size_2;
+        double rudder_angle_radians = std::stod(angles, &size);
+        if (rudder_angle_radians > MAX_RUDDER_ANGLE_RAD) {
+            std::cerr << "WARNING: rudder angle input greater than max (PI/4), sending PI/4 instead." << std::endl;
+            rudder_angle_radians = MAX_RUDDER_ANGLE_RAD;
+        } else if (rudder_angle_radians < -MAX_RUDDER_ANGLE_RAD) {
+            std::cerr << "WARNING: rudder angle input less than min (-PI/4), sending PI/4 instead." << std::endl;
+            rudder_angle_radians = -MAX_RUDDER_ANGLE_RAD;
+        }
         // Gets second number in string.
-        double abs_sail_angle_degrees = std::stod(angles.substr(size));
+        int sail_winch_position = std::stoi(angles.substr(size), &size_2);
+        if (sail_winch_position > MAX_WINCH_JIB_POS) {
+            std::cerr << "WARNING: winch position input greater than max " << MAX_WINCH_JIB_POS << ", sending " <<
+                MAX_WINCH_JIB_POS << " instead." << std::endl;
+            sail_winch_position = MAX_WINCH_JIB_POS;
+        } else if (sail_winch_position < 0) {
+            std::cerr << "WARNING: winch position less than minimum 0, sending 0 instead." << std::endl;
+            sail_winch_position = 0;
+        }
+        // Gets third number.
+        int jib_winch_position = std::stoi(angles.substr(size + size_2));
+        if (jib_winch_position > MAX_WINCH_JIB_POS) {
+            std::cerr << "WARNING: jib position input greater than max " << MAX_WINCH_JIB_POS << ", sending " <<
+                MAX_WINCH_JIB_POS << " instead." << std::endl;
+            sail_winch_position = MAX_WINCH_JIB_POS;
+        } else if (jib_winch_position < 0) {
+            std::cerr << "WARNING: jib position less than minimum 0, sending 0 instead." << std::endl;
+            jib_winch_position = 0;
+        }
 
         sailbot_msg::manual_override ros_manual_override;
-        ros_manual_override.rudder_angle_degrees = rudder_angle_degrees;
-        ros_manual_override.abs_sail_angle_degrees = abs_sail_angle_degrees;
-        // Nav-247: Add something to deal with jib angle
+        ros_manual_override.rudder_angle_radians = rudder_angle_radians;
+        ros_manual_override.sail_winch_position = sail_winch_position;
+        ros_manual_override.jib_winch_position = jib_winch_position;
         ros_manual_override.manual_override_active = true;
 
-        std::cout << "Setting rudder angle to: " << rudder_angle_degrees
-        << " degrees, sail angle to: " << abs_sail_angle_degrees << " degrees." << std::endl;
+        std::cout << "Setting rudder angle to: " << rudder_angle_radians
+        << " radians, sail position to: " << sail_winch_position << ", set jib position to: "
+        << jib_winch_position << std::endl;
 
         manual_override_pub.publish(ros_manual_override);
     } catch (const std::invalid_argument& ia) {
@@ -51,11 +82,11 @@ void StopManualOverride() {
 }
 
 void PublishManualOverrideLoop() {
+    std::string prompt =    "Manually enter rudder angle (radians) and sail position and winch position, "
+                            "or \"stop\" to suspend manual override:";
+    std::cout << prompt << std::endl;
     while (ros::ok()) {
         std::string input;
-
-        std::cout << "Manually enter rudder angle and sail angle (degrees), "
-                    "or \"stop\" to suspend manual override:" << std::endl;
 
         std::getline(std::cin, input);
 
