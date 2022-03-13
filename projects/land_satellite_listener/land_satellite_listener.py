@@ -42,7 +42,11 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             body = self.rfile.read(content_len)
 
             # Need to extract hex data from received message, then convert to string, then back to bytes
-            data = bytes(bytes.fromhex((str(body).split("data=", 1)[1])[:-1]).decode('utf-8'), 'utf-8')
+            print(body)
+            #data = bytes(bytes.fromhex((str(body).split("data=", 1)[1])[:-1]).decode('utf-8', 'ignore'), 'utf-8')
+            data = str(body).split("data=", 1)[1][:-1]
+            print(data)
+            data = bytes.fromhex(data)
             sat = Satellite_pb2.Satellite()
             helper = Help()
 
