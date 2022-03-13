@@ -248,7 +248,7 @@ class Help:
         val = self.create_str_val(uccms.bms_0.status)
         values[BMS0_UCCM_STATUS] = val
 
-        val = self.create_int_val(uccms.bms_0.current)
+        val = self.create_int_val(uccms.bms_1.current)
         values[BMS1_UCCM_CURRENT] = val
         val = self.create_int_val(uccms.bms_1.voltage)
         values[BMS1_UCCM_VOLTAGE] = val
