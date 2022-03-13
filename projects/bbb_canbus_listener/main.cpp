@@ -347,7 +347,8 @@ int main(int argc, char **argv) {
                 double longitudeDDM = GET_GPS_LONG(frame.data);
                 int longitudeDD = longitudeDDM / 100;
                 double longitudeM = longitudeDDM - (longitudeDD * 100);
-                double longitude_degrees = longitudeDD + (longitudeM / 60);
+                // Set to negative as we are always in the Western hempishere
+                double longitude_degrees = -(longitudeDD + (longitudeM / 60));
 
                 gps_longitude.set_type(NetworkTable::Value::FLOAT);
                 gps_longitude.set_float_data(static_cast<float>(longitude_degrees));
