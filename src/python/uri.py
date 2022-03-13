@@ -163,7 +163,6 @@ WIND3_ANGLE = "/wind_sensor_3/iimwv/wind_angle"
 WAYPOINTS_GP = "waypoints"
 
 # UCCM
-# TODO: need to update these eventually
 # boom sensor
 BOOM_UCCM_CURRENT = "/boom_angle_sensor/uccm/current"
 BOOM_UCCM_VOLTAGE = "/boom_angle_sensor/uccm/voltage"
@@ -196,30 +195,30 @@ WINCH1_UCCM_STATUS = "/winch_motor_control_1/uccm/status"
 WIND0_UCCM_CURRENT = "/wind_sensor_0/uccm/current"
 WIND0_UCCM_VOLTAGE = "/wind_sensor_0/uccm/voltage"
 WIND0_UCCM_TEMP = "/wind_sensor_0/uccm/temperature"
-WIND0_UCCM_CURRENT = "/wind_sensor_0/uccm/status"
+WIND0_UCCM_STATUS = "/wind_sensor_0/uccm/status"
 
 WIND1_UCCM_CURRENT = "/wind_sensor_1/uccm/current"
 WIND1_UCCM_VOLTAGE = "/wind_sensor_1/uccm/voltage"
 WIND1_UCCM_TEMP = "/wind_sensor_1/uccm/temperature"
-WIND1_UCCM_CURRENT = "/wind_sensor_1/uccm/status"
+WIND1_UCCM_STATUS = "/wind_sensor_1/uccm/status"
 
 WINCH1_UCCM = "/winch_motor_control_1"
 
 WIND2_UCCM_CURRENT = "/wind_sensor_2/uccm/current"
 WIND2_UCCM_VOLTAGE = "/wind_sensor_2/uccm/voltage"
 WIND2_UCCM_TEMP = "/wind_sensor_2/uccm/temperature"
-WIND2_UCCM_CURRENT = "/wind_sensor_2/uccm/status"
+WIND2_UCCM_STATUS = "/wind_sensor_2/uccm/status"
 
 # gps
-GPS0_UCCM_CURRENT = "/gps_0/uccm/current"
-GPS0_UCCM_VOLTAGE = "/gps_0/uccm/voltage"
-GPS0_UCCM_TEMP = "/gps_0/uccm/temperature"
-GPS0_UCCM_STATUS = "/gps_0/uccm/status"
+GPS_CAN_UCCM_CURRENT = "/gps_can/uccm/current"
+GPS_CAN_UCCM_VOLTAGE = "/gps_can/uccm/voltage"
+GPS_CAN_UCCM_TEMP = "/gps_can/uccm/temperature"
+GPS_CAN_UCCM_STATUS = "/gps_can/uccm/status"
 
-GPS1_UCCM_CURRENT = "/gps_1/uccm/current"
-GPS1_UCCM_VOLTAGE = "/gps_1/uccm/voltage"
-GPS1_UCCM_TEMP = "/gps_1/uccm/temperature"
-GPS1_UCCM_STATUS = "/gps_1/uccm/status"
+GPS_AIS_UCCM_CURRENT = "/gps_ais/uccm/current"
+GPS_AIS_UCCM_VOLTAGE = "/gps_ais/uccm/voltage"
+GPS_AIS_UCCM_TEMP = "/gps_ais/uccm/temperature"
+GPS_AIS_UCCM_STATUS = "/gps_ais/uccm/status"
 
 # bms
 BMS0_UCCM_CURRENT = "/bms_0/uccm/current"

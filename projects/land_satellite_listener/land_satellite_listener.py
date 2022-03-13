@@ -42,11 +42,8 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             body = self.rfile.read(content_len)
 
             # Need to extract hex data from received message, then convert to string, then back to bytes
-            print(body)
-            #data = bytes(bytes.fromhex((str(body).split("data=", 1)[1])[:-1]).decode('utf-8', 'ignore'), 'utf-8')
-            data = str(body).split("data=", 1)[1][:-1]
-            print(data)
-            data = bytes.fromhex(data)
+            data = str(body).split("data=", 1)[1][:-1] # Separate the payload from the Iridium headers
+            data = bytes.fromhex(data) # Convert the string back to hex
             sat = Satellite_pb2.Satellite()
             helper = Help()
 

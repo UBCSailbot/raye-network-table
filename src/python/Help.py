@@ -142,171 +142,165 @@ class Help:
 
         # Store boom sensor uccm values
         val = self.create_int_val(uccms.boom_angle_sensor.current)
-        values["/boom_angle_sensor/uccm/current"] = val
+        values[BOOM_UCCM_CURRENT] = val
         val = self.create_int_val(uccms.boom_angle_sensor.voltage)
-        values["/boom_angle_sensor/uccm/voltage"] = val
+        values[BOOM_UCCM_VOLTAGE] = val
         val = self.create_int_val(uccms.boom_angle_sensor.temperature)
-        values["/boom_angle_sensor/uccm/temperature"] = val
+        values[BOOM_UCCM_TEMP] = val
         val = self.create_str_val(uccms.boom_angle_sensor.status)
-        values["/boom_angle_sensor/uccm/status"] = val
+        values[BOOM_UCCM_STATUS] = val
 
         # Store rudder motor uccm values
         val = self.create_int_val(uccms.rudder_motor_control_0.current)
-        values["/rudder_motor_control_0/uccm/current"] = val
+        values[RUDDER0_UCCM_CURRENT] = val
         val = self.create_int_val(uccms.rudder_motor_control_0.voltage)
-        values["/rudder_motor_control_0/uccm/voltage"] = val
+        values[RUDDER0_UCCM_VOLTAGE] = val
         val = self.create_int_val(uccms.rudder_motor_control_0.temperature)
-        values["/rudder_motor_control_0/uccm/temperature"] = val
+        values[RUDDER0_UCCM_TEMP] = val
         val = self.create_str_val(uccms.rudder_motor_control_0.status)
-        values["/rudder_motor_control_0/uccm/status"] = val
+        values[RUDDER0_UCCM_STATUS] = val
 
         val = self.create_int_val(uccms.rudder_motor_control_1.current)
-        values["/rudder_motor_control_1/uccm/current"] = val
+        values[RUDDER1_UCCM_CURRENT] = val
         val = self.create_int_val(uccms.rudder_motor_control_1.voltage)
-        values["/rudder_motor_control_1/uccm/voltage"] = val
+        values[RUDDER1_UCCM_VOLTAGE] = val
         val = self.create_int_val(uccms.rudder_motor_control_1.temperature)
-        values["/rudder_motor_control_1/uccm/temperature"] = val
+        values[RUDDER1_UCCM_TEMP] = val
         val = self.create_str_val(uccms.rudder_motor_control_1.status)
-        values["/rudder_motor_control_1/uccm/status"] = val
+        values[RUDDER1_UCCM_STATUS] = val
 
         # Store winch motor uccm values
         val = self.create_int_val(uccms.winch_motor_control_0.current)
-        values["/winch_motor_control_0/uccm/current"] = val
+        values[WINCH0_UCCM_CURRENT] = val
         val = self.create_int_val(uccms.winch_motor_control_0.voltage)
-        values["/winch_motor_control_0/uccm/voltage"] = val
+        values[WINCH0_UCCM_VOLTAGE] = val
         val = self.create_int_val(uccms.winch_motor_control_0.temperature)
-        values["/winch_motor_control_0/uccm/temperature"] = val
+        values[WINCH0_UCCM_TEMP] = val
         val = self.create_str_val(uccms.winch_motor_control_0.status)
-        values["/winch_motor_control_0/uccm/status"] = val
+        values[WINCH0_UCCM_STATUS] = val
 
         val = self.create_int_val(uccms.winch_motor_control_1.current)
-        values["/winch_motor_control_1/uccm/current"] = val
+        values[WINCH1_UCCM_CURRENT] = val
         val = self.create_int_val(uccms.winch_motor_control_1.voltage)
-        values["/winch_motor_control_1/uccm/voltage"] = val
+        values[WINCH1_UCCM_VOLTAGE] = val
         val = self.create_int_val(uccms.winch_motor_control_1.temperature)
-        values["/winch_motor_control_1/uccm/temperature"] = val
+        values[WINCH1_UCCM_TEMP] = val
         val = self.create_str_val(uccms.winch_motor_control_1.status)
-        values["/winch_motor_control_1/uccm/status"] = val
+        values[WINCH1_UCCM_STATUS] = val
 
         # Store wind sensor uccm values
         val = self.create_int_val(uccms.wind_sensor_0.current)
-        values["/wind_sensor_0/uccm/current"] = val
-        val = self.create_int_val(
-            uccms.wind_sensor_0.voltage)
-        values["/wind_sensor_0/uccm/voltage"] = val
-        val = self.create_int_val(
-            uccms.wind_sensor_0.temperature)
-        values["/wind_sensor_0/uccm/temperature"] = val
-        val = self.create_str_val(
-            uccms.wind_sensor_0.status)
-        values["/wind_sensor_0/uccm/status"] = val
+        values[WIND0_UCCM_CURRENT] = val
+        val = self.create_int_val(uccms.wind_sensor_0.voltage)
+        values[WIND0_UCCM_VOLTAGE] = val
+        val = self.create_int_val(uccms.wind_sensor_0.temperature)
+        values[WIND0_UCCM_TEMP] = val
+        val = self.create_str_val(uccms.wind_sensor_0.status)
+        values[WIND0_UCCM_STATUS] = val
 
         val = self.create_int_val(uccms.wind_sensor_1.current)
-        values["/wind_sensor_1/uccm/current"] = val
-        val = self.create_int_val(
-            uccms.wind_sensor_1.voltage)
-        values["/wind_sensor_1/uccm/voltage"] = val
-        val = self.create_int_val(
-            uccms.wind_sensor_1.temperature)
-        values["/wind_sensor_1/uccm/temperature"] = val
-        val = self.create_str_val(
-            uccms.wind_sensor_1.status)
-        values["/wind_sensor_1/uccm/status"] = val
+        values[WIND1_UCCM_CURRENT] = val
+        val = self.create_int_val(uccms.wind_sensor_1.voltage)
+        values[WIND1_UCCM_VOLTAGE] = val
+        val = self.create_int_val(uccms.wind_sensor_1.temperature)
+        values[WIND1_UCCM_TEMP] = val
+        val = self.create_str_val(uccms.wind_sensor_1.status)
+        values[WIND1_UCCM_STATUS] = val
 
         val = self.create_int_val(uccms.wind_sensor_2.current)
-        values["/wind_sensor_2/uccm/current"] = val
+        values[WIND2_UCCM_CURRENT] = val
         val = self.create_int_val(
             uccms.wind_sensor_2.voltage)
-        values["/wind_sensor_2/uccm/voltage"] = val
+        values[WIND2_UCCM_VOLTAGE] = val
         val = self.create_int_val(
             uccms.wind_sensor_2.temperature)
-        values["/wind_sensor_2/uccm/temperature"] = val
+        values[WIND2_UCCM_TEMP] = val
         val = self.create_str_val(
             uccms.wind_sensor_2.status)
-        values["/wind_sensor_2/uccm/status"] = val
+        values[WIND2_UCCM_STATUS] = val
 
         # Store gps uccm values
-        val = self.create_int_val(uccms.gps_0.current)
-        values["/gps_0/uccm/current"] = val
-        val = self.create_int_val(uccms.gps_0.voltage)
-        values["/gps_0/uccm/voltage"] = val
-        val = self.create_int_val(uccms.gps_0.temperature)
-        values["/gps_0/uccm/temperature"] = val
-        val = self.create_str_val(uccms.gps_0.status)
-        values["/gps_0/uccm/status"] = val
+        val = self.create_int_val(uccms.gps_can.current)
+        values[GPS_CAN_UCCM_CURRENT] = val
+        val = self.create_int_val(uccms.gps_can.voltage)
+        values[GPS_CAN_UCCM_VOLTAGE] = val
+        val = self.create_int_val(uccms.gps_can.temperature)
+        values[GPS_CAN_UCCM_TEMP] = val
+        val = self.create_str_val(uccms.gps_can.status)
+        values[GPS_CAN_UCCM_STATUS] = val
 
-        val = self.create_int_val(uccms.gps_0.current)
-        values["/gps_1/uccm/current"] = val
-        val = self.create_int_val(uccms.gps_1.voltage)
-        values["/gps_1/uccm/voltage"] = val
-        val = self.create_int_val(uccms.gps_1.temperature)
-        values["/gps_1/uccm/temperature"] = val
-        val = self.create_str_val(uccms.gps_1.status)
-        values["/gps_1/uccm/status"] = val
+        val = self.create_int_val(uccms.gps_ais.current)
+        values[GPS_AIS_UCCM_CURRENT] = val
+        val = self.create_int_val(uccms.gps_ais.voltage)
+        values[GPS_AIS_UCCM_VOLTAGE] = val
+        val = self.create_int_val(uccms.gps_ais.temperature)
+        values[GPS_AIS_UCCM_TEMP] = val
+        val = self.create_str_val(uccms.gps_ais.status)
+        values[GPS_AIS_UCCM_STATUS] = val
 
         # Store bms uccm values
         val = self.create_int_val(uccms.bms_0.current)
-        values["/bms_0/uccm/current"] = val
+        values[BMS0_UCCM_CURRENT] = val
         val = self.create_int_val(uccms.bms_0.voltage)
-        values["/bms_0/uccm/total_voltage"] = val
+        values[BMS0_UCCM_VOLTAGE] = val
         val = self.create_int_val(uccms.bms_0.temperature)
-        values["/bms_0/uccm/temperature"] = val
+        values[BMS0_UCCM_TEMP] = val
         val = self.create_str_val(uccms.bms_0.status)
-        values["/bms_0/uccm/status"] = val
+        values[BMS0_UCCM_STATUS] = val
 
         val = self.create_int_val(uccms.bms_0.current)
-        values["/bms_1/uccm/current"] = val
+        values[BMS1_UCCM_CURRENT] = val
         val = self.create_int_val(uccms.bms_1.voltage)
-        values["/bms_1/uccm/voltage"] = val
+        values[BMS1_UCCM_VOLTAGE] = val
         val = self.create_int_val(uccms.bms_1.temperature)
-        values["/bms_1/uccm/temperature"] = val
+        values[BMS1_UCCM_TEMP] = val
         val = self.create_str_val(uccms.bms_1.status)
-        values["/bms_1/uccm/status"] = val
+        values[BMS1_UCCM_STATUS] = val
 
-        val = self.create_int_val(uccms.bms_1.current)
-        values["/bms_2/uccm/current"] = val
+        val = self.create_int_val(uccms.bms_2.current)
+        values[BMS2_UCCM_CURRENT] = val
         val = self.create_int_val(uccms.bms_2.voltage)
-        values["/bms_2/uccm/voltage"] = val
+        values[BMS2_UCCM_VOLTAGE] = val
         val = self.create_int_val(uccms.bms_2.temperature)
-        values["/bms_2/uccm/temperature"] = val
+        values[BMS2_UCCM_TEMP] = val
         val = self.create_str_val(uccms.bms_2.status)
-        values["/bms_2/uccm/status"] = val
+        values[BMS2_UCCM_STATUS] = val
 
         val = self.create_int_val(uccms.bms_3.current)
-        values["/bms_3/uccm/current"] = val
+        values[BMS3_UCCM_CURRENT] = val
         val = self.create_int_val(uccms.bms_3.voltage)
-        values["/bms_3/uccm/voltage"] = val
+        values[BMS3_UCCM_VOLTAGE] = val
         val = self.create_int_val(uccms.bms_3.temperature)
-        values["/bms_3/uccm/temperature"] = val
+        values[BMS3_UCCM_TEMP] = val
         val = self.create_str_val(uccms.bms_3.status)
-        values["/bms_3/uccm/status"] = val
+        values[BMS3_UCCM_STATUS] = val
 
-        val = self.create_int_val(uccms.bms_3.current)
-        values["/bms_4/uccm/current"] = val
+        val = self.create_int_val(uccms.bms_4.current)
+        values[BMS4_UCCM_CURRENT] = val
         val = self.create_int_val(uccms.bms_4.voltage)
-        values["/bms_4/uccm/voltage"] = val
+        values[BMS4_UCCM_VOLTAGE] = val
         val = self.create_int_val(uccms.bms_4.temperature)
-        values["/bms_4/uccm/temperature"] = val
+        values[BMS4_UCCM_TEMP] = val
         val = self.create_str_val(uccms.bms_4.status)
-        values["/bms_4/uccm/status"] = val
+        values[BMS4_UCCM_STATUS] = val
 
         val = self.create_int_val(uccms.bms_5.current)
-        values["/bms_5/uccm/current"] = val
+        values[BMS5_UCCM_CURRENT] = val
         val = self.create_int_val(uccms.bms_5.voltage)
-        values["/bms_5/uccm/voltage"] = val
+        values[BMS5_UCCM_VOLTAGE] = val
         val = self.create_int_val(uccms.bms_5.temperature)
-        values["/bms_5/uccm/temperature"] = val
+        values[BMS5_UCCM_TEMP] = val
         val = self.create_str_val(uccms.bms_5.status)
-        values["/bms_5/uccm/status"] = val
+        values[BMS5_UCCM_STATUS] = val
 
         # Store accelerometer uccm values
         val = self.create_int_val(uccms.accelerometer.current)
-        values["/accelerometer/uccm/current"] = val
+        values[ACCEL_UCCM_CURRENT] = val
         val = self.create_int_val(uccms.accelerometer.voltage)
-        values["/accelerometer/uccm/voltage"] = val
+        values[ACCEL_UCCM_VOLTAGE] = val
         val = self.create_int_val(uccms.accelerometer.temperature)
-        values["/accelerometer/uccm/temperature"] = val
+        values[ACCEL_UCCM_TEMP] = val
         val = self.create_str_val(uccms.accelerometer.status)
-        values["/accelerometer/uccm/status"] = val
+        values[ACCEL_UCCM_STATUS] = val
 
         return values
