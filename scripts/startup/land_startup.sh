@@ -18,12 +18,12 @@ LS_URL="-e https://rockblock.rock7.com/rockblock/MT"
 LS_FREQ_UNIT="-f 10 -u SEC"
 LS_B="-b 144.126.208.108"
 LS_USER="-n captain@ubcsailbot.org"
-# LS_PASS="-w raye2020"
+LS_PASS="" # Set as input
 LS_ID="-r 300234068129370"
 LS_IPSRC="-i 212.71.235.32"
 
 NT_CMD="./build/bin/network_table_server &"
-LS_CMD="python3 land_satellite_listener.py $LS_PORT $LS_URL $LS_FREQ_UNIT $LS_UNIT $LS_B $LS_USER $LS_PASS $LS_ID $LS_IPSRC &"
+LS_CMD="python3 land_satellite_listener.py $LS_PORT $LS_URL $LS_FREQ_UNIT $LS_UNIT $LS_B $LS_USER $LS_ID $LS_IPSRC"
 GP_CMD="/root/network-table/scripts/startup/helpers/global_pathfinding_startup.sh"
 
 printf "\nStartup script for land server\n"
@@ -60,9 +60,10 @@ else
     printf "Listener not started. Starting new process\n"
 
     cd $NT_ROOT/projects/land_satellite_listener
-    read -p "Enter the Rockblock password: " -r
+    read -sp "Enter the Rockblock password: " REPLY
     echo
     LS_PASS="-w $REPLY"
+    LS_CMD="$LS_CMD $LS_PASS &"
     eval "$LS_CMD"
     LS_PID=$(pgrep -f "$LS_PGREP")
 
