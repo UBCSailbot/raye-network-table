@@ -21,6 +21,8 @@ import keyring
 from requests.auth import HTTPBasicAuth
 from functools import partial
 
+MAX_WAYPOINTS_PAYLOAD = 4
+
 
 class HTTPRequestHandler(BaseHTTPRequestHandler):
     def __init__(self, nt_connection, accepted_ip_addresses, *args, **kwargs):
@@ -126,6 +128,24 @@ class runClient(threading.Thread):
         satellite.value.type = Value_pb2.Value.Type.WAYPOINTS
         return satellite
 
+    def split_waypoints(self, node):
+        waypoints = [w for w in node.values.waypoints]
+        cur_sat_segment = self.init_waypoints()
+        count = 0
+        # Copy over waypoints in MAX_WAYPOINTS_PAYLOAD chunks at a time
+        for waypoint in waypoints:
+            w = cur_sat_segment.value.waypoints.add()
+            w.latitude = waypoint.latitude
+            w.longitude = waypoint.longitude
+            count += 1
+            if count == MAX_WAYPOINTS_PAYLOAD:
+                cur_sat_segment_serial = cur_sat_segment.SerializeToString()
+                yield cur_sat_segment, cur_sat_segment_serial
+                del cur_sat_segment.value.waypoints[:]
+                count = 0
+        if count != 0:  # number of waypoints not a multiple of MAX_WAYPOINTS_PAYLOAD
+            yield cur_sat_segment, cur_sat_segment.SerializeToString()
+
     def run(self):
         """ Polls the network table for changes in global
             pathfinding waypoints and sends changes to
@@ -146,21 +166,19 @@ class runClient(threading.Thread):
 
                 if (node.value.type == Value_pb2.Value.Type.WAYPOINTS
                         and node.value != prev_sat.value):
-                    cur_sat.value.CopyFrom(node.value)
-                    cur_sat_serial = cur_sat.SerializeToString()
+                    for cur_sat_segment, cur_sat_segment_serial in self.split_waypoints(node):
+                        data = {"data": cur_sat_segment_serial.hex()}
+                        if (self.imei is not None and self.username is not None
+                                and self.password is not None):
+                            data['imei'] = self.imei
+                            data['username'] = self.username
+                            data['password'] = self.password
+                        print("Sending waypoints")
+                        print(cur_sat_segment)
+                        response = requests.request("POST", self.ENDPOINT, params=data)
+                        print("Response = " + str(response))
 
-                    data = {"data": cur_sat_serial.hex()}
-                    if self.imei is not None and self.username is not None and self.password is not None:
-                        data['imei'] = self.imei
-                        data['username'] = self.username
-                        data['password'] = self.password
-
-                    print("Sending waypoints")
-                    print(cur_sat)
-                    response = requests.request("POST", self.ENDPOINT, params=data)
-                    print("Response = " + str(response))
-                    prev_sat.value.CopyFrom(cur_sat.value)
-
+                    prev_sat.value.CopyFrom(node.value)
                 time.sleep(self.poll_freq)
 
             except ConnectionError:
