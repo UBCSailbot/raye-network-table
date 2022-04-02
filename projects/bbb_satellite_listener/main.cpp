@@ -17,6 +17,7 @@
 *
 */
 
+#include <boost/asio/deadline_timer.hpp>
 #include <iostream>
 #include <boost/asio.hpp>
 #include <thread>
@@ -38,6 +39,8 @@
 #include "Exceptions.h"
 #include "Uri.h"
 
+#define READ_WAYPOINT_TIMEOUT 30  // 30 seconds
+
 // Stores serialized sensor and uccm data to send to rockblock
 std::string latest_sensors_satellite_string;  // NOLINT(runtime/string)
 std::string latest_uccms_satellite_string;  // NOLINT(runtime/string)
@@ -47,13 +50,16 @@ uint16_t sendSensors_freq;
 uint16_t sendUccm_freq;
 
 std::mutex serialPort_mtx;
+std::mutex timeout_mtx;
 boost::asio::io_service io;
 boost::asio::serial_port serial(io);
+boost::asio::deadline_timer timer(io);
 
 uint16_t receive_size;
 uint16_t receive_freq;
 
 NetworkTable::Connection connection;
+NetworkTable::Value waypoint_data;  // Where we store waypoint segments before writing to the Network Table
 
 /**
  *  Reads off the serial port until a newline detected
@@ -161,6 +167,21 @@ void send(const std::string &data) {
 }
 
 /**
+ * Callback function that runs when we timeout on waiting for more waypoint
+ * message segments from the landserver
+ */
+void set_waypoints(const boost::system::error_code& error) {
+    std::lock_guard<std::mutex> lck(timeout_mtx);
+    if (!error) {
+        NetworkTable::Satellite sat;
+        sat.set_allocated_value(&waypoint_data);
+        connection.SetValue(WAYPOINTS_GP, waypoint_data);
+        std::cout << "Setting waypoint data: " << waypoint_data.DebugString() << std::endl;
+        waypoint_data.clear_waypoints();
+    }
+}
+
+/**
  *  Decodes messages received from the satellite as waypoints 
  *  and updates the network table
  *
@@ -169,6 +190,7 @@ void send(const std::string &data) {
  *
  */
 std::string decode_message(std::string message) {
+    std::lock_guard<std::mutex> lck(timeout_mtx);  // Don't want to timeout while adding a new waypoint
     NetworkTable::Satellite satellite;
 
     // Convert the string message back to the hex representation
@@ -183,12 +205,16 @@ std::string decode_message(std::string message) {
     std::vector<char> byte_message = HexToBytes(std::string(hex_message));
     std::string str_data(byte_message.begin(), byte_message.end());
     satellite.ParseFromString(str_data);
-
-    // Update the network table with the received waypoints
     if (satellite.type() == NetworkTable::Satellite::VALUE &&
-               satellite.value().type() == NetworkTable::Value::WAYPOINTS) {
-        std::cout << "WAYPOINT DATA" << std::endl;
-        connection.SetValue("waypoints", satellite.value());
+            satellite.value().type() == NetworkTable::Value::WAYPOINTS) {
+        for (const auto &new_waypoint : satellite.value().waypoints()) {
+            NetworkTable::Value_Waypoint *w = waypoint_data.add_waypoints();
+            w->set_latitude(new_waypoint.latitude());
+            w->set_longitude(new_waypoint.longitude());
+        }
+        // Cancels all pending timers and resets the timeout
+        timer.expires_from_now(boost::posix_time::seconds(READ_WAYPOINT_TIMEOUT));
+        timer.async_wait(set_waypoints);
         return satellite.DebugString();
     } else {
         throw std::runtime_error("Failed to decode satellite data");
