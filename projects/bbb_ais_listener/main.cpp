@@ -22,9 +22,11 @@
 #include "Connection.h"
 #include "AisControllerConnection.h"
 #include "Value.pb.h"
+#include "Uri.h"
 
 #define SOCKET_ENDPOINT "ipc:///tmp/sailbot/AisReceiverControllerQuery"
 #define DEFAULT_SLEEP 10  // sleep in seconds
+#define RAYE_MMSI 316046014
 
 
 // Testing purposes
@@ -115,7 +117,44 @@ int main(int argc, char** argv) {
         proto_boats.clear_boats();
 
         for (Boat b : ais_boats) {
-            ConvertToProto(b, proto_boats.add_boats());
+            if (b.m_mmsi == RAYE_MMSI) {
+                std::cout << "setting RAYE GPS Values in Network Table" << std::endl;
+                
+                // map to format the gps coordinates for connection.SetValues()
+                std::map<std::string, NetworkTable::Value> values;
+
+                // Creates and configures NetworkTable values for insertion
+                NetworkTable::Value ais_gps_latitude;
+                NetworkTable::Value ais_gps_longitude;
+
+                double raye_latitude = b.m_latitude;
+                double raye_longitude = b.m_longitude;
+
+                ais_gps_latitude.set_type(NetworkTable::Value::FLOAT);
+                ais_gps_longitude.set_type(NetworkTable::Value::FLOAT);
+
+                ais_gps_latitude.set_float_data(static_cast<float>(raye_latitude));
+                ais_gps_longitude.set_float_data(static_cast<float>(raye_longitude));
+
+                // Formats the Networktable::Value in the values map
+                values.insert(std::pair<std::string, NetworkTable::Value>\
+                        (GPS_AIS_LAT, ais_gps_latitude));
+                values.insert(std::pair<std::string, NetworkTable::Value)\
+                        (GPS_AIS_LON, ais_gps_longitude);
+
+                // Sets the AIS_GPS values
+                try {
+                    connection.SetValues(values);
+                } catch (NetworkTable::NotConnectedException) {
+                    std::cout << "Failed to set value" << std::endl;
+                } catch (NetworkTable::TimeoutException) {
+                    std::cout << "Timeout" << std::endl;
+                }
+
+                std::cout << "set GPS_AIS_LAT and GPS_AIS_LON to: " << GPS_AIS_LAT << " and " << GPS_AIS_LON << " respectively." << std::endl;
+            } else {
+                ConvertToProto(b, proto_boats.add_boats());
+            }
         }
         printBoats(ais_boats);
 
