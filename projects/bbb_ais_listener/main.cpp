@@ -23,6 +23,7 @@
 #include "AisControllerConnection.h"
 #include "Value.pb.h"
 #include "Uri.h"
+#include "Exceptions.h"
 
 #define SOCKET_ENDPOINT "ipc:///tmp/sailbot/AisReceiverControllerQuery"
 #define DEFAULT_SLEEP 10  // sleep in seconds
@@ -119,7 +120,6 @@ int main(int argc, char** argv) {
         for (Boat b : ais_boats) {
             if (b.m_mmsi == RAYE_MMSI) {
                 std::cout << "setting RAYE GPS Values in Network Table" << std::endl;
-                
                 // map to format the gps coordinates for connection.SetValues()
                 std::map<std::string, NetworkTable::Value> values;
 
@@ -139,8 +139,8 @@ int main(int argc, char** argv) {
                 // Formats the Networktable::Value in the values map
                 values.insert(std::pair<std::string, NetworkTable::Value>\
                         (GPS_AIS_LAT, ais_gps_latitude));
-                values.insert(std::pair<std::string, NetworkTable::Value)\
-                        (GPS_AIS_LON, ais_gps_longitude);
+                values.insert(std::pair<std::string, NetworkTable::Value>\
+                        (GPS_AIS_LON, ais_gps_longitude));
 
                 // Sets the AIS_GPS values
                 try {
@@ -151,7 +151,8 @@ int main(int argc, char** argv) {
                     std::cout << "Timeout" << std::endl;
                 }
 
-                std::cout << "set GPS_AIS_LAT and GPS_AIS_LON to: " << GPS_AIS_LAT << " and " << GPS_AIS_LON << " respectively." << std::endl;
+                std::cout << "set GPS_AIS_LAT and GPS_AIS_LON to: " << GPS_AIS_LAT << \
+                " and " << GPS_AIS_LON << " respectively." << std::endl;
             } else {
                 ConvertToProto(b, proto_boats.add_boats());
             }
