@@ -117,9 +117,15 @@ int main(int argc, char** argv) {
         // Clear all proto_boats so we don't have extra/repeated boats after each ais_connection query
         proto_boats.clear_boats();
 
+        // std::cout << "raye's mmsi is: " << RAYE_MMSI << std::endl;
+
         for (Boat b : ais_boats) {
+            // std::cout << "current boat mmsi is: " << b.m_mmsi << std::endl;
             if (b.m_mmsi == RAYE_MMSI) {
-                std::cout << "setting RAYE GPS Values in Network Table" << std::endl;
+                // std::cout << "setting RAYE GPS Values in Network Table" << std::endl;
+                // std::cout << "raye's latitude is: " << b.m_latitude << std::endl;
+                // std::cout << "raye's longitude is: " << b.m_longitude << std::endl;
+
                 // map to format the gps coordinates for connection.SetValues()
                 std::map<std::string, NetworkTable::Value> values;
 
@@ -150,10 +156,8 @@ int main(int argc, char** argv) {
                 } catch (NetworkTable::TimeoutException) {
                     std::cout << "Timeout" << std::endl;
                 }
-
-                std::cout << "set GPS_AIS_LAT and GPS_AIS_LON to: " << GPS_AIS_LAT << \
-                " and " << GPS_AIS_LON << " respectively." << std::endl;
             } else {
+                // std::cout << "converted boat that isin't raye to proto" << std::endl;
                 ConvertToProto(b, proto_boats.add_boats());
             }
         }
