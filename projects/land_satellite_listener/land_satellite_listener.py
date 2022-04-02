@@ -129,7 +129,7 @@ class runClient(threading.Thread):
         return satellite
 
     def split_waypoints(self, node):
-        waypoints = [w for w in node.values.waypoints]
+        waypoints = node.value.waypoints
         cur_sat_segment = self.init_waypoints()
         count = 0
         # Copy over waypoints in MAX_WAYPOINTS_PAYLOAD chunks at a time
