@@ -13,6 +13,7 @@
 *  
 *  @author Alex Macdonald (Alexmac22347)
 *  @author Brielle Law (briellelaw)
+*  @author Henry Huang (hhenry01)
 *  @author Vlada Kozachok (vladakozachok)
 *
 */
@@ -174,7 +175,10 @@ void set_waypoints(const boost::system::error_code& error) {
     std::lock_guard<std::mutex> lck(timeout_mtx);
     if (!error) {
         NetworkTable::Satellite sat;
-        sat.set_allocated_value(&waypoint_data);
+        sat.set_type(NetworkTable::Satellite::VALUE);
+        // Deallocation automatically handled:
+        // https://stackoverflow.com/questions/33960999/protobuf-will-set-allocated-delete-the-allocated-object
+        sat.set_allocated_value(new NetworkTable::Value(waypoint_data));
         connection.SetValue(WAYPOINTS_GP, waypoint_data);
         std::cout << "Setting waypoint data: " << waypoint_data.DebugString() << std::endl;
         waypoint_data.clear_waypoints();
@@ -332,11 +336,6 @@ void RootCallback(NetworkTable::Node node, \
         NetworkTable::Sensors sensors = NetworkTable::RootToSensors(&node);
         NetworkTable::Uccms uccms = NetworkTable::RootToUccms(&node);
 
-        // TODO(alex): I don't think this is a memory leak,
-        // but should test with valgrind
-        // This creates an extra object (one on the stack and one on the heap)
-        // but it shouldnt matter much. The stack one is going to get deallocated
-        // pretty soon
         sensors_satellite.set_allocated_sensors(new NetworkTable::Sensors(sensors));
         uccms_satellite.set_allocated_uccms(new NetworkTable::Uccms(uccms));
 
