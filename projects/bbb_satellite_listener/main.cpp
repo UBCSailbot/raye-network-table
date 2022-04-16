@@ -18,7 +18,7 @@
 *
 */
 
-#include <boost/asio/deadline_timer.hpp>
+#include <boost/asio/io_service.hpp>
 #include <iostream>
 #include <boost/asio.hpp>
 #include <thread>
@@ -61,6 +61,7 @@ uint16_t receive_freq;
 
 NetworkTable::Connection connection;
 NetworkTable::Value waypoint_data;  // Where we store waypoint segments before writing to the Network Table
+                                    // Has type NetworkTable::Value::WAYPOINTS
 
 /**
  *  Reads off the serial port until a newline detected
@@ -179,8 +180,8 @@ void set_waypoints(const boost::system::error_code& error) {
         // Deallocation automatically handled:
         // https://stackoverflow.com/questions/33960999/protobuf-will-set-allocated-delete-the-allocated-object
         sat.set_allocated_value(new NetworkTable::Value(waypoint_data));
-        connection.SetValue(WAYPOINTS_GP, waypoint_data);
-        std::cout << "Setting waypoint data: " << waypoint_data.DebugString() << std::endl;
+        connection.SetValue(WAYPOINTS_GP, sat.value());
+        std::cout << "Setting waypoint data: \n" << sat.DebugString() << std::endl;
         waypoint_data.clear_waypoints();
     }
 }
@@ -219,6 +220,8 @@ std::string decode_message(std::string message) {
         // Cancels all pending timers and resets the timeout
         timer.expires_from_now(boost::posix_time::seconds(READ_WAYPOINT_TIMEOUT));
         timer.async_wait(set_waypoints);
+        // Asynchronously run the timeout
+        std::thread([]{io.run();}).detach();
         return satellite.DebugString();
     } else {
         throw std::runtime_error("Failed to decode satellite data");
@@ -436,6 +439,10 @@ int main(int argc, char **argv) {
         }
     }
 
+    waypoint_data.set_type(NetworkTable::Value::WAYPOINTS);
+
+    // Make sure the io_service doesn't exit pre-emptively
+    boost::asio::io_service::work work(io);
     serial.set_option(boost::asio::serial_port_base::baud_rate(19200));
 
     // Clear SBD Message buffers
@@ -450,6 +457,11 @@ int main(int argc, char **argv) {
     std::cout << readLine(serial) << std::endl;
 
     boost::asio::write(serial, boost::asio::buffer("AT&K0\r", 6));
+    std::cout << readLine(serial) << std::endl;
+    std::cout << readLine(serial) << std::endl;
+
+    // Clear incoming message queue
+    boost::asio::write(serial, boost::asio::buffer("AT+SBDWT=FLUSH_MT\r", 18));
     std::cout << readLine(serial) << std::endl;
     std::cout << readLine(serial) << std::endl;
 
