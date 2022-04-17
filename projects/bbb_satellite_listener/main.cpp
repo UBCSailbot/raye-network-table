@@ -74,17 +74,25 @@ NetworkTable::Value waypoint_data;  // Where we store waypoint segments before w
  */
 std::string readLine(boost::asio::serial_port &p) {  // NOLINT(runtime/references)
     // Reading data char by char, code is optimized for simplicity, not speed
+    // TODO(Henry) This will break if <cr><lf> appears naturally in data
     char c;
     std::string result;
+    bool cr = false;
     while (true) {
         try {
             boost::asio::read(p, boost::asio::buffer(&c, 1));
             switch (c) {
                 case '\r':
+                    cr = true;
                     break;
                 case '\n':
-                    return result;
+                    if (cr)
+                        return result;
                 default:
+                    if (cr) {
+                        cr = false;
+                        result += '\r';
+                    }
                     result += c;
             }
         }
@@ -203,8 +211,10 @@ std::string decode_message(std::string message) {
     int i = 0;
     for (const auto &item : message) {
         std::sprintf(&hex_message[i*2], "%02x", static_cast<int>(item));  // NOLINT(runtime/printf)
+        std::cout << hex_message[i*2] << hex_message[i*2+1];
         i++;
     }
+    std::cout << std::endl;
 
     // Convert the message back to a bytestream which can then be decoded as a protobuf obj
     std::vector<char> byte_message = HexToBytes(std::string(hex_message));
@@ -245,9 +255,9 @@ std::string receive_message(const std::string &status) {
         boost::asio::write(serial, boost::asio::buffer(msg.c_str(), msg.size()));
 
         // Response includes embedded payload
-        // AT+SBDRB__<str_payload>
+        // AT+SBDRB\nD<str_payload>
         std::string response = readLine(serial);
-        std::string str_payload = response.substr(10);
+        std::string str_payload = response.substr(11);
         std::cout << readLine(serial) << std::endl;
 
         // Retrieve the decoded waypoint data
@@ -457,11 +467,6 @@ int main(int argc, char **argv) {
     std::cout << readLine(serial) << std::endl;
 
     boost::asio::write(serial, boost::asio::buffer("AT&K0\r", 6));
-    std::cout << readLine(serial) << std::endl;
-    std::cout << readLine(serial) << std::endl;
-
-    // Clear incoming message queue
-    boost::asio::write(serial, boost::asio::buffer("AT+SBDWT=FLUSH_MT\r", 18));
     std::cout << readLine(serial) << std::endl;
     std::cout << readLine(serial) << std::endl;
 

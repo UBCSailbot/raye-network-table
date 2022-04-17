@@ -21,7 +21,7 @@ import keyring
 from requests.auth import HTTPBasicAuth
 from functools import partial
 
-MAX_WAYPOINTS_PAYLOAD = 4
+MAX_WAYPOINTS_PAYLOAD = 12
 
 
 class HTTPRequestHandler(BaseHTTPRequestHandler):
