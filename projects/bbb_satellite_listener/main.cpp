@@ -13,10 +13,12 @@
 *  
 *  @author Alex Macdonald (Alexmac22347)
 *  @author Brielle Law (briellelaw)
+*  @author Henry Huang (hhenry01)
 *  @author Vlada Kozachok (vladakozachok)
 *
 */
 
+#include <boost/asio/io_service.hpp>
 #include <iostream>
 #include <boost/asio.hpp>
 #include <thread>
@@ -54,6 +56,8 @@ uint16_t receive_size;
 uint16_t receive_freq;
 
 NetworkTable::Connection connection;
+NetworkTable::Value waypoint_data;  // Where we store waypoint segments before writing to the Network Table
+                                    // Has type NetworkTable::Value::WAYPOINTS
 
 /**
  *  Reads off the serial port until a newline detected
@@ -64,20 +68,40 @@ NetworkTable::Connection connection;
  *  so this function dues the same. cpplint doesnt like this.
  * 
  */
-std::string readLine(boost::asio::serial_port &p) {  // NOLINT(runtime/references)
+std::string readLine(boost::asio::serial_port &p, bool hex = false) {  // NOLINT(runtime/references)
     // Reading data char by char, code is optimized for simplicity, not speed
+    // TODO(Henry) This will break if <cr><lf> appears naturally in data
     char c;
     std::string result;
+    bool cr = false;
     while (true) {
         try {
             boost::asio::read(p, boost::asio::buffer(&c, 1));
             switch (c) {
                 case '\r':
+                    cr = true;
                     break;
                 case '\n':
-                    return result;
+                    if (cr) {
+                        std::cout << std::endl;
+                       return result;
+                    }
                 default:
-                    result += c;
+                    if (hex) {
+                        char hex_byte[3];
+                        std::sprintf(hex_byte, "%02x", c);  // NOLINT(runtime/printf)
+                        if (cr) {
+                            cr = false;
+                            result += "0d";  // '\r' in hex
+                        }
+                        result += hex_byte;
+                    } else {
+                        if (cr) {
+                            cr = false;
+                            result += '\r';
+                        }
+                        result += c;
+                    }
             }
         }
         catch (std::exception& e) {
@@ -161,6 +185,21 @@ void send(const std::string &data) {
 }
 
 /**
+ * Callback function that runs when we timeout on waiting for more waypoint
+ * message segments from the landserver
+ */
+void set_waypoints(void) {
+    NetworkTable::Satellite sat;
+    sat.set_type(NetworkTable::Satellite::VALUE);
+    // Deallocation automatically handled:
+    // https://stackoverflow.com/questions/33960999/protobuf-will-set-allocated-delete-the-allocated-object
+    sat.set_allocated_value(new NetworkTable::Value(waypoint_data));
+    connection.SetValue(WAYPOINTS_GP, sat.value());
+    std::cout << "Setting waypoint data: \n" << sat.DebugString() << std::endl;
+    waypoint_data.clear_waypoints();
+}
+
+/**
  *  Decodes messages received from the satellite as waypoints 
  *  and updates the network table
  *
@@ -168,27 +207,21 @@ void send(const std::string &data) {
  *                 Expecting the message to contain waypoints
  *
  */
-std::string decode_message(std::string message) {
+std::string decode_message(const std::string &message) {
     NetworkTable::Satellite satellite;
 
-    // Convert the string message back to the hex representation
-    char hex_message[receive_size];  // NOLINT(runtime/arrays)
-    int i = 0;
-    for (const auto &item : message) {
-        std::sprintf(&hex_message[i*2], "%02x", static_cast<int>(item));  // NOLINT(runtime/printf)
-        i++;
-    }
-
     // Convert the message back to a bytestream which can then be decoded as a protobuf obj
-    std::vector<char> byte_message = HexToBytes(std::string(hex_message));
+    std::vector<char> byte_message = HexToBytes(message);
     std::string str_data(byte_message.begin(), byte_message.end());
     satellite.ParseFromString(str_data);
-
-    // Update the network table with the received waypoints
     if (satellite.type() == NetworkTable::Satellite::VALUE &&
-               satellite.value().type() == NetworkTable::Value::WAYPOINTS) {
-        std::cout << "WAYPOINT DATA" << std::endl;
-        connection.SetValue("waypoints", satellite.value());
+            satellite.value().type() == NetworkTable::Value::WAYPOINTS) {
+        // append waypoints
+        for (const auto &new_waypoint : satellite.value().waypoints()) {
+            NetworkTable::Value_Waypoint *w = waypoint_data.add_waypoints();
+            w->set_latitude(new_waypoint.latitude());
+            w->set_longitude(new_waypoint.longitude());
+        }
         return satellite.DebugString();
     } else {
         throw std::runtime_error("Failed to decode satellite data");
@@ -212,9 +245,9 @@ std::string receive_message(const std::string &status) {
         boost::asio::write(serial, boost::asio::buffer(msg.c_str(), msg.size()));
 
         // Response includes embedded payload
-        // AT+SBDRB__<str_payload>
-        std::string response = readLine(serial);
-        std::string str_payload = response.substr(10);
+        // AT+SBDRB\nD<str_payload>
+        std::string response = readLine(serial, true);
+        std::string str_payload = response.substr(22);
         std::cout << readLine(serial) << std::endl;
 
         // Retrieve the decoded waypoint data
@@ -238,39 +271,44 @@ void receive() {
     std::lock_guard<std::mutex> lck(serialPort_mtx);
     std::cout << "Receiving Data" << std::endl;
 
-    // Initiate an Extended SBD Session
-    std::string sbdInit("AT+SBDIX\r");
-    boost::asio::write(serial, boost::asio::buffer(sbdInit.c_str(), sbdInit.size()));
-    std::cout << readLine(serial) << std::endl;
+    bool queueEmpty = true;
+    int queueSize;
 
-    std::string response(readLine(serial));
-    std::cout << response << std::endl;
+    do {
+        // Initiate an Extended SBD Session
+        std::string sbdInit("AT+SBDIX\r");
+        boost::asio::write(serial, boost::asio::buffer(sbdInit.c_str(), sbdInit.size()));
+        std::cout << readLine(serial) << std::endl;
 
-    // Break up Mailbox check response
-    std::vector<std::string> response_split;
-    boost::split(response_split, response, boost::is_any_of(","));
+        std::string response(readLine(serial));
+        std::cout << response << std::endl;
 
-    for (unsigned int i = 0; i < response_split.size(); i++) {
-        boost::algorithm::trim(response_split[i]);
-    }
+        // Break up Mailbox check response
+        std::vector<std::string> response_split;
+        boost::split(response_split, response, boost::is_any_of(","));
 
-    // Extract the mailbox status and queue size
-    receive_size = std::stoul(response_split[4], NULL, 0);
-    std::string status(response_split[2]);
-    int queueSize = std::stoi(response_split[5], NULL, 0);
+        for (unsigned int i = 0; i < response_split.size(); i++) {
+            boost::algorithm::trim(response_split[i]);
+        }
 
-    std::cout << readLine(serial) << std::endl;
-    std::cout << readLine(serial) << std::endl;
+        // Extract the mailbox status and queue size
+        receive_size = std::stoul(response_split[4], NULL, 0);
+        std::string status(response_split[2]);
+        queueSize = std::stoi(response_split[5], NULL, 0);
+        if (queueSize > 0)
+            queueEmpty = false;
 
-    // Read the expected waypoints off the seral port
-    std::string received_message = receive_message(status);
-    std::cout << received_message <<std::endl;
-    queueSize--;
+        std::cout << readLine(serial) << std::endl;
+        std::cout << readLine(serial) << std::endl;
 
-    // If the queue is empty, wait before polling again
-    if (queueSize < 0) {
-        std::cout << "waiting" << std::endl;
-    }
+        // Read the expected waypoints off the seral port
+        std::string received_message = receive_message(status);
+        std::cout << received_message <<std::endl;
+    } while (queueSize > 0);
+
+    // Only set waypoints if we actually ahd contents from the queue
+    if (!queueEmpty)
+        set_waypoints();
 }
 
 /** 
@@ -306,11 +344,6 @@ void RootCallback(NetworkTable::Node node, \
         NetworkTable::Sensors sensors = NetworkTable::RootToSensors(&node);
         NetworkTable::Uccms uccms = NetworkTable::RootToUccms(&node);
 
-        // TODO(alex): I don't think this is a memory leak,
-        // but should test with valgrind
-        // This creates an extra object (one on the stack and one on the heap)
-        // but it shouldnt matter much. The stack one is going to get deallocated
-        // pretty soon
         sensors_satellite.set_allocated_sensors(new NetworkTable::Sensors(sensors));
         uccms_satellite.set_allocated_uccms(new NetworkTable::Uccms(uccms));
 
@@ -410,6 +443,8 @@ int main(int argc, char **argv) {
             sleep(1);
         }
     }
+
+    waypoint_data.set_type(NetworkTable::Value::WAYPOINTS);
 
     serial.set_option(boost::asio::serial_port_base::baud_rate(19200));
 
