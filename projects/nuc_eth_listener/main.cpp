@@ -3,6 +3,7 @@
 #include <zmq.hpp>
 #include <thread>
 #include <iostream>
+#include <algorithm>
 
 #include <ros/ros.h>
 #include "Help.h"
@@ -16,6 +17,7 @@
 #include "sailbot_msg/path.h"
 #include "sailbot_msg/manual_override.h"
 #include "sailbot_msg/latlon.h"
+#include "sailbot_msg/min_voltage.h"
 #include "Controller.pb.h"
 #include "Uri.h"
 
@@ -24,7 +26,10 @@
 #define ROS_WAYPOINTS_NODE          "globalPath"
 #define ROS_AIS_NODE                "AIS"
 #define ROS_MANUAL_OVERRIDE_NODE    "/manual_override"
+#define ROS_MIN_VOLTAGE_NODE        "/min_voltage"
 // Make sure manual override node matches whatever is in nuc_manual_override project
+
+#define MAX_BMS_VOLTAGE 19.5  // ELEC team set 19.5 V as the limit
 
 /*
  * Needed for communication over ethernet
@@ -46,6 +51,7 @@ ros::Subscriber manual_override_sub;
 ros::Publisher sensors_pub;
 ros::Publisher ais_msg_pub;
 ros::Publisher waypoint_msg_pub;
+ros::Publisher min_voltage_msg_pub;
 
 bool manual_override_active = false;
 
@@ -178,7 +184,6 @@ void PublishSensorData() {
                 std::cout << "ERROR** waypoint data not found" << std::endl;
             }
 
-
             NetworkTable::Sensors proto_sensors = NetworkTable::RootToSensors(&node);
             sailbot_msg::Sensors sensors;
 
@@ -225,9 +230,40 @@ void PublishSensorData() {
             sensors.gyroscope_z_velocity_millidegreesps = \
                 proto_sensors.gyroscope().angular_motion_data().z_velocity();
 
+            // BMS (Handle separately from other sensors for low power control)
+            sailbot_msg::min_voltage min_voltage_msg;
+            std::vector<float> voltages;
+            float bms1_V = proto_sensors.bms_1().battery_pack_data().battery_voltage();
+            float bms2_V = proto_sensors.bms_2().battery_pack_data().battery_voltage();
+            float bms3_V = proto_sensors.bms_3().battery_pack_data().battery_voltage();
+            float bms4_V = proto_sensors.bms_4().battery_pack_data().battery_voltage();
+            float bms5_V = proto_sensors.bms_5().battery_pack_data().battery_voltage();
+            float bms6_V = proto_sensors.bms_6().battery_pack_data().battery_voltage();
+            std::cout << "BMS Voltages: " << std::endl;
+            std::cout << bms1_V << std::endl;
+            std::cout << bms2_V << std::endl;
+            std::cout << bms3_V << std::endl;
+            std::cout << bms4_V << std::endl;
+            std::cout << bms5_V << std::endl;
+            std::cout << bms6_V << std::endl;
+            voltages.push_back(bms1_V > 0 ? bms1_V : MAX_BMS_VOLTAGE);
+            voltages.push_back(bms2_V > 0 ? bms2_V : MAX_BMS_VOLTAGE);
+            voltages.push_back(bms3_V > 0 ? bms3_V : MAX_BMS_VOLTAGE);
+            voltages.push_back(bms4_V > 0 ? bms4_V : MAX_BMS_VOLTAGE);
+            voltages.push_back(bms5_V > 0 ? bms5_V : MAX_BMS_VOLTAGE);
+            voltages.push_back(bms6_V > 0 ? bms6_V : MAX_BMS_VOLTAGE);
+            std::vector<float>::iterator result = std::min_element(voltages.begin(), voltages.end());
+            min_voltage_msg.min_voltage = *result;
+            if (*result == MAX_BMS_VOLTAGE)
+                std::cout << \
+                    "Warning, BMS voltages are outside expected range. Either an error or shore power" << std::endl;
+            else
+                std::cout << "Min voltage: " << *result << std::endl;
+
             sensors_pub.publish(sensors);
             ais_msg_pub.publish(ais_msg);
             waypoint_msg_pub.publish(waypoint_msg);
+            min_voltage_msg_pub.publish(min_voltage_msg);
 
             std::cout << "Publishing sensor data. ex: wind_sensor_1 speed: " \
                 << sensors.wind_sensor_1_speed_knots << std::endl;
@@ -270,6 +306,7 @@ int main(int argc, char** argv) {
     sensors_pub = n.advertise<sailbot_msg::Sensors>(ROS_SENSORS_NODE, 100);
     ais_msg_pub = n.advertise<sailbot_msg::AISMsg>(ROS_AIS_NODE, 100);
     waypoint_msg_pub = n.advertise<sailbot_msg::path>(ROS_WAYPOINTS_NODE, 100);
+    min_voltage_msg_pub = n.advertise<sailbot_msg::min_voltage>(ROS_MIN_VOLTAGE_NODE, 100);
 
     /* Because of how the manual override suspends regular operation, we have to set the
        subscription queue to a size of 1 so that very old angles are not used. */

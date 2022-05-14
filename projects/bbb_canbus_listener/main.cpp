@@ -97,6 +97,60 @@ void SetWindSensorData(int angle, float speed, const std::string &id) {
     }
 }
 
+/**
+ * Set BMS daa in the network table.
+ *
+ * @param frame: can frame containing the data to set.
+ * @param BMSX_VOLTAGE: URI for voltage of BMSX (ex. BMS1_VOLTAGE). See uri.h for more info.
+ * @param BMSX_CURRENT: URI for current of BMSX.
+ * @param BMSX_MAXCELL: URI for maxcell of BMSX.
+ * @param BMSX_MINCELL: URI for mincell of BMSX.
+ */
+void setBMSData(const struct can_frame& frame, const std::string& BMSX_VOLTAGE,
+                const std::string& BMSX_CURRENT, const std::string& BMSX_MAXCELL,
+                const std::string& BMSX_MINCELL) {
+     std::map<std::string, NetworkTable::Value> values;
+    NetworkTable::Value bms_volt_data;
+    float volt_data = GET_BMS_BATTERY_VOLT_DATA(frame.data);
+    bms_volt_data.set_type(NetworkTable::Value::FLOAT);
+    bms_volt_data.set_float_data(volt_data);
+    values.insert(std::pair<std::string, NetworkTable::Value>\
+            (BMSX_VOLTAGE, bms_volt_data));
+    std::cout << "volt_data:" << volt_data << std::endl;
+
+    NetworkTable::Value bms_curr_data;
+    float curr_data = GET_BMS_BATTERY_CURR_DATA(frame.data);
+    bms_curr_data.set_type(NetworkTable::Value::FLOAT);
+    bms_curr_data.set_float_data(curr_data);
+    values.insert(std::pair<std::string, NetworkTable::Value>\
+            (BMSX_CURRENT, bms_curr_data));
+    std::cout << "curr_data:" << curr_data << std::endl;
+
+    NetworkTable::Value bms_maxcell_data;
+    uint16_t maxcell_data = GET_BMS_BATTERY_MAX_VOLT_DATA(frame.data);
+    bms_maxcell_data.set_type(NetworkTable::Value::INT);
+    bms_maxcell_data.set_int_data(maxcell_data);
+    values.insert(std::pair<std::string, NetworkTable::Value>\
+            (BMSX_MAXCELL, bms_maxcell_data));
+    std::cout << "maxcell_data:" << maxcell_data << std::endl;
+
+    NetworkTable::Value bms_mincell_data;
+    uint16_t mincell_data = GET_BMS_BATTERY_MIN_VOLT_DATA(frame.data);
+    bms_mincell_data.set_type(NetworkTable::Value::INT);
+    bms_mincell_data.set_int_data(mincell_data);
+    values.insert(std::pair<std::string, NetworkTable::Value>\
+            (BMSX_MINCELL, bms_mincell_data));
+    std::cout << "mincell_data:" << mincell_data << std::endl;
+
+    try {
+        connection.SetValues(values);
+    } catch (NetworkTable::NotConnectedException) {
+        std::cout << "Failed to set value" << std::endl;
+    } catch (NetworkTable::TimeoutException) {
+        std::cout << "Timeout" << std::endl;
+    }
+}
+
 inline void SetRudderFrame(float angle, struct can_frame *frame) {
     // Manually split the float into bytes, and
     // put each byte into the frame.data array
@@ -531,48 +585,33 @@ int main(int argc, char **argv) {
                 break;
             }
             case BMS1_FRAME1_ID: {
-                std::cout << "Received BMS1 Frame1:" << std::endl;
-
-                std::map<std::string, NetworkTable::Value> values;
-                NetworkTable::Value bms_volt_data;
-                float volt_data = GET_BMS_BATTERY_VOLT_DATA(frame.data);
-                bms_volt_data.set_type(NetworkTable::Value::FLOAT);
-                bms_volt_data.set_float_data(volt_data);
-                values.insert(std::pair<std::string, NetworkTable::Value>\
-                        (BMS1_VOLTAGE, bms_volt_data));
-                std::cout << "volt_data:" << volt_data << std::endl;
-
-                NetworkTable::Value bms_curr_data;
-                float curr_data = GET_BMS_BATTERY_CURR_DATA(frame.data);
-                bms_curr_data.set_type(NetworkTable::Value::FLOAT);
-                bms_curr_data.set_float_data(curr_data);
-                values.insert(std::pair<std::string, NetworkTable::Value>\
-                        (BMS1_CURRENT, bms_curr_data));
-                std::cout << "curr_data:" << curr_data << std::endl;
-
-                NetworkTable::Value bms_maxcell_data;
-                uint16_t maxcell_data = GET_BMS_BATTERY_MAX_VOLT_DATA(frame.data);
-                bms_maxcell_data.set_type(NetworkTable::Value::INT);
-                bms_maxcell_data.set_int_data(maxcell_data);
-                values.insert(std::pair<std::string, NetworkTable::Value>\
-                        (BMS1_MAXCELL, bms_maxcell_data));
-                std::cout << "maxcell_data:" << maxcell_data << std::endl;
-
-                NetworkTable::Value bms_mincell_data;
-                uint16_t mincell_data = GET_BMS_BATTERY_MIN_VOLT_DATA(frame.data);
-                bms_mincell_data.set_type(NetworkTable::Value::INT);
-                bms_mincell_data.set_int_data(mincell_data);
-                values.insert(std::pair<std::string, NetworkTable::Value>\
-                        (BMS1_MINCELL, bms_mincell_data));
-                std::cout << "mincell_data:" << mincell_data << std::endl;
-
-                try {
-                    connection.SetValues(values);
-                } catch (NetworkTable::NotConnectedException) {
-                    std::cout << "Failed to set value" << std::endl;
-                } catch (NetworkTable::TimeoutException) {
-                    std::cout << "Timeout" << std::endl;
-                }
+                std::cout << "Received BMS1 Frame 1:" << std::endl;
+                setBMSData(frame, BMS1_VOLTAGE, BMS1_CURRENT, BMS1_MAXCELL, BMS1_MINCELL);
+                break;
+            }
+            case BMS2_FRAME1_ID: {
+                std::cout << "Reeived BMS2 Frame 1:" << std::endl;
+                setBMSData(frame, BMS2_VOLTAGE, BMS2_CURRENT, BMS2_MAXCELL, BMS2_MINCELL);
+                break;
+            }
+            case BMS3_FRAME1_ID: {
+                std::cout << "Reeived BMS3 Frame 1:" << std::endl;
+                setBMSData(frame, BMS3_VOLTAGE, BMS3_CURRENT, BMS3_MAXCELL, BMS3_MINCELL);
+                break;
+            }
+            case BMS4_FRAME1_ID: {
+                std::cout << "Reeived BMS4 Frame 1:" << std::endl;
+                setBMSData(frame, BMS4_VOLTAGE, BMS4_CURRENT, BMS4_MAXCELL, BMS4_MINCELL);
+                break;
+            }
+            case BMS5_FRAME1_ID: {
+                std::cout << "Reeived BMS5 Frame 1:" << std::endl;
+                setBMSData(frame, BMS5_VOLTAGE, BMS5_CURRENT, BMS5_MAXCELL, BMS5_MINCELL);
+                break;
+            }
+            case BMS6_FRAME1_ID: {
+                std::cout << "Reeived BMS6 Frame 1:" << std::endl;
+                setBMSData(frame, BMS6_VOLTAGE, BMS6_CURRENT, BMS6_MAXCELL, BMS6_MINCELL);
                 break;
             }
             case ACCEL_FRAME_ID: {
