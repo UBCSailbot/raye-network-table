@@ -70,7 +70,9 @@ NetworkTable::Value waypoint_data;  // Where we store waypoint segments before w
  */
 std::string readLine(boost::asio::serial_port &p, bool hex = false) {  // NOLINT(runtime/references)
     // Reading data char by char, code is optimized for simplicity, not speed
-    // TODO(Henry) This will break if <cr><lf> appears naturally in data
+    // This will break if <cr><lf> appears naturally in data, but since <cr><lf>
+    // is a standard "end of data" flag, Google Protobuf *should* be designed
+    // such that <cr><lf> does not appear when it serializes data.
     char c;
     std::string result;
     bool cr = false;
@@ -234,9 +236,9 @@ std::string decode_message(const std::string &message) {
  *  @param status 1 if mailbox check was successful
  *                2 if mailbox check failed
  *                0 if mailbox is empty 
- *
+ *  Returns false on error
  */
-std::string receive_message(const std::string &status) {
+bool receive_message(const std::string &status) {
     std::string message;
 
     if (status == "1") {
@@ -251,17 +253,25 @@ std::string receive_message(const std::string &status) {
         std::cout << readLine(serial) << std::endl;
 
         // Retrieve the decoded waypoint data
-        message = decode_message(str_payload);
-
+        try {
+            message = decode_message(str_payload);
+        }
+        catch (std::runtime_error& e) {
+            std::cout << e.what() << std::endl;
+            return false;
+        }
+        std::cout << message << std::endl;
+        return true;
     } else if (status == "2") {
-        message = "Error checking mailbox";
+        std::cout << "Error checking mailbox" << std::endl;
+        return false;
     } else if (status == "0") {
-        std::string null_msg = "Mailbox empty";
-        message  = null_msg;
+        std::cout << "Mailbox empty" << std::endl;
+        return true;
     } else {
-        message  = "Non-valid status";
+        std::cout << "Non-valid status" << std::endl;
+        return false;
     }
-    return message;
 }
 
 /**
@@ -272,7 +282,7 @@ void receive() {
     std::cout << "Receiving Data" << std::endl;
 
     bool queueEmpty = true;
-    int queueSize;
+    int queueSize = 0;
 
     do {
         // Initiate an Extended SBD Session
@@ -294,19 +304,17 @@ void receive() {
         // Extract the mailbox status and queue size
         receive_size = std::stoul(response_split[4], NULL, 0);
         std::string status(response_split[2]);
-        queueSize = std::stoi(response_split[5], NULL, 0);
-        if (queueSize > 0)
-            queueEmpty = false;
-
         std::cout << readLine(serial) << std::endl;
         std::cout << readLine(serial) << std::endl;
-
         // Read the expected waypoints off the seral port
-        std::string received_message = receive_message(status);
-        std::cout << received_message <<std::endl;
+        if (receive_message(status)) {
+            queueSize = std::stoi(response_split[5], NULL, 0);
+            if (queueSize > 0)
+                queueEmpty = false;
+        }
     } while (queueSize > 0);
 
-    // Only set waypoints if we actually ahd contents from the queue
+    // Only set waypoints if we actually have contents from the queue
     if (!queueEmpty)
         set_waypoints();
 }
