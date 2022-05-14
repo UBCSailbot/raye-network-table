@@ -3,6 +3,7 @@
 #include <zmq.hpp>
 #include <thread>
 #include <iostream>
+#include <algorithm>
 
 #include <ros/ros.h>
 #include "Help.h"
@@ -16,6 +17,7 @@
 #include "sailbot_msg/path.h"
 #include "sailbot_msg/manual_override.h"
 #include "sailbot_msg/latlon.h"
+#include "sailbot_msg/min_voltage.h"
 #include "Controller.pb.h"
 #include "Uri.h"
 
@@ -24,8 +26,10 @@
 #define ROS_WAYPOINTS_NODE          "globalPath"
 #define ROS_AIS_NODE                "AIS"
 #define ROS_MANUAL_OVERRIDE_NODE    "/manual_override"
+#define ROS_MIN_VOLTAGE_NODE        "/min_voltage"
 // Make sure manual override node matches whatever is in nuc_manual_override project
 
+#define MAX_BMS_VOLTAGE ((1 << 16) - 1) / 100.0  // Max possible is ((2**16) - 1) / 100.0
 /*
  * Needed for communication over ethernet
  */
@@ -46,6 +50,7 @@ ros::Subscriber manual_override_sub;
 ros::Publisher sensors_pub;
 ros::Publisher ais_msg_pub;
 ros::Publisher waypoint_msg_pub;
+ros::Publisher min_voltage_msg_pub;
 
 bool manual_override_active = false;
 
@@ -178,7 +183,6 @@ void PublishSensorData() {
                 std::cout << "ERROR** waypoint data not found" << std::endl;
             }
 
-
             NetworkTable::Sensors proto_sensors = NetworkTable::RootToSensors(&node);
             sailbot_msg::Sensors sensors;
 
@@ -225,9 +229,29 @@ void PublishSensorData() {
             sensors.gyroscope_z_velocity_millidegreesps = \
                 proto_sensors.gyroscope().angular_motion_data().z_velocity();
 
+            // BMS (Handle separately from other sensors for low power control)
+            sailbot_msg::min_voltage min_voltage_msg;
+            std::vector<float> voltages;
+            voltages.reserve(6);
+            float bms1_V = proto_sensors.bms_1().battery_pack_data().battery_voltage();
+            float bms2_V = proto_sensors.bms_2().battery_pack_data().battery_voltage();
+            float bms3_V = proto_sensors.bms_3().battery_pack_data().battery_voltage();
+            float bms4_V = proto_sensors.bms_4().battery_pack_data().battery_voltage();
+            float bms5_V = proto_sensors.bms_5().battery_pack_data().battery_voltage();
+            float bms6_V = proto_sensors.bms_6().battery_pack_data().battery_voltage();
+            voltages[0] = bms1_V > 0 ? bms1_V : MAX_BMS_VOLTAGE;
+            voltages[1] = bms2_V > 0 ? bms2_V : MAX_BMS_VOLTAGE;
+            voltages[2] = bms3_V > 0 ? bms3_V : MAX_BMS_VOLTAGE;
+            voltages[3] = bms4_V > 0 ? bms4_V : MAX_BMS_VOLTAGE;
+            voltages[4] = bms5_V > 0 ? bms5_V : MAX_BMS_VOLTAGE;
+            voltages[5] = bms6_V > 0 ? bms6_V : MAX_BMS_VOLTAGE;
+            std::vector<float>::iterator result = std::min_element(voltages.begin(), voltages.end());
+            min_voltage_msg.min_voltage = *result;
+
             sensors_pub.publish(sensors);
             ais_msg_pub.publish(ais_msg);
             waypoint_msg_pub.publish(waypoint_msg);
+            min_voltage_msg_pub.publish(min_voltage_msg);
 
             std::cout << "Publishing sensor data. ex: wind_sensor_1 speed: " \
                 << sensors.wind_sensor_1_speed_knots << std::endl;
