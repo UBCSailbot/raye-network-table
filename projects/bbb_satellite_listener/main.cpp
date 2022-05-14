@@ -70,7 +70,9 @@ NetworkTable::Value waypoint_data;  // Where we store waypoint segments before w
  */
 std::string readLine(boost::asio::serial_port &p, bool hex = false) {  // NOLINT(runtime/references)
     // Reading data char by char, code is optimized for simplicity, not speed
-    // TODO(Henry) This will break if <cr><lf> appears naturally in data
+    // This will break if <cr><lf> appears naturally in data, but since <cr><lf>
+    // is a standard "end of data" flag, Google Protobuf *should* be designed
+    // such that <cr><lf> does not appear when it serializes data.
     char c;
     std::string result;
     bool cr = false;
@@ -251,7 +253,13 @@ bool receive_message(const std::string &status) {
         std::cout << readLine(serial) << std::endl;
 
         // Retrieve the decoded waypoint data
-        message = decode_message(str_payload);
+        try {
+            message = decode_message(str_payload);
+        }
+        catch (std::runtime_error& e) {
+            std::cout << e.what() << std::endl;
+            return false;
+        }
         std::cout << message << std::endl;
         return true;
     } else if (status == "2") {
