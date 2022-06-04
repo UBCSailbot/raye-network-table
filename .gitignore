@@ -48,5 +48,3 @@ frame_ids.json
 
 # Test logs
 scripts/ctrl_data_logging/*.log
-
-scripts/supervisor_conf/logs/

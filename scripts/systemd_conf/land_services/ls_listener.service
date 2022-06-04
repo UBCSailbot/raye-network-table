@@ -7,7 +7,7 @@ After=hybrid-sleep.target
 [Service]
 Restart=on-failure
 RestartSec=3s
-ExecStart=python3 /root/network-table/projects/land_satellite_listener/land_satellite_listener.py -p 8000 -e https://rockblock.rock7.com/rockblock/MT -f 10 -u SEC -b 144.126.208.108 -n captain@ubcsailbot.org -w PASSWORD -r 300234068129370 -i 212.71.235.32
+ExecStart=/usr/bin/python3 /root/network-table/projects/land_satellite_listener/land_satellite_listener.py -p 8000 -e https://rockblock.rock7.com/rockblock/MT -f 10 -u SEC -b 144.126.208.108 -n captain@ubcsailbot.org -w PASSWORD -r 300234068129370 -i 212.71.235.32
 
 [Install]
 WantedBy=multi-user.target
