@@ -1,0 +1,16 @@
+[Unit]
+Description=boat_controller
+After=suspend.target
+After=hibernate.target
+After=hybrid-sleep.target
+
+[Service]
+Restart=on-failure
+RestartSec=3s
+ExecStart=/opt/ros/melodic/bin/rosrun boat_controller boat_controller_node.py
+
+[Install]
+WantedBy=multi-user.target
+WantedBy=suspend.target
+WantedBy=hibernate.target
+WantedBy=hybrid-sleep.target

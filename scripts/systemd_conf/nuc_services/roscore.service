@@ -1,0 +1,16 @@
+[Unit]
+Description=nt_server
+After=suspend.target
+After=hibernate.target
+After=hybrid-sleep.target
+
+[Service]
+Restart=on-failure
+RestartSec=3s
+ExecStart=/opt/ros/melodic/bin/roscore
+
+[Install]
+WantedBy=multi-user.target
+WantedBy=suspend.target
+WantedBy=hibernate.target
+WantedBy=hybrid-sleep.target
