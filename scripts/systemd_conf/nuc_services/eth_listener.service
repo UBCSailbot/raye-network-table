@@ -1,0 +1,16 @@
+[Unit]
+Description=nt_server
+After=suspend.target
+After=hibernate.target
+After=hybrid-sleep.target
+
+[Service]
+Restart=on-failure
+RestartSec=3s
+ExecStart=/home/raye/network-table/build/bin/nuc_eth_listener 192.168.1.60 5555
+
+[Install]
+WantedBy=multi-user.target
+WantedBy=suspend.target
+WantedBy=hibernate.target
+WantedBy=hybrid-sleep.target
