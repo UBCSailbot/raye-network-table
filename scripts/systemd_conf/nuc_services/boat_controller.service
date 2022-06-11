@@ -7,7 +7,12 @@ After=hybrid-sleep.target
 [Service]
 Restart=on-failure
 RestartSec=3s
-ExecStart=/opt/ros/melodic/bin/rosrun boat_controller boat_controller_node.py
+ExecStart=/bin/bash -c '\
+source /opt/ros/melodic/setup.bash &&\
+source /opt/ros/melodic/setup.sh &&\
+source /home/raye/catkin_ws/devel/setup.sh &&\
+source /home/raye/catkin_ws/devel/setup.bash &&\
+/opt/ros/melodic/bin/rosrun boat_controller boat_controller_node.py'
 
 [Install]
 WantedBy=multi-user.target

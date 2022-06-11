@@ -7,7 +7,12 @@ After=hybrid-sleep.target
 [Service]
 Restart=on-failure
 RestartSec=3s
-ExecStart=/opt/ros/melodic/bin/roslaunch local_pathfinding main_loop_and_interface.launch wandb:=true land_mass_file:=land_masses/vancouver_depth_5m_10_11_2021-10_28_14.csv
+ExecStart=/bin/bash -c '\
+source /opt/ros/melodic/setup.bash &&\
+source /opt/ros/melodic/setup.sh &&\
+source /home/raye/catkin_ws/devel/setup.sh &&\
+source /home/raye/catkin_ws/devel/setup.bash &&\
+/opt/ros/melodic/bin/roslaunch local_pathfinding main_loop_and_interface.launch wandb:=true land_mass_file:=land_masses/vancouver_depth_5m_10_11_2021-10_28_14.csv'
 
 [Install]
 WantedBy=multi-user.target
