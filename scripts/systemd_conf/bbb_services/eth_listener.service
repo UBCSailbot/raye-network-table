@@ -1,0 +1,16 @@
+[Unit]
+Description=eth_listener
+After=suspend.target
+After=hibernate.target
+After=hybrid-sleep.target
+
+[Service]
+Restart=on-failure
+RestartSec=3s
+ExecStart=/home/debian/network-table/build/bin/bbb_eth_listener 192.168.1.60 5555
+
+[Install]
+WantedBy=multi-user.target
+WantedBy=suspend.target
+WantedBy=hibernate.target
+WantedBy=hybrid-sleep.target

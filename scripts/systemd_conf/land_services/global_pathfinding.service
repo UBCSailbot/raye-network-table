@@ -1,0 +1,16 @@
+[Unit]
+Description=nt_server
+After=suspend.target
+After=hibernate.target
+After=hybrid-sleep.target
+
+[Service]
+Restart=on-failure
+RestartSec=3s
+ExecStart=/root/network-table/projects/global-pathfinding/build/bin/pathfinder_cli -p 13 --navigate 48 235 21 203 --table
+
+[Install]
+WantedBy=multi-user.target
+WantedBy=suspend.target
+WantedBy=hibernate.target
+WantedBy=hybrid-sleep.target
