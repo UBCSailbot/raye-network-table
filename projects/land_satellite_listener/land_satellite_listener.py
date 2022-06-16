@@ -7,6 +7,7 @@ __copyright__ = "Copyright 2020 UBC Sailbot"
 
 from nt_connection.Connection import Connection
 from nt_connection.Help import Help
+import nt_connection.uri as uri
 import generated_python.Value_pb2 as Value_pb2
 import generated_python.Satellite_pb2 as Satellite_pb2
 import generated_python.Node_pb2 as Node_pb2
@@ -18,6 +19,7 @@ import time
 import sys
 import argparse
 import keyring
+import json
 from requests.auth import HTTPBasicAuth
 from functools import partial
 
@@ -34,6 +36,33 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
         self.nt_connection = nt_connection
         self.accepted_ip_addresses = accepted_ip_addresses
         super().__init__(*args, **kwargs)
+
+    def poll_nt(self, uri):
+        node_container = self.nt_connection.getNodes([uri])
+        node = Node_pb2.Node()
+        node.CopyFrom(node_container[uri])
+        return node
+
+    def do_GET(self):
+        # Return network table data
+        print("Received GET request")
+        route = self.path
+        if (route == "/gps"):
+            gps_can = self.poll_nt(uri.GPS_CAN).children['gprmc']
+            response = {
+                "lat": gps_can.children['latitude'].value.float_data,
+                "lon": gps_can.children['longitude'].value.float_data
+            }
+            response = json.dumps(response)
+            self.send_response(200)
+            self.send_header("Content-type", "application/json")
+            self.end_headers()
+            self.wfile.write(response.encode())
+        else:
+            # Add more fields if needed
+            self.send_response(400)
+            self.end_headers()
+            self.wfile.write("Error, GET request has invalid URI!".encode())
 
     def do_POST(self):
         if self.client_address[0] in self.accepted_ip_addresses:
