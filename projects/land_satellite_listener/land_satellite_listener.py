@@ -50,8 +50,8 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
         if (route == "/gps"):
             gps_can = self.poll_nt(uri.GPS_CAN).children['gprmc']
             response = {
-                "lat": gps_can.children['latitude'].value.float_data,
-                "lon": gps_can.children['longitude'].value.float_data
+                "lat": gps_can.children['latitude'].value.int_data,
+                "lon": gps_can.children['longitude'].value.int_data
             }
             response = json.dumps(response)
             self.send_response(200)
