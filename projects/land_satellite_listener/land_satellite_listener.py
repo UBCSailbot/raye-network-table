@@ -50,14 +50,29 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
         if (route == "/gps"):
             gps_can = self.poll_nt(uri.GPS_CAN).children['gprmc']
             response = {
-                "lat": gps_can.children['latitude'].value.int_data,
-                "lon": gps_can.children['longitude'].value.int_data
+                "lat": gps_can.children['latitude'].value.float_data,
+                "lon": gps_can.children['longitude'].value.float_data
             }
             response = json.dumps(response)
             self.send_response(200)
             self.send_header("Content-type", "application/json")
             self.end_headers()
             self.wfile.write(response.encode())
+        elif (route == "/gps_log"):
+            with open("gps.log", 'r') as log:
+                response = {
+                    "coordinates": []
+                }
+                for line in log:
+                    data = line.split(',')
+                    data[1] = data[1][:-1]  # Remove newline character
+                    data = list(map(float, data))  # Turn all strings to floats
+                    response["coordinates"].append(data)
+                response = json.dumps(response)
+                self.send_response(200)
+                self.send_header("Content-type", "application/json")
+                self.end_headers()
+                self.wfile.write(response.encode())
         else:
             # Add more fields if needed
             self.send_response(400)
@@ -85,6 +100,11 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
                     print("Receiving Sensor Data")
                     values = helper.sensors_to_root(sat.sensors)
                     self.nt_connection.setValues(values)
+                    gps_can = self.poll_nt(uri.GPS_CAN).children['gprmc']
+                    lat = gps_can.children['latitude'].value.float_data,
+                    lon = gps_can.children['longitude'].value.float_data
+                    with open("gps.log", 'a') as log:
+                        log.write(str(lat) + ',' + str(lon))
 
                 elif sat.type == Satellite_pb2.Satellite.Type.UCCMS:
                     print("Receiving UCCM Data")
