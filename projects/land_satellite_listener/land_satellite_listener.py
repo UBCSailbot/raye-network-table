@@ -59,7 +59,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(response.encode())
         elif (route == "/gps_log"):
-            with open("gps.log", 'r') as log:
+            with open("/root/network-table/projects/land_satellite_listener/gps.log", 'r') as log:
                 response = {
                     "coordinates": []
                 }
@@ -103,7 +103,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
                     gps_can = self.poll_nt(uri.GPS_CAN).children['gprmc']
                     lat = gps_can.children['latitude'].value.float_data,
                     lon = gps_can.children['longitude'].value.float_data
-                    with open("gps.log", 'a') as log:
+                    with open("/root/network-table/land_satellite_listener/gps.log", 'a') as log:
                         log.write(str(lat) + ',' + str(lon))
 
                 elif sat.type == Satellite_pb2.Satellite.Type.UCCMS:

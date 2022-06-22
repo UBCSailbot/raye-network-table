@@ -48,3 +48,4 @@ frame_ids.json
 
 # Test logs
 scripts/ctrl_data_logging/*.log
+projects/land_satellite_listener/*.log

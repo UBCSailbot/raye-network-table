@@ -24,9 +24,9 @@ int main() {
     int lat = 48;
     int lon = 235;
     NetworkTable::Value lat_val;
-    lat_val.set_type(NetworkTable::Value::INT);
+    lat_val.set_type(NetworkTable::Value::FLOAT);
     NetworkTable::Value lon_val;
-    lon_val.set_type(NetworkTable::Value::INT);
+    lon_val.set_type(NetworkTable::Value::FLOAT);
     lat_val.set_int_data(lat);
     lon_val.set_int_data(lon);
     connection.SetValue(GPS_CAN_LON, lon_val);
