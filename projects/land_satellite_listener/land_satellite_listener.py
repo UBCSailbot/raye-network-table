@@ -56,6 +56,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             response = json.dumps(response)
             self.send_response(200)
             self.send_header("Content-type", "application/json")
+            self.send_header("Access-Control-Allow-Origin", "*")
             self.end_headers()
             self.wfile.write(response.encode())
         elif (route == "/gps_log"):
@@ -71,6 +72,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
                 response = json.dumps(response)
                 self.send_response(200)
                 self.send_header("Content-type", "application/json")
+                self.send_header("Access-Control-Allow-Origin", "*")
                 self.end_headers()
                 self.wfile.write(response.encode())
         else:
