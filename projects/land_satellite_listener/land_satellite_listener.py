@@ -106,7 +106,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
                     lat = gps_can.children['latitude'].value.float_data
                     lon = gps_can.children['longitude'].value.float_data
                     if lat != 0.0 and lon != 0.0:  # We sometimes receive empty payloads that should be ignored
-                        with open("/root/network-table/land_satellite_listener/gps.log", 'a') as log:
+                        with open("/root/network-table/projects/land_satellite_listener/gps.log", 'a') as log:
                             log.write(str(lat) + ',' + str(lon) + "\n")
 
                 elif sat.type == Satellite_pb2.Satellite.Type.UCCMS:
