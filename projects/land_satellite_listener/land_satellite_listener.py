@@ -103,10 +103,11 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
                     values = helper.sensors_to_root(sat.sensors)
                     self.nt_connection.setValues(values)
                     gps_can = self.poll_nt(uri.GPS_CAN).children['gprmc']
-                    lat = gps_can.children['latitude'].value.float_data,
+                    lat = gps_can.children['latitude'].value.float_data
                     lon = gps_can.children['longitude'].value.float_data
-                    with open("/root/network-table/land_satellite_listener/gps.log", 'a') as log:
-                        log.write(str(lat) + ',' + str(lon))
+                    if lat != 0.0 and lon != 0.0:  # We sometimes receive empty payloads that should be ignored
+                        with open("/root/network-table/land_satellite_listener/gps.log", 'a') as log:
+                            log.write(str(lat) + ',' + str(lon) + "\n")
 
                 elif sat.type == Satellite_pb2.Satellite.Type.UCCMS:
                     print("Receiving UCCM Data")
