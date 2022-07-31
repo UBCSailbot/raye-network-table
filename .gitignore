@@ -48,4 +48,5 @@ frame_ids.json
 
 # Logs
 scripts/ctrl_data_logging/*.log
+projects/land_satellite_listener/*.log
 scripts/can_logging/logfiles/
