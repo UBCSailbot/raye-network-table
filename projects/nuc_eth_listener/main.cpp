@@ -6,6 +6,7 @@
 #include <algorithm>
 
 #include <ros/ros.h>
+#include "std_msgs/Float32.h"
 #include "Help.h"
 #include "Controller.pb.h"
 #include "Node.pb.h"
@@ -17,7 +18,6 @@
 #include "sailbot_msg/path.h"
 #include "sailbot_msg/manual_override.h"
 #include "sailbot_msg/latlon.h"
-#include "sailbot_msg/min_voltage.h"
 #include "Controller.pb.h"
 #include "Uri.h"
 
@@ -231,7 +231,7 @@ void PublishSensorData() {
                 proto_sensors.gyroscope().angular_motion_data().z_velocity();
 
             // BMS (Handle separately from other sensors for low power control)
-            sailbot_msg::min_voltage min_voltage_msg;
+            std_msgs::Float32 min_voltage_msg;
             std::vector<float> voltages;
             float bms1_V = proto_sensors.bms_1().battery_pack_data().battery_voltage();
             float bms2_V = proto_sensors.bms_2().battery_pack_data().battery_voltage();
@@ -253,7 +253,7 @@ void PublishSensorData() {
             voltages.push_back(bms5_V > 0 ? bms5_V : MAX_BMS_VOLTAGE);
             voltages.push_back(bms6_V > 0 ? bms6_V : MAX_BMS_VOLTAGE);
             std::vector<float>::iterator result = std::min_element(voltages.begin(), voltages.end());
-            min_voltage_msg.min_voltage = *result;
+            min_voltage_msg.data = *result;
             if (*result == MAX_BMS_VOLTAGE)
                 std::cout << \
                     "Warning, BMS voltages are outside expected range. Either an error or shore power" << std::endl;
@@ -306,7 +306,7 @@ int main(int argc, char** argv) {
     sensors_pub = n.advertise<sailbot_msg::Sensors>(ROS_SENSORS_NODE, 100);
     ais_msg_pub = n.advertise<sailbot_msg::AISMsg>(ROS_AIS_NODE, 100);
     waypoint_msg_pub = n.advertise<sailbot_msg::path>(ROS_WAYPOINTS_NODE, 100);
-    min_voltage_msg_pub = n.advertise<sailbot_msg::min_voltage>(ROS_MIN_VOLTAGE_NODE, 100);
+    min_voltage_msg_pub = n.advertise<std_msgs::Float32>(ROS_MIN_VOLTAGE_NODE, 100);
 
     /* Because of how the manual override suspends regular operation, we have to set the
        subscription queue to a size of 1 so that very old angles are not used. */
