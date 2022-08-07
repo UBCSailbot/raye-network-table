@@ -29,7 +29,7 @@
 #define ROS_MIN_VOLTAGE_NODE        "/min_voltage"
 // Make sure manual override node matches whatever is in nuc_manual_override project
 
-#define MAX_BMS_VOLTAGE 19.5  // ELEC team set 19.5 V as the limit
+#define MAX_BMS_VOLTAGE 19.5  // ELEC team set 19.5 V as the theoretical limit (Realistically would never reach this)
 
 /*
  * Needed for communication over ethernet

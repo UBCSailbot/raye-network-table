@@ -36,6 +36,7 @@
 #include "Value.pb.h"
 #include "Exceptions.h"
 #include "Uri.h"
+#include "./bms_pwr_mgr.h"
 
 #define WIND_ID1 "1"
 #define WIND_ID2 "2"
