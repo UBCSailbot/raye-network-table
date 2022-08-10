@@ -36,7 +36,7 @@
 #include "Value.pb.h"
 #include "Exceptions.h"
 #include "Uri.h"
-#include "./bms_pwr_mgr.h"
+#include "bms_pwr_mgr.h"  // NOLINT(build/include)
 
 #define WIND_ID1 "1"
 #define WIND_ID2 "2"
@@ -150,6 +150,11 @@ void setBMSData(const struct can_frame& frame, const std::string& BMSX_VOLTAGE,
     } catch (NetworkTable::TimeoutException) {
         std::cout << "Timeout" << std::endl;
     }
+
+    struct can_frame write_frame;
+    write_frame.can_id = BMS_CMD_FRAME_ID;
+    write_frame.can_dlc = CAN_DLC;
+    BmsPwrMgr::onNewVoltageReading(frame.can_id, volt_data, write_frame, s);
 }
 
 inline void SetRudderFrame(float angle, struct can_frame *frame) {
