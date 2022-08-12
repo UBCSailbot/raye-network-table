@@ -2,12 +2,7 @@
 *
 *  Copyright 2022 UBC Sailbot
 *
-*  @file  bbb_canbus_listener.cpp
-*  @brief Facilitates communication between CANbus and Network Table
-*
-*  Polls sensor data from the CANbus and publishes 
-*  it to the network table. Writes actuation angles
-*  outputted from the boat controller to the CANbus
+*  @file  bms_pwr_mgr.h
 *
 *  @author Henry Huang (hhenry01)
 *
@@ -49,7 +44,27 @@ typedef enum : uint8_t {
 
 ///// FUNCTIONS /////
 namespace BmsPwrMgr {
+/**
+ * @brief Function that gets invoked whenever a new BMS status frame is received
+ *
+ * @param bms_frame_id  One of: BMS1_FRAME1_ID, BMS2_FRAME1_ID, BMS3_FRAME1_ID,
+                                BMS4_FRAME1_ID, BMS5_FRAME1_ID, BMS6_FRAME1_ID
+ * @param voltage       Voltage reading given as part of the BMS bms_frame_id command
+ * @param frame         Reference to can_frame structure that will be written to CAN to command bms charge/discharge
+ * @param socket        File descriptor to write the can frame to
+ */
 void onNewVoltageReading(const canid_t &bms_frame_id, const float &voltage, struct can_frame &frame, int socket);
+/**
+ * @brief Configure the private fields of the BMS Power Manager
+ *
+ * @note  Unless testing, must only be used once - if at all
+ *
+ * @param state         What will the state of the manager be
+ * @param threshold     Voltage to set the threshold to
+ * @param charge_side   Is port or stbd charging
+ * @param port_volt     Update port BMS voltage
+ * @param stbd_volt     Update stbd BMS voltage
+ */
 void configure(battery_state_e state, float threshold, port_stbd_e charge_side, float port_volt, float stbd_volt);
 
 // Getter methods to provide read only access to global variables

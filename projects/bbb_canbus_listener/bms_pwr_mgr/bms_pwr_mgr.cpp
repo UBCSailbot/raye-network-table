@@ -2,12 +2,12 @@
 *
 *  Copyright 2022 UBC Sailbot
 *
-*  @file  bbb_canbus_listener.cpp
-*  @brief Facilitates communication between CANbus and Network Table
+*  @file  bms_pwr_mgr.cpp
+*  @brief Manages the battery load distribution
 *
-*  Polls sensor data from the CANbus and publishes 
-*  it to the network table. Writes actuation angles
-*  outputted from the boat controller to the CANbus
+*  Tracks the voltage level Raye's port and
+*  starboard batteries and commands them to
+*  charge or discharge for better load distribution
 *
 *  @author Henry Huang (hhenry01)
 *
@@ -36,14 +36,14 @@ constexpr std::array<std::array<std::uint8_t, 3>, 2> bmses = {port_bms, stbd_bms
 namespace {
 battery_state_e curr_state       = regular_operation;
 float           curr_threshold   = default_threshold;
-port_stbd_e     curr_charge_side = port;  // TODO(hhenry01): verify if OK to set port as default charging side
+port_stbd_e     curr_charge_side = port;
 float           curr_port_volt   = max_voltage;
 float           curr_stbd_volt   = max_voltage;
 }
 
 ///// FUNCTIONS /////
 
-static inline void SwapChargeDischargeFrame(struct can_frame &frame, const int socket) {  // NOLINT(runtime/references)
+static inline void swapChargeDischargeFrame(struct can_frame &frame, const int socket) {  // NOLINT(runtime/references)
     uint64_t cmd = curr_charge_side == port ? can_port_discharge_stbd_charge_cmd : can_port_charge_stbd_discharge_cmd;
     for (int i = 0; i < CAN_MAX_DLEN; i++) {
         frame.data[i] = (cmd >> (8 * i)) & 0xFF;
@@ -52,7 +52,7 @@ static inline void SwapChargeDischargeFrame(struct can_frame &frame, const int s
     write(socket, &frame, sizeof(struct can_frame));
 }
 
-static inline void GetCurrentStatus(const uint8_t &bms_frame_id,
+static inline void getCurrentStatus(const uint8_t &bms_frame_id,
     float *&curr_voltage, float &opposite_bms_side_volt, port_stbd_e &this_bms_side) {  // NOLINT(runtime/references)
     if (std::any_of(std::begin(port_bms), std::end(port_bms),
         [bms_frame_id](uint8_t i) { return i == bms_frame_id; })) {  // If frame ID is in port
@@ -71,7 +71,7 @@ void BmsPwrMgr::onNewVoltageReading(const canid_t &bms_frame_id, const float &vo
     float *curr_voltage = nullptr;
     float opposite_bms_side_volt;
     port_stbd_e this_bms_side;
-    GetCurrentStatus(bms_frame_id, curr_voltage, opposite_bms_side_volt, this_bms_side);
+    getCurrentStatus(bms_frame_id, curr_voltage, opposite_bms_side_volt, this_bms_side);
     assert(curr_voltage == &curr_port_volt || curr_voltage == &curr_stbd_volt);
     *curr_voltage = voltage;
     switch (curr_state) {
@@ -80,13 +80,12 @@ void BmsPwrMgr::onNewVoltageReading(const canid_t &bms_frame_id, const float &vo
                 if (voltage >= (curr_threshold + surplus_to_increase_threshold)) {
                     if (curr_threshold < max_threshold) {
                         curr_threshold += increase_threshold_amount;
-                        // TODO(hhenry01): Ask ELEC if better to swap or not swap in this scenario
-                        SwapChargeDischargeFrame(frame, socket);  // Since this side has a higher charge, swap
+                        swapChargeDischargeFrame(frame, socket);  // Since this side has a higher charge, swap
                     }
                 }
             } else {  // Given voltage of side that is currently discharging
                 if (voltage <= curr_threshold) {
-                    SwapChargeDischargeFrame(frame, socket);
+                    swapChargeDischargeFrame(frame, socket);
                     if (opposite_bms_side_volt <= curr_threshold + surplus_to_decrease_threshold) {
                         if (curr_threshold > min_threshold) {
                             curr_threshold -= decrease_threshold_amount;
@@ -101,12 +100,12 @@ void BmsPwrMgr::onNewVoltageReading(const canid_t &bms_frame_id, const float &vo
         case critical: {
             if (curr_charge_side == this_bms_side) {
                 if (voltage >= (curr_threshold + surplus_to_increase_threshold)) {
-                    SwapChargeDischargeFrame(frame, socket);
+                    swapChargeDischargeFrame(frame, socket);
                     curr_state = regular_operation;
                 }
             } else {
                 if (voltage <= life_support_threshold) {
-                    SwapChargeDischargeFrame(frame, socket);
+                    swapChargeDischargeFrame(frame, socket);
                 }
             }
             break;
