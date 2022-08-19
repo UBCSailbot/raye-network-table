@@ -41,7 +41,6 @@
 #define WIND_ID1 "1"
 #define WIND_ID2 "2"
 #define WIND_ID3 "3"
-#define CAN_DLC  8
 
 int s;
 NetworkTable::Connection connection;
@@ -151,10 +150,7 @@ void setBMSData(const struct can_frame& frame, const std::string& BMSX_VOLTAGE,
         std::cout << "Timeout" << std::endl;
     }
 
-    struct can_frame write_frame;
-    write_frame.can_id = BMS_CMD_FRAME_ID;
-    write_frame.can_dlc = CAN_DLC;
-    BmsPwrMgr::onNewVoltageReading(frame.can_id, volt_data, write_frame, s);
+    BmsPwrMgr::onNewVoltageReading(frame.can_id, volt_data);
 }
 
 inline void SetRudderFrame(float angle, struct can_frame *frame) {
@@ -350,6 +346,8 @@ int main(int argc, char **argv) {
             sleep(1);
         }
     }
+
+    BmsPwrMgr::init(s);
 
     // Keep on reading the sensor data off canbus, and
     // placing the latest data in the network table.

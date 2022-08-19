@@ -3,6 +3,7 @@
 *  Copyright 2022 UBC Sailbot
 *
 *  @file  test_bms_pwr_mgr.cpp
+*  @note  Tests where the expected result is "command not written" have a race condition
 *
 *  @author Henry Huang (hhenry01)
 *
@@ -15,6 +16,8 @@
 #include <fcntl.h>
 #include <iostream>
 #include <linux/can.h>
+#include <thread>
+#include <chrono>
 
 #include "bms_pwr_mgr.h"  // NOLINT(build/include)
 #include "uccm-sensors/frame_parser.h"
@@ -28,17 +31,15 @@ int test_regular_operation_no_action(void) {
         std::cerr << "Failed to create mock socket" << std::endl;
         return 0;
     }
+    BmsPwrMgr::init(mock_socket);
 
     battery_state_e before_state  = BmsPwrMgr::getCurrState();
     float           before_thresh = BmsPwrMgr::getCurrThreshold();
     port_stbd_e     before_c_side = BmsPwrMgr::getCurrChargeSide();
 
     struct can_frame frame;
-    frame.can_dlc = 8;
-    frame.can_id  = BMS_CMD_FRAME_ID;
-
     float voltage = before_thresh + 0.1;
-    BmsPwrMgr::onNewVoltageReading(BMS1_FRAME1_ID, voltage, frame, mock_socket);
+    BmsPwrMgr::onNewVoltageReading(BMS1_FRAME1_ID, voltage);
 
     if ((BmsPwrMgr::getCurrState() != before_state) || (BmsPwrMgr::getCurrThreshold() != before_thresh) ||
          BmsPwrMgr::getCurrChargeSide() != before_c_side) {
@@ -60,17 +61,15 @@ int test_charge_side_at_max_threshold(void) {
         std::cerr << "Failed to create mock socket" << std::endl;
         return 0;
     }
+    BmsPwrMgr::init(mock_socket);
     float           before_thresh = BmsPwrMgr::getCurrThreshold();
     battery_state_e before_state  = BmsPwrMgr::getCurrState();
     port_stbd_e     before_c_side = BmsPwrMgr::getCurrChargeSide();
 
     struct can_frame frame;
-    frame.can_dlc = 8;
-    frame.can_id = BMS_CMD_FRAME_ID;
-
     canid_t bms_id = (before_c_side == port) ? BMS1_FRAME1_ID : BMS4_FRAME1_ID;
 
-    BmsPwrMgr::onNewVoltageReading(bms_id, max_voltage, frame, mock_socket);
+    BmsPwrMgr::onNewVoltageReading(bms_id, max_voltage);
 
     if ((BmsPwrMgr::getCurrState() != before_state) || (BmsPwrMgr::getCurrThreshold() != before_thresh) ||
          BmsPwrMgr::getCurrChargeSide() != before_c_side) {
@@ -92,17 +91,15 @@ int test_discharge_reaches_threshold_do_not_lower(void) {
         std::cerr << "Failed to create mock socket" << std::endl;
         return 0;
     }
+    BmsPwrMgr::init(mock_socket);
     float           before_thresh = BmsPwrMgr::getCurrThreshold();
     battery_state_e before_state  = BmsPwrMgr::getCurrState();
     port_stbd_e     before_c_side = BmsPwrMgr::getCurrChargeSide();
 
     struct can_frame frame;
-    frame.can_dlc = 8;
-    frame.can_id = BMS_CMD_FRAME_ID;
-
     canid_t discharge_bms_id = (before_c_side == port) ? BMS4_FRAME1_ID : BMS1_FRAME1_ID;
 
-    BmsPwrMgr::onNewVoltageReading(discharge_bms_id, max_threshold, frame, mock_socket);
+    BmsPwrMgr::onNewVoltageReading(discharge_bms_id, max_threshold);
     if ((BmsPwrMgr::getCurrState() != before_state) || (BmsPwrMgr::getCurrThreshold() != before_thresh)) {
         std::cerr << "BMS fields changed when they should not have!" << std::endl;
         return 0;
@@ -113,6 +110,7 @@ int test_discharge_reaches_threshold_do_not_lower(void) {
     }
     uint64_t expected_cmd;
     expected_cmd = (before_c_side == port) ? can_port_discharge_stbd_charge_cmd : can_port_charge_stbd_discharge_cmd;
+    std::this_thread::sleep_for(std::chrono::seconds(2 * can_write_interval_seconds));
     lseek(mock_socket, 0, SEEK_SET);
     if (read(mock_socket, &frame, sizeof(struct can_frame)) == 0) {
         std::cerr << "CAN CMD was not written!" << std::endl;
@@ -135,17 +133,15 @@ int test_discharge_reaches_threshold_lower(void) {
         std::cerr << "Failed to create mock socket" << std::endl;
         return 0;
     }
+    BmsPwrMgr::init(mock_socket);
     float           before_thresh = BmsPwrMgr::getCurrThreshold();
     battery_state_e before_state  = BmsPwrMgr::getCurrState();
     port_stbd_e     before_c_side = BmsPwrMgr::getCurrChargeSide();
 
     struct can_frame frame;
-    frame.can_dlc = 8;
-    frame.can_id = BMS_CMD_FRAME_ID;
-
     canid_t discharge_bms_id = (before_c_side == port) ? BMS4_FRAME1_ID : BMS1_FRAME1_ID;
 
-    BmsPwrMgr::onNewVoltageReading(discharge_bms_id, before_thresh, frame, mock_socket);
+    BmsPwrMgr::onNewVoltageReading(discharge_bms_id, before_thresh);
     if (BmsPwrMgr::getCurrState() != before_state) {
         std::cerr << "BMS state changed when it should not have!" << std::endl;
         return 0;
@@ -160,6 +156,7 @@ int test_discharge_reaches_threshold_lower(void) {
     }
     uint64_t expected_cmd;
     expected_cmd = (before_c_side == port) ? can_port_discharge_stbd_charge_cmd : can_port_charge_stbd_discharge_cmd;
+    std::this_thread::sleep_for(std::chrono::seconds(2 * can_write_interval_seconds));
     lseek(mock_socket, 0, SEEK_SET);
     if (read(mock_socket, &frame, sizeof(struct can_frame)) == 0) {
         std::cerr << "CAN CMD was not written!" << std::endl;
@@ -183,16 +180,14 @@ int test_regular_operation_charge_reaches_threshold(void) {
         std::cerr << "Failed to create mock socket" << std::endl;
         return 0;
     }
+    BmsPwrMgr::init(mock_socket);
     battery_state_e before_state  = BmsPwrMgr::getCurrState();
     port_stbd_e     before_c_side = BmsPwrMgr::getCurrChargeSide();
 
     struct can_frame frame;
-    frame.can_dlc = 8;
-    frame.can_id = BMS_CMD_FRAME_ID;
-
     canid_t charge_bms_id    = (before_c_side == port) ? BMS1_FRAME1_ID : BMS4_FRAME1_ID;
 
-    BmsPwrMgr::onNewVoltageReading(charge_bms_id, max_voltage, frame, mock_socket);
+    BmsPwrMgr::onNewVoltageReading(charge_bms_id, max_voltage);
     if (BmsPwrMgr::getCurrState() != before_state) {
         std::cerr << "BMS state changed when they should not have!" << std::endl;
         return 0;
@@ -207,6 +202,7 @@ int test_regular_operation_charge_reaches_threshold(void) {
     }
     uint64_t expected_cmd;
     expected_cmd = (before_c_side == port) ? can_port_discharge_stbd_charge_cmd : can_port_charge_stbd_discharge_cmd;
+    std::this_thread::sleep_for(std::chrono::seconds(2 * can_write_interval_seconds));
     lseek(mock_socket, 0, SEEK_SET);
     if (read(mock_socket, &frame, sizeof(struct can_frame)) == 0) {
         std::cerr << "CAN CMD was not written!" << std::endl;
@@ -229,16 +225,14 @@ int test_regular_operation_to_critical(void) {
         std::cerr << "Failed to create mock socket" << std::endl;
         return 0;
     }
+    BmsPwrMgr::init(mock_socket);
     float           before_thresh = BmsPwrMgr::getCurrThreshold();
     port_stbd_e     before_c_side = BmsPwrMgr::getCurrChargeSide();
 
     struct can_frame frame;
-    frame.can_dlc = 8;
-    frame.can_id = BMS_CMD_FRAME_ID;
-
     canid_t discharge_bms_id = (before_c_side == port) ? BMS4_FRAME1_ID : BMS1_FRAME1_ID;
 
-    BmsPwrMgr::onNewVoltageReading(discharge_bms_id, min_threshold, frame, mock_socket);
+    BmsPwrMgr::onNewVoltageReading(discharge_bms_id, min_threshold);
     if (before_thresh != BmsPwrMgr::getCurrThreshold()) {
         std::cerr << "Threshold changed when it should not have!" << std::endl;
         return 0;
@@ -253,6 +247,7 @@ int test_regular_operation_to_critical(void) {
     }
     uint64_t expected_cmd;
     expected_cmd = (before_c_side == port) ? can_port_discharge_stbd_charge_cmd : can_port_charge_stbd_discharge_cmd;
+    std::this_thread::sleep_for(std::chrono::seconds(2 * can_write_interval_seconds));
     lseek(mock_socket, 0, SEEK_SET);
     if (read(mock_socket, &frame, sizeof(struct can_frame)) == 0) {
         std::cerr << "CAN CMD was not written!" << std::endl;
@@ -274,17 +269,14 @@ int test_critical_no_action(void) {
         std::cerr << "Failed to create mock socket" << std::endl;
         return 0;
     }
-
+    BmsPwrMgr::init(mock_socket);
     battery_state_e before_state  = BmsPwrMgr::getCurrState();
     float           before_thresh = BmsPwrMgr::getCurrThreshold();
     port_stbd_e     before_c_side = BmsPwrMgr::getCurrChargeSide();
 
     struct can_frame frame;
-    frame.can_dlc = 8;
-    frame.can_id  = BMS_CMD_FRAME_ID;
-
     float voltage = before_thresh + 0.1;
-    BmsPwrMgr::onNewVoltageReading(BMS1_FRAME1_ID, voltage, frame, mock_socket);
+    BmsPwrMgr::onNewVoltageReading(BMS1_FRAME1_ID, voltage);
 
     if ((BmsPwrMgr::getCurrState() != before_state) || (BmsPwrMgr::getCurrThreshold() != before_thresh) ||
          BmsPwrMgr::getCurrChargeSide() != before_c_side) {
@@ -306,16 +298,14 @@ int test_critical_life_support(void) {
         std::cerr << "Failed to create mock socket" << std::endl;
         return 0;
     }
+    BmsPwrMgr::init(mock_socket);
     float           before_thresh = BmsPwrMgr::getCurrThreshold();
     port_stbd_e     before_c_side = BmsPwrMgr::getCurrChargeSide();
 
     struct can_frame frame;
-    frame.can_dlc = 8;
-    frame.can_id = BMS_CMD_FRAME_ID;
-
     canid_t discharge_bms_id = (before_c_side == port) ? BMS4_FRAME1_ID : BMS1_FRAME1_ID;
 
-    BmsPwrMgr::onNewVoltageReading(discharge_bms_id, life_support_threshold, frame, mock_socket);
+    BmsPwrMgr::onNewVoltageReading(discharge_bms_id, life_support_threshold);
     if ((BmsPwrMgr::getCurrThreshold() != before_thresh) || BmsPwrMgr::getCurrState() != critical) {
         std::cerr << "BMS fields changed when they should not have!" << std::endl;
         return 0;
@@ -326,6 +316,7 @@ int test_critical_life_support(void) {
     }
     uint64_t expected_cmd;
     expected_cmd = (before_c_side == port) ? can_port_discharge_stbd_charge_cmd : can_port_charge_stbd_discharge_cmd;
+    std::this_thread::sleep_for(std::chrono::seconds(2 * can_write_interval_seconds));
     lseek(mock_socket, 0, SEEK_SET);
     if (read(mock_socket, &frame, sizeof(struct can_frame)) == 0) {
         std::cerr << "CAN CMD was not written!" << std::endl;
@@ -348,16 +339,14 @@ int test_critical_recovery(void) {
         std::cerr << "Failed to create mock socket" << std::endl;
         return 0;
     }
+    BmsPwrMgr::init(mock_socket);
     float           before_thresh = BmsPwrMgr::getCurrThreshold();
     port_stbd_e     before_c_side = BmsPwrMgr::getCurrChargeSide();
 
     struct can_frame frame;
-    frame.can_dlc = 8;
-    frame.can_id = BMS_CMD_FRAME_ID;
+    canid_t charge_bms_id = (before_c_side == port) ? BMS1_FRAME1_ID : BMS4_FRAME1_ID;
 
-    canid_t charge_bms_id    = (before_c_side == port) ? BMS1_FRAME1_ID : BMS4_FRAME1_ID;
-
-    BmsPwrMgr::onNewVoltageReading(charge_bms_id, min_threshold + surplus_to_increase_threshold, frame, mock_socket);
+    BmsPwrMgr::onNewVoltageReading(charge_bms_id, min_threshold + surplus_to_increase_threshold);
     if (BmsPwrMgr::getCurrThreshold() != before_thresh) {
         std::cerr << "BMS threshold changed when it should not have!" << std::endl;
         return 0;
@@ -372,6 +361,7 @@ int test_critical_recovery(void) {
     }
     uint64_t expected_cmd;
     expected_cmd = (before_c_side == port) ? can_port_discharge_stbd_charge_cmd : can_port_charge_stbd_discharge_cmd;
+    std::this_thread::sleep_for(std::chrono::seconds(2 * can_write_interval_seconds));
     lseek(mock_socket, 0, SEEK_SET);
     if (read(mock_socket, &frame, sizeof(struct can_frame)) == 0) {
         std::cerr << "CAN CMD was not written!" << std::endl;
@@ -391,22 +381,31 @@ int main(void) {
     // Insert test functions
     std::cout << "~~~ Test 1 ~~~" << std::endl;
     success_count += test_regular_operation_no_action();
+    BmsPwrMgr::terminate();
     std::cout << "~~~ Test 2 ~~~" << std::endl;
     success_count += test_charge_side_at_max_threshold();
+    BmsPwrMgr::terminate();
     std::cout << "~~~ Test 3 ~~~" << std::endl;
     success_count += test_discharge_reaches_threshold_do_not_lower();
+    BmsPwrMgr::terminate();
     std::cout << "~~~ Test 4 ~~~" << std::endl;
     success_count += test_discharge_reaches_threshold_lower();
+    BmsPwrMgr::terminate();
     std::cout << "~~~ Test 5 ~~~" << std::endl;
     success_count += test_regular_operation_charge_reaches_threshold();
+    BmsPwrMgr::terminate();
     std::cout << "~~~ Test 6 ~~~" << std::endl;
     success_count += test_regular_operation_to_critical();
+    BmsPwrMgr::terminate();
     std::cout << "~~~ Test 7 ~~~" << std::endl;
     success_count += test_critical_no_action();
+    BmsPwrMgr::terminate();
     std::cout << "~~~ Test 8 ~~~" << std::endl;
     success_count += test_critical_life_support();
+    BmsPwrMgr::terminate();
     std::cout << "~~~ Test 9 ~~~" << std::endl;
     success_count += test_critical_recovery();
+    BmsPwrMgr::terminate();
     std::cout << success_count << " tests passed out of: " << num_tests << " total" << std::endl;
     return 0;
 }

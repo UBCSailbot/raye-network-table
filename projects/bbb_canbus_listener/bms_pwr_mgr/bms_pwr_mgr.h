@@ -16,6 +16,8 @@
 #include <linux/can.h>
 
 ///// CONSTANTS /////
+#define CAN_DLC  8
+constexpr int   can_write_interval_seconds    = 1;
 constexpr float max_voltage                   = 18.7;
 constexpr float min_voltage                   = 16.7;
 constexpr float v_range                       = max_voltage - min_voltage;
@@ -45,15 +47,25 @@ typedef enum : uint8_t {
 ///// FUNCTIONS /////
 namespace BmsPwrMgr {
 /**
+ * @brief Sets the socket that CAN commands get sent over and continuously sends the commands asynchronously
+ * 
+ * @param fd File descriptor of the socket
+ */
+void init(int fd);
+/**
+ * @brief Stop writing CAN commands. init() needs to be called again to resume sending commands.
+ * 
+ */
+void terminate(void);
+/**
  * @brief Function that gets invoked whenever a new BMS status frame is received
  *
  * @param bms_frame_id  One of: BMS1_FRAME1_ID, BMS2_FRAME1_ID, BMS3_FRAME1_ID,
                                 BMS4_FRAME1_ID, BMS5_FRAME1_ID, BMS6_FRAME1_ID
  * @param voltage       Voltage reading given as part of the BMS bms_frame_id command
- * @param frame         Reference to can_frame structure that will be written to CAN to command bms charge/discharge
  * @param socket        File descriptor to write the can frame to
  */
-void onNewVoltageReading(const canid_t &bms_frame_id, const float &voltage, struct can_frame &frame, int socket);
+void onNewVoltageReading(const canid_t &bms_frame_id, const float &voltage);
 /**
  * @brief Configure the private fields of the BMS Power Manager
  *
@@ -67,7 +79,7 @@ void onNewVoltageReading(const canid_t &bms_frame_id, const float &voltage, stru
  */
 void configure(battery_state_e state, float threshold, port_stbd_e charge_side, float port_volt, float stbd_volt);
 
-// Getter methods to provide read only access to global variables
+// Getter methods to provide read only access to global variables for debuggin
 battery_state_e getCurrState(void);
 float           getCurrThreshold(void);
 port_stbd_e     getCurrChargeSide(void);
