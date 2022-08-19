@@ -19,6 +19,7 @@
 */
 
 #include <boost/asio/io_service.hpp>
+#include <fstream>
 #include <iostream>
 #include <boost/asio.hpp>
 #include <thread>
@@ -39,6 +40,8 @@
 #include "Value.pb.h"
 #include "Exceptions.h"
 #include "Uri.h"
+
+#define WAYPOINT_CACHE_FILE "/home/debian/network-table/projects/bbb_satellite_listener/global_waypoint_cache.bin"
 
 // Stores serialized sensor and uccm data to send to rockblock
 std::string latest_sensors_satellite_string;  // NOLINT(runtime/string)
@@ -255,6 +258,9 @@ bool receive_message(const std::string &status) {
         // Retrieve the decoded waypoint data
         try {
             message = decode_message(str_payload);
+            std::ofstream waypoint_cache(WAYPOINT_CACHE_FILE);
+            waypoint_cache << str_payload;
+            waypoint_cache.close();
         }
         catch (std::runtime_error& e) {
             std::cout << e.what() << std::endl;
@@ -453,6 +459,19 @@ int main(int argc, char **argv) {
     }
 
     waypoint_data.set_type(NetworkTable::Value::WAYPOINTS);
+
+    std::string cached_waypoint_msg;
+    std::ifstream waypoint_cache(WAYPOINT_CACHE_FILE, std::ios::binary);
+    waypoint_cache >> cached_waypoint_msg;
+    if (cached_waypoint_msg.size() > 0) {
+        try {
+            decode_message(cached_waypoint_msg);
+            std::cout << cached_waypoint_msg << std::endl;
+        } catch (std::runtime_error &e) {
+            std::cout << e.what() << std::endl;
+            // Continue without the waypoint cache if there is a decoding error
+        }
+    }
 
     serial.set_option(boost::asio::serial_port_base::baud_rate(19200));
 
