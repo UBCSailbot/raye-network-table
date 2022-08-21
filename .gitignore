@@ -6,7 +6,6 @@ extra
 .local.vimrc
 .clangd
 compile_commands.json
-.bin
 
 # JetBrains IDEs
 .idea

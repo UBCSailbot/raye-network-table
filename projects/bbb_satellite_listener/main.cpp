@@ -199,13 +199,10 @@ void set_waypoints(void) {
     sat.set_allocated_value(new NetworkTable::Value(waypoint_data));
     connection.SetValue(WAYPOINTS_GP, sat.value());
     std::cout << "Setting waypoint data: \n" << sat.DebugString() << std::endl;
-
-    // Cache the waypoints
-    std::string waypoint_str;
-    sat.SerializeToString(&waypoint_str);
     std::ofstream waypoint_cache(WAYPOINT_CACHE_FILE, std::ios::binary);
-    waypoint_cache << waypoint_str;
+    sat.SerializeToOstream(&waypoint_cache);
     waypoint_cache.close();
+    std::cout << "Waypoints cached" << std::endl;
     waypoint_data.clear_waypoints();
 }
 
@@ -465,20 +462,17 @@ int main(int argc, char **argv) {
 
     waypoint_data.set_type(NetworkTable::Value::WAYPOINTS);
 
-    std::string cached_waypoint_str;
+    NetworkTable::Satellite sat;
     std::ifstream waypoint_cache(WAYPOINT_CACHE_FILE, std::ios::binary);
-    waypoint_cache >> cached_waypoint_str;
-    if (cached_waypoint_str.size() > 0) {
-        NetworkTable::Satellite sat;
-        sat.ParseFromString(cached_waypoint_str);
-        if (sat.type() == NetworkTable::Satellite::VALUE &&
-            sat.value().type() == NetworkTable::Value::WAYPOINTS) {
-            connection.SetValue(WAYPOINTS_GP, sat.value());
-            std::cout << sat.DebugString() << std::endl;
-        } else {
-            std::cout << "Failed to parse cached waypoints, continuing without it." << std::endl;
-        }
+    sat.ParseFromIstream(&waypoint_cache);
+    if (sat.type() == NetworkTable::Satellite::VALUE &&
+        sat.value().type() == NetworkTable::Value::WAYPOINTS) {
+        connection.SetValue(WAYPOINTS_GP, sat.value());
+        std::cout << sat.DebugString() << std::endl;
+    } else {
+        std::cout << "Failed to parse cached waypoints, continuing without it." << std::endl;
     }
+    waypoint_cache.close();
 
     serial.set_option(boost::asio::serial_port_base::baud_rate(19200));
 
