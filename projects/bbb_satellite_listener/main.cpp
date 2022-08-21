@@ -258,7 +258,7 @@ bool receive_message(const std::string &status) {
         // Retrieve the decoded waypoint data
         try {
             message = decode_message(str_payload);
-            std::ofstream waypoint_cache(WAYPOINT_CACHE_FILE);
+            std::ofstream waypoint_cache(WAYPOINT_CACHE_FILE, std::ios::binary);
             waypoint_cache << str_payload;
             waypoint_cache.close();
         }
@@ -465,8 +465,8 @@ int main(int argc, char **argv) {
     waypoint_cache >> cached_waypoint_msg;
     if (cached_waypoint_msg.size() > 0) {
         try {
-            decode_message(cached_waypoint_msg);
-            std::cout << cached_waypoint_msg << std::endl;
+            std::cout << decode_message(cached_waypoint_msg) << std::endl;
+            set_waypoints();
         } catch (std::runtime_error &e) {
             std::cout << e.what() << std::endl;
             // Continue without the waypoint cache if there is a decoding error
