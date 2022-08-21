@@ -196,11 +196,16 @@ void send(const std::string &data) {
 void set_waypoints(void) {
     NetworkTable::Satellite sat;
     sat.set_type(NetworkTable::Satellite::VALUE);
-    // Deallocation automatically handled:
-    // https://stackoverflow.com/questions/33960999/protobuf-will-set-allocated-delete-the-allocated-object
     sat.set_allocated_value(new NetworkTable::Value(waypoint_data));
     connection.SetValue(WAYPOINTS_GP, sat.value());
     std::cout << "Setting waypoint data: \n" << sat.DebugString() << std::endl;
+
+    // Cache the waypoints
+    std::string waypoint_str;
+    sat.SerializeToString(&waypoint_str);
+    std::ofstream waypoint_cache(WAYPOINT_CACHE_FILE, std::ios::binary);
+    waypoint_cache << waypoint_str;
+    waypoint_cache.close();
     waypoint_data.clear_waypoints();
 }
 
@@ -460,16 +465,18 @@ int main(int argc, char **argv) {
 
     waypoint_data.set_type(NetworkTable::Value::WAYPOINTS);
 
-    std::string cached_waypoint_msg;
+    std::string cached_waypoint_str;
     std::ifstream waypoint_cache(WAYPOINT_CACHE_FILE, std::ios::binary);
-    waypoint_cache >> cached_waypoint_msg;
-    if (cached_waypoint_msg.size() > 0) {
-        try {
-            std::cout << decode_message(cached_waypoint_msg) << std::endl;
-            set_waypoints();
-        } catch (std::runtime_error &e) {
-            std::cout << e.what() << std::endl;
-            // Continue without the waypoint cache if there is a decoding error
+    waypoint_cache >> cached_waypoint_str;
+    if (cached_waypoint_str.size() > 0) {
+        NetworkTable::Satellite sat;
+        sat.ParseFromString(cached_waypoint_str);
+        if (sat.type() == NetworkTable::Satellite::VALUE &&
+            sat.value().type() == NetworkTable::Value::WAYPOINTS) {
+            connection.SetValue(WAYPOINTS_GP, sat.value());
+            std::cout << sat.DebugString() << std::endl;
+        } else {
+            std::cout << "Failed to parse cached waypoints, continuing without it." << std::endl;
         }
     }
 
