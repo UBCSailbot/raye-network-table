@@ -19,6 +19,7 @@
 */
 
 #include <boost/asio/io_service.hpp>
+#include <fstream>
 #include <iostream>
 #include <boost/asio.hpp>
 #include <thread>
@@ -39,6 +40,8 @@
 #include "Value.pb.h"
 #include "Exceptions.h"
 #include "Uri.h"
+
+#define WAYPOINT_CACHE_FILE "/home/debian/network-table/projects/bbb_satellite_listener/global_waypoint_cache.bin"
 
 // Stores serialized sensor and uccm data to send to rockblock
 std::string latest_sensors_satellite_string;  // NOLINT(runtime/string)
@@ -193,11 +196,13 @@ void send(const std::string &data) {
 void set_waypoints(void) {
     NetworkTable::Satellite sat;
     sat.set_type(NetworkTable::Satellite::VALUE);
-    // Deallocation automatically handled:
-    // https://stackoverflow.com/questions/33960999/protobuf-will-set-allocated-delete-the-allocated-object
     sat.set_allocated_value(new NetworkTable::Value(waypoint_data));
     connection.SetValue(WAYPOINTS_GP, sat.value());
     std::cout << "Setting waypoint data: \n" << sat.DebugString() << std::endl;
+    std::ofstream waypoint_cache(WAYPOINT_CACHE_FILE, std::ios::binary);
+    sat.SerializeToOstream(&waypoint_cache);
+    waypoint_cache.close();
+    std::cout << "Waypoints cached" << std::endl;
     waypoint_data.clear_waypoints();
 }
 
@@ -255,6 +260,9 @@ bool receive_message(const std::string &status) {
         // Retrieve the decoded waypoint data
         try {
             message = decode_message(str_payload);
+            std::ofstream waypoint_cache(WAYPOINT_CACHE_FILE, std::ios::binary);
+            waypoint_cache << str_payload;
+            waypoint_cache.close();
         }
         catch (std::runtime_error& e) {
             std::cout << e.what() << std::endl;
@@ -453,6 +461,18 @@ int main(int argc, char **argv) {
     }
 
     waypoint_data.set_type(NetworkTable::Value::WAYPOINTS);
+
+    NetworkTable::Satellite sat;
+    std::ifstream waypoint_cache(WAYPOINT_CACHE_FILE, std::ios::binary);
+    sat.ParseFromIstream(&waypoint_cache);
+    if (sat.type() == NetworkTable::Satellite::VALUE &&
+        sat.value().type() == NetworkTable::Value::WAYPOINTS) {
+        connection.SetValue(WAYPOINTS_GP, sat.value());
+        std::cout << sat.DebugString() << std::endl;
+    } else {
+        std::cout << "Failed to parse cached waypoints, continuing without it." << std::endl;
+    }
+    waypoint_cache.close();
 
     serial.set_option(boost::asio::serial_port_base::baud_rate(19200));
 
