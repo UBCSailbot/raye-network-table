@@ -256,3 +256,8 @@ ACCEL_UCCM_CURRENT = "/accelerometer/uccm/current"
 ACCEL_UCCM_VOLTAGE = "/accelerometer/uccm/voltage"
 ACCEL_UCCM_TEMP = "/accelerometer/uccm/temperature"
 ACCEL_UCCM_STATUS = "/accelerometer/uccm/status"
+
+# remote can command
+REMOTE_CAN_CMD = "/remote_can_cmd"
+REMOTE_CAN_CMD_ID = "/remote_can_cmd/id"
+REMOTE_CAN_CMD_data = "/remote_can_cmd/data"

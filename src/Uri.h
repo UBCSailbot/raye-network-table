@@ -157,6 +157,10 @@
 #define WIND3_SPEED "/wind_sensor_3/iimwv/wind_speed"
 #define WIND3_ANGLE "/wind_sensor_3/iimwv/wind_angle"
 
+#define REMOTE_CAN_CMD "/remote_can_cmd"
+#define REMOTE_CAN_CMD_ID "/remote_can_cmd/id"
+#define REMOTE_CAN_CMD_DATA "/remote_can_cmd/data"
+
 // Dependency within global-pathfinding - Do NOT change
 #define WAYPOINTS_GP "waypoints"
 
