@@ -36,10 +36,5 @@ def main():
     values = {uri: value}
     nt_connection.setValues(values)
 
-    # node_container = nt_connection.getNodes([uri])
-    # node = Node_pb2.Node()
-    # node.CopyFrom(node_container[uri])
-    # print(node)
-
 if __name__ == "__main__":
     main()
