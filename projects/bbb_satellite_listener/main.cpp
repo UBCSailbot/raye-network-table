@@ -236,7 +236,7 @@ std::string decode_message(const std::string &message) {
         // Not ideal to do this here instead of canbus listener
         NetworkTable::Value::CanCmd cmd_data = satellite.value().can_cmd();
         std::stringstream ss;
-        ss << "cansend can0" << std::setfill('0') << std::setw(3) << std::hex << cmd_data.can_frame_id();
+        ss << "cansend can0 " << std::setfill('0') << std::setw(3) << std::hex << cmd_data.can_frame_id();
         ss << "#";
         for (uint8_t i = 0; i < CAN_MAX_DLEN; i++) {
             ss << std::setfill('0') << std::setw(2) << std::hex << ((cmd_data.can_cmd_data() >> (8 * i)) & 0xFF);
@@ -307,6 +307,7 @@ void receive() {
     std::cout << "Receiving Data" << std::endl;
 
     bool queueEmpty = true;
+    bool valid = false;
     int queueSize = 0;
 
     do {
@@ -332,12 +333,13 @@ void receive() {
         std::cout << readLine(serial) << std::endl;
         std::cout << readLine(serial) << std::endl;
         // Read the expected waypoints off the seral port
-        if (receive_message(status)) {
+        valid = receive_message(status);
+        if (valid) {
             queueSize = std::stoi(response_split[5], NULL, 0);
             if (queueSize > 0)
                 queueEmpty = false;
         }
-    } while (queueSize > 0);
+    } while (queueSize > 0 && !valid);
 
     // Only set waypoints if we actually have contents from the queue
     if (!queueEmpty)
