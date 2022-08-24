@@ -4,6 +4,7 @@ import generated_python.Value_pb2 as Value_pb2
 import generated_python.Node_pb2 as Node_pb2
 import argparse
 
+
 def main():
     parser = argparse.ArgumentParser(description="Directly send CAN commands to the network table")
 
@@ -35,6 +36,7 @@ def main():
     uri = REMOTE_CAN_CMD
     values = {uri: value}
     nt_connection.setValues(values)
+
 
 if __name__ == "__main__":
     main()
