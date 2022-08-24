@@ -180,6 +180,12 @@ class runClient(threading.Thread):
         satellite.value.type = Value_pb2.Value.Type.WAYPOINTS
         return satellite
 
+    def init_can_cmd(self):
+        satellite = Satellite_pb2.Satellite()
+        satellite.type = Satellite_pb2.Satellite.Type.VALUE
+        satellite.value.type = Value_pb2.Value.Type.CAN_CMD
+        return satellite
+
     def split_waypoints(self, node):
         waypoints = node.value.waypoints
         cur_sat_segment = self.init_waypoints()
@@ -204,17 +210,17 @@ class runClient(threading.Thread):
             the boat via satellite
         """
         prev_sat = self.init_waypoints()
-        cur_sat = self.init_waypoints()
+        prev_can_cmd = self.init_can_cmd()
 
         while (True):
             try:
                 # Check connection to network table
                 assert self.nt_connection.connected
-                uris = ["waypoints"]
+                uris = [uri.WAYPOINTS_GP, uri.REMOTE_CAN_CMD]
                 node_container = self.nt_connection.getNodes(uris)
 
                 node = Node_pb2.Node()
-                node.CopyFrom(node_container["waypoints"])
+                node.CopyFrom(node_container[uri.WAYPOINTS_GP])
 
                 if (node.value.type == Value_pb2.Value.Type.WAYPOINTS
                         and node.value != prev_sat.value):
@@ -231,6 +237,24 @@ class runClient(threading.Thread):
                         print("Response = " + str(response))
 
                     prev_sat.value.CopyFrom(node.value)
+
+                node.CopyFrom(node_container[uri.REMOTE_CAN_CMD])
+                if (node.value.type == Value_pb2.Value.Type.CAN_CMD and node.value != prev_can_cmd.value):
+                    cur_cmd = self.init_can_cmd()
+                    cur_cmd.value.CopyFrom(node.value)
+                    cur_cmd_serial = cur_cmd.SerializeToString()
+                    data = {"data": cur_cmd_serial.hex()}
+                    if (self.imei is not None and self.username is not None
+                            and self.password is not None):
+                        data['imei'] = self.imei
+                        data['username'] = self.username
+                        data['password'] = self.password
+                    print("Sending CAN Command")
+                    print(cur_cmd)
+                    response = requests.request("POST", self.ENDPOINT, params=data)
+                    print("Response = " + str(response))
+                    prev_can_cmd.value.CopyFrom(node.value)
+
                 time.sleep(self.poll_freq)
 
             except ConnectionError:

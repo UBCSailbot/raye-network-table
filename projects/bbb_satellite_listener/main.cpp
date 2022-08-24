@@ -31,6 +31,7 @@
 #include <mutex>
 #include <stdexcept>
 #include <cstdio>
+#include <linux/can.h>
 
 #include "Connection.h"
 #include "Help.h"
@@ -211,7 +212,7 @@ void set_waypoints(void) {
  *  and updates the network table
  *
  *  @param message Data to be decoded 
- *                 Expecting the message to contain waypoints
+ *                 Expecting the message to contain waypoints or CAN commands
  *
  */
 std::string decode_message(const std::string &message) {
@@ -230,6 +231,22 @@ std::string decode_message(const std::string &message) {
             w->set_longitude(new_waypoint.longitude());
         }
         return satellite.DebugString();
+    } else if (satellite.type() == NetworkTable::Satellite::VALUE &&
+                satellite.value().type() == NetworkTable::Value::CAN_CMD) {
+        // Not ideal to do this here instead of canbus listener
+        NetworkTable::Value::CanCmd cmd_data = satellite.value().can_cmd();
+        std::stringstream ss;
+        ss << "cansend can0 " << std::setfill('0') << std::setw(3) << std::hex << cmd_data.can_frame_id();
+        ss << "#";
+        for (uint8_t i = 0; i < CAN_MAX_DLEN; i++) {
+            ss << std::setfill('0') << std::setw(2) << std::hex << ((cmd_data.can_cmd_data() >> (8 * i)) & 0xFF);
+            if (i != CAN_MAX_DLEN - 1) {
+                ss << ".";
+            }
+        }
+        std::string cmd = ss.str();
+        std::system(cmd.c_str());
+        return cmd;
     } else {
         throw std::runtime_error("Failed to decode satellite data");
     }
@@ -290,6 +307,7 @@ void receive() {
     std::cout << "Receiving Data" << std::endl;
 
     bool queueEmpty = true;
+    bool valid = false;
     int queueSize = 0;
 
     do {
@@ -315,12 +333,13 @@ void receive() {
         std::cout << readLine(serial) << std::endl;
         std::cout << readLine(serial) << std::endl;
         // Read the expected waypoints off the seral port
-        if (receive_message(status)) {
+        valid = receive_message(status);
+        if (valid) {
             queueSize = std::stoi(response_split[5], NULL, 0);
             if (queueSize > 0)
                 queueEmpty = false;
         }
-    } while (queueSize > 0);
+    } while (queueSize > 0 && !valid);
 
     // Only set waypoints if we actually have contents from the queue
     if (!queueEmpty)
