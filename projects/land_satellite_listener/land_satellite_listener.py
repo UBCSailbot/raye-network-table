@@ -91,43 +91,43 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
 
             # Need to extract hex data from received message, then convert to string, then back to bytes
             data = str(body).split("data=", 1)[1][:-1]  # Separate the payload from the Iridium headers
-            data = bytes.fromhex(data)  # Convert the string back to hex
-            sat = Satellite_pb2.Satellite()
-            helper = Help()
+            if (len(data) > 0):  # We sometimes receive empty payloads that must be ignored
+                data = bytes.fromhex(data)  # Convert the string back to hex
+                sat = Satellite_pb2.Satellite()
+                helper = Help()
 
-            # Expecting to receive sensor or uccm data
-            try:
-                sat.ParseFromString(data)
-                if sat.type == Satellite_pb2.Satellite.Type.SENSORS:
-                    print("Receiving Sensor Data")
-                    values = helper.sensors_to_root(sat.sensors)
-                    self.nt_connection.setValues(values)
-                    gps_can = self.poll_nt(uri.GPS_CAN).children['gprmc']
-                    lat = gps_can.children['latitude'].value.float_data
-                    lon = gps_can.children['longitude'].value.float_data
-                    if lat != 0.0 and lon != 0.0:  # We sometimes receive empty payloads that should be ignored
+                # Expecting to receive sensor or uccm data
+                try:
+                    sat.ParseFromString(data)
+                    if sat.type == Satellite_pb2.Satellite.Type.SENSORS:
+                        print("Receiving Sensor Data")
+                        values = helper.sensors_to_root(sat.sensors)
+                        self.nt_connection.setValues(values)
+                        gps_can = self.poll_nt(uri.GPS_CAN).children['gprmc']
+                        lat = gps_can.children['latitude'].value.float_data
+                        lon = gps_can.children['longitude'].value.float_data
                         with open("/root/network-table/projects/land_satellite_listener/gps.log", 'a') as log:
                             log.write(str(lat) + ',' + str(lon) + "\n")
 
-                elif sat.type == Satellite_pb2.Satellite.Type.UCCMS:
-                    print("Receiving UCCM Data")
-                    values = helper.uccms_to_root(sat.uccms)
-                    self.nt_connection.setValues(values)
+                    elif sat.type == Satellite_pb2.Satellite.Type.UCCMS:
+                        print("Receiving UCCM Data")
+                        values = helper.uccms_to_root(sat.uccms)
+                        self.nt_connection.setValues(values)
 
-                else:
-                    print("Did Not receive Sensor or UCCM data")
-                    print(data)
+                    else:
+                        print("Did Not receive Sensor or UCCM data")
+                        print(data)
 
-                self.send_response(200)
-                self.end_headers()
+                    self.send_response(200)
+                    self.end_headers()
 
-            except IOError:
-                print("Error Decoding incoming data")
-                pass
+                except IOError:
+                    print("Error Decoding incoming data")
+                    pass
 
-            except ConnectionError:
-                print("Error setting network table value")
-                pass
+                except ConnectionError:
+                    print("Error setting network table value")
+                    pass
         else:
             print("**ERROR: Client's IP Address is not valid, cancelling post request...")
 
@@ -233,8 +233,8 @@ class runClient(threading.Thread):
                             data['password'] = self.password
                         print("Sending waypoints")
                         print(cur_sat_segment)
-                        response = requests.request("POST", self.ENDPOINT, params=data)
-                        print("Response = " + str(response))
+                        # response = requests.request("POST", self.ENDPOINT, params=data)
+                        # print("Response = " + str(response))
 
                     prev_sat.value.CopyFrom(node.value)
 
@@ -251,8 +251,8 @@ class runClient(threading.Thread):
                         data['password'] = self.password
                     print("Sending CAN Command")
                     print(cur_cmd)
-                    response = requests.request("POST", self.ENDPOINT, params=data)
-                    print("Response = " + str(response))
+                    # response = requests.request("POST", self.ENDPOINT, params=data)
+                    # print("Response = " + str(response))
                     prev_can_cmd.value.CopyFrom(node.value)
 
                 time.sleep(self.poll_freq)
@@ -347,9 +347,9 @@ def main():
     nt_connection = Connection()
     nt_connection.Connect()
 
-    server = runServer(args.port, args.bind, nt_connection, args.ip_addresses)
+    # server = runServer(args.port, args.bind, nt_connection, args.ip_addresses)
     client = runClient(nt_connection, poll_freq, args.endpoint, args.username, args.password, args.imei)
-    server.start()
+    # server.start()
     client.start()
 
 
