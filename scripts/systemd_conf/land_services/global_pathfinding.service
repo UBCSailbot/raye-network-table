@@ -7,7 +7,7 @@ After=hybrid-sleep.target
 [Service]
 Restart=on-failure
 RestartSec=3s
-ExecStart=/root/network-table/projects/global-pathfinding/build/bin/pathfinder_cli -p 13 --navigate 48 235 21 203 --table
+ExecStart=/root/network-table/projects/global-pathfinding/build/bin/pathfinder_cli -p 12 --navigate 48 235 21 203 --table
 
 [Install]
 WantedBy=multi-user.target

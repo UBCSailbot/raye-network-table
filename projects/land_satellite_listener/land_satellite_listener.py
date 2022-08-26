@@ -91,43 +91,48 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
 
             # Need to extract hex data from received message, then convert to string, then back to bytes
             data = str(body).split("data=", 1)[1][:-1]  # Separate the payload from the Iridium headers
-            data = bytes.fromhex(data)  # Convert the string back to hex
-            sat = Satellite_pb2.Satellite()
-            helper = Help()
+            if (len(data) > 0):  # We sometimes receive empty payloads that must be ignored
+                data = bytes.fromhex(data)  # Convert the string back to hex
+                sat = Satellite_pb2.Satellite()
+                helper = Help()
 
-            # Expecting to receive sensor or uccm data
-            try:
-                sat.ParseFromString(data)
-                if sat.type == Satellite_pb2.Satellite.Type.SENSORS:
-                    print("Receiving Sensor Data")
-                    values = helper.sensors_to_root(sat.sensors)
-                    self.nt_connection.setValues(values)
-                    gps_can = self.poll_nt(uri.GPS_CAN).children['gprmc']
-                    lat = gps_can.children['latitude'].value.float_data
-                    lon = gps_can.children['longitude'].value.float_data
-                    if lat != 0.0 and lon != 0.0:  # We sometimes receive empty payloads that should be ignored
+                # Expecting to receive sensor or uccm data
+                try:
+                    sat.ParseFromString(data)
+                    if sat.type == Satellite_pb2.Satellite.Type.SENSORS:
+                        print("Receiving Sensor Data")
+                        values = helper.sensors_to_root(sat.sensors)
+                        self.nt_connection.setValues(values)
+                        gps_can = self.poll_nt(uri.GPS_CAN).children['gprmc']
+                        lat = gps_can.children['latitude'].value.float_data
+                        lon = gps_can.children['longitude'].value.float_data
                         with open("/root/network-table/projects/land_satellite_listener/gps.log", 'a') as log:
                             log.write(str(lat) + ',' + str(lon) + "\n")
 
-                elif sat.type == Satellite_pb2.Satellite.Type.UCCMS:
-                    print("Receiving UCCM Data")
-                    values = helper.uccms_to_root(sat.uccms)
-                    self.nt_connection.setValues(values)
+                    elif sat.type == Satellite_pb2.Satellite.Type.UCCMS:
+                        print("Receiving UCCM Data")
+                        values = helper.uccms_to_root(sat.uccms)
+                        self.nt_connection.setValues(values)
 
-                else:
-                    print("Did Not receive Sensor or UCCM data")
-                    print(data)
+                    else:
+                        print("Did Not receive Sensor or UCCM data")
+                        print(data)
 
+                    self.send_response(200)
+                    self.end_headers()
+
+                except IOError:
+                    print("Error Decoding incoming data")
+                    pass
+
+                except ConnectionError:
+                    print("Error setting network table value")
+                    pass
+            else:
+                print("Received empty data - do nothing")
                 self.send_response(200)
                 self.end_headers()
 
-            except IOError:
-                print("Error Decoding incoming data")
-                pass
-
-            except ConnectionError:
-                print("Error setting network table value")
-                pass
         else:
             print("**ERROR: Client's IP Address is not valid, cancelling post request...")
 
