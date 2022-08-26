@@ -128,6 +128,11 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
                 except ConnectionError:
                     print("Error setting network table value")
                     pass
+            else:
+                print("Received empty data - do nothing")
+                self.send_response(200)
+                self.end_headers()
+
         else:
             print("**ERROR: Client's IP Address is not valid, cancelling post request...")
 
@@ -233,8 +238,8 @@ class runClient(threading.Thread):
                             data['password'] = self.password
                         print("Sending waypoints")
                         print(cur_sat_segment)
-                        # response = requests.request("POST", self.ENDPOINT, params=data)
-                        # print("Response = " + str(response))
+                        response = requests.request("POST", self.ENDPOINT, params=data)
+                        print("Response = " + str(response))
 
                     prev_sat.value.CopyFrom(node.value)
 
@@ -251,8 +256,8 @@ class runClient(threading.Thread):
                         data['password'] = self.password
                     print("Sending CAN Command")
                     print(cur_cmd)
-                    # response = requests.request("POST", self.ENDPOINT, params=data)
-                    # print("Response = " + str(response))
+                    response = requests.request("POST", self.ENDPOINT, params=data)
+                    print("Response = " + str(response))
                     prev_can_cmd.value.CopyFrom(node.value)
 
                 time.sleep(self.poll_freq)
@@ -347,9 +352,9 @@ def main():
     nt_connection = Connection()
     nt_connection.Connect()
 
-    # server = runServer(args.port, args.bind, nt_connection, args.ip_addresses)
+    server = runServer(args.port, args.bind, nt_connection, args.ip_addresses)
     client = runClient(nt_connection, poll_freq, args.endpoint, args.username, args.password, args.imei)
-    # server.start()
+    server.start()
     client.start()
 
 

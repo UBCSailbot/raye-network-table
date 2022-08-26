@@ -7,7 +7,7 @@ After=hybrid-sleep.target
 [Service]
 Restart=on-failure
 RestartSec=3s
-ExecStart=/home/debian/network-table/build/bin/bbb_satellite_listener 60 360 600 /dev/ttyS2
+ExecStart=/home/debian/network-table/build/bin/bbb_satellite_listener 43200 3600 3600 /dev/ttyS2
 
 [Install]
 WantedBy=multi-user.target
