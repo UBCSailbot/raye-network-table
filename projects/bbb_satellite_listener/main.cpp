@@ -339,7 +339,7 @@ void receive() {
             if (queueSize > 0)
                 queueEmpty = false;
         }
-    } while (queueSize > 0 && !valid);
+    } while (queueSize > 0 || !valid);
 
     // Only set waypoints if we actually have contents from the queue
     if (!queueEmpty)
