@@ -510,11 +510,13 @@ int main(int argc, char **argv) {
     std::cout << readLine(serial) << std::endl;
     std::cout << readLine(serial) << std::endl;
 
+    // NOTE: Do not actually send UCCM data as it is not properly implemented.
+    // Besides, all relevant UCCM data is already bundled with sensor data.
     std::thread sensorThread(sendSensorData);
-    std::thread uccmThread(sendUccmData);
+    // std::thread uccmThread(sendUccmData);
     std::thread receiveThread(receiveData);
 
     sensorThread.join();
-    uccmThread.join();
+    // uccmThread.join();
     receiveThread.join();
 }

@@ -30,6 +30,7 @@
 // Make sure manual override node matches whatever is in nuc_manual_override project
 
 #define MAX_BMS_VOLTAGE 19.5  // ELEC team set 19.5 V as the limit
+#define JIB_ROT_LIMIT   350   // Modify if the actual limit when rigged is less than specified limit of 360
 
 /*
  * Needed for communication over ethernet
@@ -56,8 +57,9 @@ ros::Publisher min_voltage_msg_pub;
 bool manual_override_active = false;
 
 void SendActuationAngle(double rudder_angle_radians, int sail_winch_position, int jib_winch_position) {
-    // Both angles are in radians (CONFIRM WITH BRUCE)
+    // Both angles are in radians
     NetworkTable::Controller controller;
+    jib_winch_position = jib_winch_position > JIB_ROT_LIMIT ? JIB_ROT_LIMIT : jib_winch_position;
 
     controller.set_type(NetworkTable::Controller::ACTUATION_DATA);
     controller.mutable_actuation_angle_data()->set_rudder_angle(rudder_angle_radians);
