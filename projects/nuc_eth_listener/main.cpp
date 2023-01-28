@@ -1,5 +1,8 @@
 // Copyright 2017 UBC Sailbot
 
+#include <cmath>
+#include <ctime>
+#include <string>
 #include <zmq.hpp>
 #include <thread>
 #include <iostream>
@@ -140,6 +143,31 @@ void PowerControllerCallBack(const sailbot_msg::power_controller ros_power_data)
 }
 */
 
+static inline bool lat_lon_float_equal(float a, float b) {
+    static constexpr float epsilon = 0.0001;
+    return (std::fabs(a) - std::fabs(b)) < epsilon;
+}
+
+static inline bool lat_lon_equal(std::array<float, 2> lat_lon_a, std::array<float, 2> lat_lon_b) {
+    return lat_lon_float_equal(lat_lon_a[0], lat_lon_b[0]) && lat_lon_float_equal(lat_lon_a[1], lat_lon_b[1]);
+}
+
+static bool IsGpsCanStale(std::array<float, 2> gps_can_lat_lon, std::array<float, 2> gps_ais_lat_lon) {
+    static constexpr int stale_time_sec = 1200;  // 20 min
+    static int prev_non_stale_time = std::time(nullptr);
+    static std::array<float, 2> prev_can_lat_lon_arr = {0.0, 0.0};
+    if (!lat_lon_equal(gps_can_lat_lon, gps_ais_lat_lon)) {
+        if (lat_lon_equal(gps_can_lat_lon, prev_can_lat_lon_arr)
+            && ((std::time(nullptr) - prev_non_stale_time) > stale_time_sec)) {
+            std::cout << "GPS CAN is stale" << std::endl;
+            return true;
+        }
+    } else {
+        prev_non_stale_time = std::time(nullptr);
+    }
+    return false;
+}
+
 void PublishSensorData() {
     while (true) {
         /*
@@ -201,20 +229,39 @@ void PublishSensorData() {
             sensors.wind_sensor_3_angle_degrees = proto_sensors.wind_sensor_3().iimwv().wind_angle();
 
             // GPS
+            // GPS AIS only has the lat and lon fields so replicate everything else
+            sensors.gps_ais_latitude_degrees = proto_sensors.gps_ais().gprmc().latitude();
+            sensors.gps_ais_longitude_degrees = proto_sensors.gps_ais().gprmc().longitude();
+            sensors.gps_ais_true_heading_degrees = proto_sensors.gps_ais().gprmc().true_heading();
+            sensors.gps_ais_groundspeed_knots = proto_sensors.gps_ais().gprmc().ground_speed();
+            // A comment in bbb_ais_listener/main.cpp says not to use utc timestamp for GPS AIS
+            sensors.gps_ais_timestamp_utc = proto_sensors.gps_can().gprmc().utc_timestamp();
+            // Does not exist for GPS AIS
+            sensors.gps_ais_track_made_good_degrees = proto_sensors.gps_can().gprmc().track_made_good();
+            // Does not exist for GPS AIS
+            sensors.gps_ais_magnetic_variation_degrees = proto_sensors.gps_can().gprmc().magnetic_variation();
+
             sensors.gps_can_timestamp_utc = proto_sensors.gps_can().gprmc().utc_timestamp();
-            sensors.gps_can_latitude_degrees = proto_sensors.gps_can().gprmc().latitude();
-            sensors.gps_can_longitude_degrees = proto_sensors.gps_can().gprmc().longitude();
-            sensors.gps_can_groundspeed_knots = proto_sensors.gps_can().gprmc().ground_speed();
             sensors.gps_can_track_made_good_degrees = proto_sensors.gps_can().gprmc().track_made_good();
             sensors.gps_can_magnetic_variation_degrees = proto_sensors.gps_can().gprmc().magnetic_variation();
-            sensors.gps_can_true_heading_degrees = proto_sensors.gps_can().gprmc().true_heading();
 
-            sensors.gps_ais_timestamp_utc = proto_sensors.gps_can().gprmc().utc_timestamp();
-            sensors.gps_ais_latitude_degrees = proto_sensors.gps_can().gprmc().latitude();
-            sensors.gps_ais_longitude_degrees = proto_sensors.gps_can().gprmc().longitude();
-            sensors.gps_ais_groundspeed_knots = proto_sensors.gps_can().gprmc().ground_speed();
-            sensors.gps_ais_track_made_good_degrees = proto_sensors.gps_can().gprmc().track_made_good();
-            sensors.gps_ais_magnetic_variation_degrees = proto_sensors.gps_can().gprmc().magnetic_variation();
+            std::array<float, 2> gps_can_lat_lon =
+                {proto_sensors.gps_can().gprmc().latitude(), proto_sensors.gps_can().gprmc().longitude()};
+            std::array<float, 2> gps_ais_lat_lon =
+                {sensors.gps_ais_latitude_degrees, sensors.gps_ais_longitude_degrees};
+
+            // If GPS CAN is stale then use AIS lat lon
+            if (IsGpsCanStale(gps_can_lat_lon, gps_ais_lat_lon)) {
+                sensors.gps_can_latitude_degrees = gps_can_lat_lon[0];
+                sensors.gps_can_longitude_degrees = gps_can_lat_lon[1];
+                sensors.gps_can_true_heading_degrees = proto_sensors.gps_ais().gprmc().true_heading();
+                sensors.gps_can_groundspeed_knots = proto_sensors.gps_ais().gprmc().ground_speed();
+            } else {
+                sensors.gps_can_latitude_degrees = gps_ais_lat_lon[0];
+                sensors.gps_can_longitude_degrees = gps_ais_lat_lon[1];
+                sensors.gps_can_true_heading_degrees = proto_sensors.gps_can().gprmc().true_heading();
+                sensors.gps_can_groundspeed_knots = proto_sensors.gps_can().gprmc().ground_speed();
+            }
 
             // Accelerometer
             sensors.accelerometer_x_force_millig = \
