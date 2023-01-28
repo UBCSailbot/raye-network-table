@@ -232,16 +232,18 @@ void PublishSensorData() {
             // GPS AIS only has the lat and lon fields so replicate everything else
             sensors.gps_ais_latitude_degrees = proto_sensors.gps_ais().gprmc().latitude();
             sensors.gps_ais_longitude_degrees = proto_sensors.gps_ais().gprmc().longitude();
+            sensors.gps_ais_true_heading_degrees = proto_sensors.gps_ais().gprmc().true_heading();
+            sensors.gps_ais_groundspeed_knots = proto_sensors.gps_ais().gprmc().ground_speed();
+            // A comment in bbb_ais_listener/main.cpp says not to use utc timestamp for GPS AIS
             sensors.gps_ais_timestamp_utc = proto_sensors.gps_can().gprmc().utc_timestamp();
-            sensors.gps_ais_groundspeed_knots = proto_sensors.gps_can().gprmc().ground_speed();
+            // Does not exist for GPS AIS
             sensors.gps_ais_track_made_good_degrees = proto_sensors.gps_can().gprmc().track_made_good();
+            // Does not exist for GPS AIS
             sensors.gps_ais_magnetic_variation_degrees = proto_sensors.gps_can().gprmc().magnetic_variation();
 
             sensors.gps_can_timestamp_utc = proto_sensors.gps_can().gprmc().utc_timestamp();
-            sensors.gps_can_groundspeed_knots = proto_sensors.gps_can().gprmc().ground_speed();
             sensors.gps_can_track_made_good_degrees = proto_sensors.gps_can().gprmc().track_made_good();
             sensors.gps_can_magnetic_variation_degrees = proto_sensors.gps_can().gprmc().magnetic_variation();
-            sensors.gps_can_true_heading_degrees = proto_sensors.gps_can().gprmc().true_heading();
 
             std::array<float, 2> gps_can_lat_lon =
                 {proto_sensors.gps_can().gprmc().latitude(), proto_sensors.gps_can().gprmc().longitude()};
@@ -252,9 +254,13 @@ void PublishSensorData() {
             if (IsGpsCanStale(gps_can_lat_lon, gps_ais_lat_lon)) {
                 sensors.gps_can_latitude_degrees = gps_can_lat_lon[0];
                 sensors.gps_can_longitude_degrees = gps_can_lat_lon[1];
+                sensors.gps_can_true_heading_degrees = proto_sensors.gps_ais().gprmc().true_heading();
+                sensors.gps_can_groundspeed_knots = proto_sensors.gps_ais().gprmc().ground_speed();
             } else {
                 sensors.gps_can_latitude_degrees = gps_ais_lat_lon[0];
                 sensors.gps_can_longitude_degrees = gps_ais_lat_lon[1];
+                sensors.gps_can_true_heading_degrees = proto_sensors.gps_can().gprmc().true_heading();
+                sensors.gps_can_groundspeed_knots = proto_sensors.gps_can().gprmc().ground_speed();
             }
 
             // Accelerometer

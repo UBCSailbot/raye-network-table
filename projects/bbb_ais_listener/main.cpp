@@ -132,21 +132,37 @@ int main(int argc, char** argv) {
                 // Creates and configures NetworkTable values for insertion
                 NetworkTable::Value ais_gps_latitude;
                 NetworkTable::Value ais_gps_longitude;
+                NetworkTable::Value ais_gps_speed_knots;
+                NetworkTable::Value ais_gps_true_heading;
 
                 double raye_latitude = b.m_latitude;
                 double raye_longitude = b.m_longitude;
+                double raye_speed = b.m_sog;
+                int raye_true_heading = b.m_trueHeading;
 
                 ais_gps_latitude.set_type(NetworkTable::Value::FLOAT);
                 ais_gps_longitude.set_type(NetworkTable::Value::FLOAT);
+                ais_gps_speed_knots.set_type(NetworkTable::Value::FLOAT);
+                ais_gps_true_heading.set_type(NetworkTable::Value::INT);
 
                 ais_gps_latitude.set_float_data(static_cast<float>(raye_latitude));
                 ais_gps_longitude.set_float_data(static_cast<float>(raye_longitude));
+                ais_gps_speed_knots.set_float_data(static_cast<float>(raye_speed));
+                ais_gps_true_heading.set_int_data(static_cast<int>(raye_true_heading));
 
                 // Formats the Networktable::Value in the values map
                 values.insert(std::pair<std::string, NetworkTable::Value>\
                         (GPS_AIS_LAT, ais_gps_latitude));
                 values.insert(std::pair<std::string, NetworkTable::Value>\
                         (GPS_AIS_LON, ais_gps_longitude));
+                if (b.m_sogValid) {
+                    values.insert(std::pair<std::string, NetworkTable::Value>\
+                        (GPS_AIS_GNDSPEED, ais_gps_speed_knots));
+                }
+                if (b.m_trueHeadingValid) {
+                    values.insert(std::pair<std::string, NetworkTable::Value>\
+                        (GPS_AIS_TRUE_HEADING, ais_gps_true_heading));
+                }
 
                 // Sets the AIS_GPS values
                 try {
